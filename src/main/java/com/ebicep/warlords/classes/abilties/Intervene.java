@@ -48,16 +48,16 @@ public class Intervene extends AbstractAbility {
                 }
 
                 //new cooldown, both players have same instance of intervene now
-                Cooldown interveneCooldown = new Cooldown(Intervene.this.getClass(), new Intervene(), "VENE", 5, wp, CooldownTypes.ABILITY);
+                Intervene tempIntervene = new Intervene();
 
                 wp.sendMessage("§a\u00BB§7 You are now protecting " + nearWarlordsPlayer.getName() + " with your §eIntervene!");
-                wp.getCooldownManager().addCooldown(interveneCooldown);
+                wp.getCooldownManager().addCooldown(new Cooldown(Intervene.this.getClass(), tempIntervene, "VENE", 5, wp, CooldownTypes.ABILITY));
 
                 //removing all other intervenes bc less work
                 nearWarlordsPlayer.getCooldownManager().getCooldowns().removeAll(nearWarlordsPlayer.getCooldownManager().getCooldown(Intervene.this.getClass()));
 
                 nearWarlordsPlayer.sendMessage("§a\u00BB§7 " + wp.getName() + " is shielding you with their " + ChatColor.YELLOW + "Intervene" + ChatColor.GRAY + "!");
-                nearWarlordsPlayer.getCooldownManager().addCooldown(interveneCooldown);
+                nearWarlordsPlayer.getCooldownManager().addCooldown(new Cooldown(Intervene.this.getClass(), tempIntervene, "VENE", 5, wp, CooldownTypes.ABILITY));
 
                 wp.getSpec().getBlue().setCurrentCooldown(cooldown);
                 wp.updateBlueItem();
