@@ -32,6 +32,11 @@ public class Boulder extends AbstractAbility {
     }
 
     @Override
+    public void openMenu(Player player) {
+
+    }
+
+    @Override
     public void onActivate(WarlordsPlayer wp, Player player) {
 
         Location location = player.getLocation();

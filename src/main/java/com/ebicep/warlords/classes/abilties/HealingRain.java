@@ -50,6 +50,7 @@ public class HealingRain extends AbstractAbility {
 
         BukkitTask task1 = new BukkitRunnable() {
             boolean wasSneaking = false;
+
             @Override
             public void run() {
                 if (player.isSneaking() && !wasSneaking) {
@@ -74,14 +75,14 @@ public class HealingRain extends AbstractAbility {
                 damageHealCircle.setDuration(damageHealCircle.getDuration() - 1);
 
                 PlayerFilter.entitiesAround(damageHealCircle.getLocation(), 6, 4, 6)
-                    .aliveTeammatesOf(wp)
-                    .forEach((warlordsPlayer) -> {
-                        double distance = damageHealCircle.getLocation().distanceSquared(player.getLocation());
-                        if (distance < damageHealCircle.getRadius() * damageHealCircle.getRadius()) {
-                            warlordsPlayer.addHealth(damageHealCircle.getWarlordsPlayer(), damageHealCircle.getName(), damageHealCircle.getMinDamage(), damageHealCircle.getMaxDamage(), damageHealCircle.getCritChance(), damageHealCircle.getCritMultiplier());
-                        }
+                        .aliveTeammatesOf(wp)
+                        .forEach((warlordsPlayer) -> {
+                            double distance = damageHealCircle.getLocation().distanceSquared(player.getLocation());
+                            if (distance < damageHealCircle.getRadius() * damageHealCircle.getRadius()) {
+                                warlordsPlayer.addHealth(damageHealCircle.getWarlordsPlayer(), damageHealCircle.getName(), damageHealCircle.getMinDamage(), damageHealCircle.getMaxDamage(), damageHealCircle.getCritChance(), damageHealCircle.getCritMultiplier());
+                            }
 
-                    });
+                        });
                 if (damageHealCircle.getDuration() < 0) {
                     this.cancel();
                     task.cancel();
@@ -95,6 +96,11 @@ public class HealingRain extends AbstractAbility {
             }
 
         }.runTaskTimer(Warlords.getInstance(), 0, 20);
+
+    }
+
+    @Override
+    public void openMenu(Player player) {
 
     }
 }

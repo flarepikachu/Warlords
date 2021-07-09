@@ -33,6 +33,8 @@ public abstract class AbstractAbility {
 
     public abstract void onActivate(@Nonnull WarlordsPlayer wp, @Nonnull Player player);
 
+    public abstract void openMenu(Player player);
+
     public void boostSkill() {
         if (!boosted) {
             boosted = true;

@@ -35,6 +35,11 @@ public class Breath extends AbstractAbility {
     }
 
     @Override
+    public void openMenu(Player player) {
+
+    }
+
+    @Override
     public void onActivate(WarlordsPlayer wp, Player player) {
 
         if (name.contains("Water")) {

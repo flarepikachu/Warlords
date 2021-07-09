@@ -53,6 +53,11 @@ public class UndyingArmy extends AbstractAbility {
     }
 
     @Override
+    public void openMenu(Player player) {
+
+    }
+
+    @Override
     public void onActivate(WarlordsPlayer wp, Player player) {
         UndyingArmy tempUndyingArmy = new UndyingArmy();
         wp.getCooldownManager().addCooldown(UndyingArmy.this.getClass(), tempUndyingArmy, "ARMY", 10, wp, CooldownTypes.ABILITY);

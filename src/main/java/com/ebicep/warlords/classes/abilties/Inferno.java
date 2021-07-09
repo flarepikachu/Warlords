@@ -47,4 +47,9 @@ public class Inferno extends AbstractAbility {
             }
         }.runTaskTimer(Warlords.getInstance(), 0, 2);
     }
+
+    @Override
+    public void openMenu(Player player) {
+
+    }
 }

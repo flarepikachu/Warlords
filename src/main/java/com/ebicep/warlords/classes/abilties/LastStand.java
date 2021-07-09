@@ -29,6 +29,11 @@ public class LastStand extends AbstractAbility {
     }
 
     @Override
+    public void openMenu(Player player) {
+
+    }
+
+    @Override
     public void onActivate(WarlordsPlayer wp, Player player) {
         LastStand tempLastStand = new LastStand();
         wp.getCooldownManager().addCooldown(LastStand.this.getClass(), tempLastStand, "LAST", 12, wp, CooldownTypes.BUFF);

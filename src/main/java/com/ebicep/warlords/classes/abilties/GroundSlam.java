@@ -108,6 +108,11 @@ public class GroundSlam extends AbstractAbility {
         }.runTaskTimer(Warlords.getInstance(), 0, 0);
     }
 
+    @Override
+    public void openMenu(Player player) {
+
+    }
+
     /**
      * Return A List Of Locations That
      * Make Up A Circle Using A Provided

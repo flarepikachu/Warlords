@@ -108,6 +108,11 @@ public class LightningBolt extends AbstractAbility {
         }.runTaskTimer(Warlords.getInstance(), 0, 0);
     }
 
+    @Override
+    public void openMenu(Player player) {
+
+    }
+
     public static class Bolt {
 
         private WarlordsPlayer shooter;

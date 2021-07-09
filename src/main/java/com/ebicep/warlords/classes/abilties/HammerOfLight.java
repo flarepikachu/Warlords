@@ -76,6 +76,11 @@ public class HammerOfLight extends AbstractAbility {
         }.runTaskTimer(Warlords.getInstance(), 0, 20);
     }
 
+    @Override
+    public void openMenu(Player player) {
+
+    }
+
     public static boolean standingInHammer(WarlordsPlayer owner, Entity standing) {
         if (!(owner.getSpec() instanceof Protector)) return false;
         for (Entity entity : owner.getWorld().getEntities()) {

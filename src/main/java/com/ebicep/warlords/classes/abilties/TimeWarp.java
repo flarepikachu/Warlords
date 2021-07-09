@@ -102,6 +102,11 @@ public class TimeWarp extends AbstractAbility {
         }.runTaskTimer(Warlords.getInstance(), 0, 0);
     }
 
+    @Override
+    public void openMenu(Player player) {
+
+    }
+
     public static class TimeWarpPlayer {
 
         private WarlordsPlayer warlordsPlayer;

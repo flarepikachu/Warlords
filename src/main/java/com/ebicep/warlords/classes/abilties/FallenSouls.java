@@ -39,6 +39,11 @@ public class FallenSouls extends AbstractAbility {
     }
 
     @Override
+    public void openMenu(Player player) {
+
+    }
+
+    @Override
     public void onActivate(WarlordsPlayer wp, Player player) {
         Location location = player.getLocation().add(player.getLocation().getDirection().multiply(-1));
         ArmorStand fallenSoulLeft = player.getWorld().spawn(location.clone().subtract(0, .5, 0).add(Utils.getLeftDirection(location).multiply(.15)), ArmorStand.class);

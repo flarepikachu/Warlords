@@ -57,6 +57,11 @@ public class Soulbinding extends AbstractAbility {
         }.runTaskTimer(Warlords.getInstance(), 0, 4);
     }
 
+    @Override
+    public void openMenu(Player player) {
+
+    }
+
     public List<SoulBoundPlayer> getSoulBindedPlayers() {
         return soulBindedPlayers;
     }

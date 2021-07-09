@@ -105,6 +105,11 @@ public class RecklessCharge extends AbstractAbility {
         }.runTaskTimer(Warlords.getInstance(), 0, 0);
     }
 
+    @Override
+    public void openMenu(Player player) {
+
+    }
+
     public List<Player> getPlayersHit() {
         return playersHit;
     }

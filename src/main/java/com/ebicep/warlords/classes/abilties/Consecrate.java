@@ -64,4 +64,9 @@ public class Consecrate extends AbstractAbility {
 
         }.runTaskTimer(Warlords.getInstance(), 0, 20);
     }
+
+    @Override
+    public void openMenu(Player player) {
+
+    }
 }

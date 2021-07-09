@@ -48,4 +48,9 @@ public class AvengersWrath extends AbstractAbility {
         }.runTaskTimer(Warlords.getInstance(), 0, 4);
 
     }
+
+    @Override
+    public void openMenu(Player player) {
+
+    }
 }

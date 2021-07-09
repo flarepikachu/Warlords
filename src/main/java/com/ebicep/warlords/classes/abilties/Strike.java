@@ -148,12 +148,18 @@ public class Strike extends AbstractAbility {
                     }
                 }
             }
-        });
+            });
+    }
+
+    @Override
+    public void openMenu(Player player) {
+
     }
 
     private boolean standingOnConsecrate(Player owner, WarlordsPlayer standing) {
         return standingOnConsecrate(owner, standing.getEntity());
     }
+
     private boolean standingOnConsecrate(Player owner, LivingEntity standing) {
         for (Entity entity : owner.getWorld().getEntities()) {
             if (entity instanceof ArmorStand && entity.hasMetadata("Consecrate - " + owner.getName())) {

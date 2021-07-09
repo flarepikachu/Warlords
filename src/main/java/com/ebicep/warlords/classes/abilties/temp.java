@@ -20,4 +20,9 @@ public class temp extends AbstractAbility {
 
     }
 
+    @Override
+    public void openMenu(Player player) {
+
+    }
+
 }

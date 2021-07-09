@@ -65,6 +65,11 @@ public class Repentance extends AbstractAbility {
         }
     }
 
+    @Override
+    public void openMenu(Player player) {
+
+    }
+
     public float getPool() {
         return pool;
     }

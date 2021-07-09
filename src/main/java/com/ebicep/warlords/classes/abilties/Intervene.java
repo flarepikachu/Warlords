@@ -93,8 +93,13 @@ public class Intervene extends AbstractAbility {
                             }
                         }
                     }.runTaskTimer(Warlords.getInstance(), 0, 0);
-                });
-            }
+            });
+    }
+
+    @Override
+    public void openMenu(Player player) {
+
+    }
 
     public void setDamagePrevented(float damagePrevented) {
         this.damagePrevented = damagePrevented;

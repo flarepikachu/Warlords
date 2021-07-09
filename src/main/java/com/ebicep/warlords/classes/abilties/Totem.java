@@ -98,6 +98,11 @@ public class Totem extends EntityArmorStand {
         }
 
         @Override
+        public void openMenu(Player player) {
+
+        }
+
+        @Override
         public void onActivate(WarlordsPlayer wp, Player player) {
 
             Location standLocation = player.getLocation();
@@ -152,6 +157,11 @@ public class Totem extends EntityArmorStand {
                     "§7will heal nearby allies for §a15% §7of all damage\n" +
                     "§7that you take. If you survive, deal §c15% §7of the\n" +
                     "§7damage delayed to nearby enemies.";
+        }
+
+        @Override
+        public void openMenu(Player player) {
+
         }
 
         @Override
@@ -299,6 +309,11 @@ public class Totem extends EntityArmorStand {
                     "§7second. Before disappearing, the totem\n" +
                     "§7will let out a final pulse that heals for\n" +
                     "§a" + maxDamageHeal + " §7- §a" + Math.floor(maxDamageHeal * 1.354) + "§7. Lasts §65 §7seconds.";
+        }
+
+        @Override
+        public void openMenu(Player player) {
+
         }
 
         @Override
