@@ -1,20 +1,20 @@
 package com.ebicep.warlords.classes.abilties;
 
-import com.ebicep.warlords.classes.internal.ProjectileBase;
+import com.ebicep.warlords.classes.internal.AbstractProjectileBase;
 import com.ebicep.warlords.player.WarlordsPlayer;
 import com.ebicep.warlords.util.ParticleEffect;
 import com.ebicep.warlords.util.PlayerFilter;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-public class WaterBolt extends ProjectileBase {
+public class WaterBolt extends AbstractProjectileBase {
 
     private static final int MAX_FULL_DAMAGE_DISTANCE = 40;
     private static final double DIRECT_HIT_MULTIPLIER = 1.15;
-    private static final float HITBOX = 4;
-    
+    private static final float HITBOX = 3.75f;
+
     public WaterBolt() {
-        super("Water Bolt", 328, 452, 0, 85, 20, 175, 2, 250, true);
+        super("Water Bolt", 328, 452, 0, 85, 20, 175, 2, 90, true);
     }
 
     @Override
@@ -44,7 +44,7 @@ public class WaterBolt extends ProjectileBase {
             1 - (Math.sqrt(distanceSquared) - MAX_FULL_DAMAGE_DISTANCE) / 100.;
         if (toReduceBy < 0) toReduceBy = 0;
         if (victim != null) {
-            if (victim.isTeammate(shooter)) {
+            if (victim.isTeammateAlive(shooter)) {
                 victim.addHealth(shooter,
                         name,
                         (float) (minDamageHeal * DIRECT_HIT_MULTIPLIER * toReduceBy),
@@ -67,7 +67,7 @@ public class WaterBolt extends ProjectileBase {
                 .excluding(victim)
                 .isAlive()
         ) {
-            if (nearEntity.isTeammate(shooter)) {
+            if (nearEntity.isTeammateAlive(shooter)) {
                 nearEntity.addHealth(
                         shooter,
                         name,
@@ -96,12 +96,7 @@ public class WaterBolt extends ProjectileBase {
                 "§a" + minDamageHeal + " §7- §a" + maxDamageHeal + " §7health to allies. A\n" +
                 "§7direct hit will cause §a15% §7increased\n" +
                 "§7damage or healing for the target hit.\n" +
-                "§7Has an optimal range of §e" + maxDistance + " §7blocks.";
+                "§7Has an optimal range of §e" + MAX_FULL_DAMAGE_DISTANCE + " §7blocks.";
     }
-
-    @Override
-    public void openMenu(Player player) {
-
-    }
-
+	
 }

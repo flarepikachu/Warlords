@@ -123,6 +123,11 @@ public class PlayerFilter implements Iterable<WarlordsPlayer> {
     }
 
     @Nonnull
+    public PlayerFilter lookingAtFirst(WarlordsPlayer user) {
+        return sorted(Comparator.comparing(wp -> -Utils.getDotToPlayerCenter(user.getEntity(), wp.getEntity())));
+    }
+
+    @Nonnull
     public PlayerFilter isAlive() {
         return filter(WarlordsPlayer::isAlive);
     }
@@ -139,7 +144,7 @@ public class PlayerFilter implements Iterable<WarlordsPlayer> {
 
     @Nonnull
     public PlayerFilter aliveEnemiesOf(@Nonnull WarlordsPlayer player) {
-        return filter(wp -> player.isEnemy(wp) && wp.isAlive());
+        return filter(wp -> player.isEnemyAlive(wp));
     }
 
     @Nonnull
@@ -149,7 +154,7 @@ public class PlayerFilter implements Iterable<WarlordsPlayer> {
 
     @Nonnull
     public PlayerFilter aliveTeammatesOf(@Nonnull WarlordsPlayer player) {
-        return filter(wp -> player.isTeammate(wp) && wp.isAlive());
+        return filter(wp -> player.isTeammateAlive(wp));
     }
 
     @Nonnull
@@ -159,7 +164,7 @@ public class PlayerFilter implements Iterable<WarlordsPlayer> {
 
     @Nonnull
     public PlayerFilter aliveTeammatesOfExcludingSelf(@Nonnull WarlordsPlayer player) {
-        return filter(wp -> player != wp && player.isTeammate(wp) && wp.isAlive());
+        return filter(wp -> player != wp && player.isTeammateAlive(wp));
     }
 
     @Nonnull
@@ -311,7 +316,7 @@ public class PlayerFilter implements Iterable<WarlordsPlayer> {
 
     @Nonnull
     public PlayerFilter requireLineOfSight(@Nonnull LivingEntity entity) {
-        return filter(wp -> Utils.getLookingAt(entity, wp.getEntity()) && Utils.hasLineOfSight(entity, wp.getEntity()));
+        return filter(wp -> Utils.isLookingAt(entity, wp.getEntity()) && Utils.hasLineOfSight(entity, wp.getEntity()));
     }
 
     @Nonnull
@@ -321,7 +326,7 @@ public class PlayerFilter implements Iterable<WarlordsPlayer> {
 
     @Nonnull
     public PlayerFilter lookingAtWave(@Nonnull LivingEntity entity) {
-        return filter(wp -> Utils.getLookingAtWave(entity, wp.getEntity()));
+        return filter(wp -> Utils.isLookingAtWave(entity, wp.getEntity()));
     }
 
 }

@@ -14,9 +14,10 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class InspiringPresence extends AbstractAbility {
 
+    private float duration = 12;
+
     public InspiringPresence() {
-        super("Inspiring Presence", 0, 0, 60f + 10.47f, 0, 0, 0
-        );
+        super("Inspiring Presence", 0, 0, 60f + 10.47f, 0, 0, 0);
     }
 
     @Override
@@ -32,9 +33,8 @@ public class InspiringPresence extends AbstractAbility {
     public void onActivate(WarlordsPlayer wp, Player player) {
         InspiringPresence tempPresence = new InspiringPresence();
         wp.getCooldownManager().addCooldown(InspiringPresence.this.getClass(), tempPresence, "PRES", 12, wp, CooldownTypes.BUFF);
-        PlayerFilter.entitiesAround(wp, 6.0D, 6.0D, 6.0D)
-                .aliveTeammatesOf(wp)
-                .concat(wp)
+        PlayerFilter.entitiesAround(wp, 10, 10, 10)
+                .aliveTeammatesOfExcludingSelf(wp)
                 .forEach((nearPlayer) -> {
                     nearPlayer.getSpeed().addSpeedModifier("Inspiring Presence", 30, 12 * 20, "BASE");
                     nearPlayer.getCooldownManager().addCooldown(InspiringPresence.this.getClass(), tempPresence, "PRES", 12, wp, CooldownTypes.BUFF);
@@ -57,6 +57,28 @@ public class InspiringPresence extends AbstractAbility {
                 }
             }
         }.runTaskTimer(Warlords.getInstance(), 0, 2);
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                PlayerFilter.entitiesAround(wp, 10, 10, 10)
+                        .aliveTeammatesOfExcludingSelf(wp)
+                        .filter(p -> !p.getCooldownManager().hasCooldown(tempPresence))
+                        .forEach((nearPlayer) -> {
+                            nearPlayer.getSpeed().addSpeedModifier("Inspiring Presence", 30, (int) tempPresence.getDuration() * 20, "BASE");
+                            nearPlayer.getCooldownManager().addCooldown(InspiringPresence.this.getClass(), tempPresence, "PRES", (int) tempPresence.getDuration(), wp, CooldownTypes.BUFF);
+                        });
+                tempPresence.decrementDuration();
+            }
+        }.runTaskTimer(Warlords.getInstance(), 0, 0);
+    }
+
+    public float getDuration() {
+        return duration;
+    }
+
+    public void decrementDuration() {
+        this.duration -= .05;
     }
 
     @Override

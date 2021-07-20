@@ -11,6 +11,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class Earthliving extends AbstractAbility {
 
+    private boolean firstProc = false;
+
     public Earthliving() {
         super("Earthliving Weapon", 0, 0, 15.66f, 30, 25, 240);
     }
@@ -30,7 +32,7 @@ public class Earthliving extends AbstractAbility {
         wp.subtractEnergy(energyCost);
         wp.getCooldownManager().addCooldown(Earthliving.this.getClass(), new Earthliving(), "EARTH", 8, wp, CooldownTypes.ABILITY);
 
-        wp.setFirstProc(true);
+        firstProc = true;
 
         for (Player player1 : player.getWorld().getPlayers()) {
             player1.playSound(player.getLocation(), "shaman.earthlivingweapon.activation", 2, 1);
@@ -42,12 +44,20 @@ public class Earthliving extends AbstractAbility {
                 if (!wp.getCooldownManager().getCooldown(Earthliving.class).isEmpty()) {
                     Location location = player.getLocation();
                     location.add(0, 1.2, 0);
-                    ParticleEffect.VILLAGER_HAPPY.display(0.3F, 0.3F, 0.3F, 0.1F, 3, location, 500);
+                    ParticleEffect.VILLAGER_HAPPY.display(0.3F, 0.3F, 0.3F, 0.1F, 2, location, 500);
                 } else {
                     this.cancel();
                 }
             }
-        }.runTaskTimer(Warlords.getInstance(), 0, 2);
+        }.runTaskTimer(Warlords.getInstance(), 0, 4);
+    }
+
+    public boolean isFirstProc() {
+        return firstProc;
+    }
+
+    public void setFirstProc(boolean firstProc) {
+        this.firstProc = firstProc;
     }
 
     @Override

@@ -178,6 +178,7 @@ public class Totem extends EntityArmorStand {
             setDelayedDamage(0);
 
             for (Player player1 : player.getWorld().getPlayers()) {
+                //TODO find the right sound - this aint right chief
                 player1.playSound(standLocation, "shaman.chainlightning.impact", 2, 2);
             }
 
@@ -254,10 +255,12 @@ public class Totem extends EntityArmorStand {
                             PlayerFilter.entitiesAround(deathsDebtTotem.getTotemArmorStand(), 8.0D, 7.0D, 8.0D)
                                 .aliveEnemiesOf(wp)
                                 .forEach((nearPlayer) -> {
-                                    nearPlayer.addHealth(deathsDebtTotem.getOwner(), deathsDebtTotem.getOwner().getSpec().getOrange().getName(),
+                                    nearPlayer.addHealth(deathsDebtTotem.getOwner(),
+                                            deathsDebtTotem.getOwner().getSpec().getOrange().getName(),
                                             TotemSpiritguard.this.getDelayedDamage() * .15f,
                                             TotemSpiritguard.this.getDelayedDamage() * .15f,
-                                            deathsDebtTotem.getOwner().getSpec().getOrange().getCritChance(), deathsDebtTotem.getOwner().getSpec().getOrange().getCritMultiplier());
+                                            deathsDebtTotem.getOwner().getSpec().getOrange().getCritChance(),
+                                            deathsDebtTotem.getOwner().getSpec().getOrange().getCritMultiplier());
                                 });
                             // 6 damage waves, stop the function
                             deathsDebtTotem.getTotemArmorStand().remove();
@@ -293,7 +296,7 @@ public class Totem extends EntityArmorStand {
     public static class TotemEarthwarden extends AbstractAbility {
 
         public TotemEarthwarden() {
-            super("Healing Totem", 168, 841, 62.64f, 60, 15, 200);
+            super("Healing Totem", 243, 630, 62.64f, 60, 25, 175);
 
             //168 - 227
             //841 - 1138
@@ -305,10 +308,10 @@ public class Totem extends EntityArmorStand {
         public void updateDescription(Player player) {
             description = "§7Place a totem on the ground that\n" +
                     "§7pulses constantly, healing nearby\n" +
-                    "§7allies for §a" + minDamageHeal + " §7- §a" + Math.floor(minDamageHeal * 1.354) + " §7every\n" +
+                    "§7allies for §a" + minDamageHeal + " §7- §a" + Math.floor(minDamageHeal * 1.23) + " §7every\n" +
                     "§7second. Before disappearing, the totem\n" +
                     "§7will let out a final pulse that heals for\n" +
-                    "§a" + maxDamageHeal + " §7- §a" + Math.floor(maxDamageHeal * 1.354) + "§7. Lasts §65 §7seconds.";
+                    "§a" + maxDamageHeal + " §7- §a" + Math.floor(maxDamageHeal * 1.354) + "§7. Lasts §68 §7seconds.";
         }
 
         @Override
@@ -319,6 +322,9 @@ public class Totem extends EntityArmorStand {
         @Override
         public void onActivate(WarlordsPlayer wp, Player player) {
 
+            final int duration = 7;
+
+            wp.subtractEnergy(energyCost);
             Location standLocation = player.getLocation();
             standLocation.setYaw(0);
             standLocation.setY(Totem.getLocationUnderPlayer(player));
@@ -329,8 +335,8 @@ public class Totem extends EntityArmorStand {
             totemStand.setHelmet(new ItemStack(Material.RED_ROSE, 1, (short) 7));
             totemStand.setMetadata("healing-totem-" + player.getName(), new FixedMetadataValue(Warlords.getInstance(), true));
 
-            Totem healingTotem = new Totem(((CraftWorld) player.getWorld()).getHandle(), wp, totemStand, 5);
-            wp.getCooldownManager().addCooldown(TotemEarthwarden.this.getClass(), new TotemEarthwarden(), "TOTEM", 5, wp, CooldownTypes.ABILITY);
+            Totem healingTotem = new Totem(((CraftWorld) player.getWorld()).getHandle(), wp, totemStand, duration);
+            wp.getCooldownManager().addCooldown(TotemEarthwarden.this.getClass(), new TotemEarthwarden(), "TOTEM", duration, wp, CooldownTypes.ABILITY);
 
             for (Player player1 : player.getWorld().getPlayers()) {
                 player1.playSound(player.getLocation(), "shaman.totem.activation", 2, 1);
@@ -348,7 +354,7 @@ public class Totem extends EntityArmorStand {
                         ParticleEffect.VILLAGER_HAPPY.display(0.4F, 0.2F, 0.4F, 0.05F, 5, particleLoc, 500);
 
                         for (Player player1 : player.getWorld().getPlayers()) {
-                            player1.playSound(player.getLocation(), "shaman.earthlivingweapon.impact", 2, 1);
+                            player1.playSound(totemStand.getLocation(), "shaman.earthlivingweapon.impact", 2, 1);
                         }
 
 
@@ -367,7 +373,7 @@ public class Totem extends EntityArmorStand {
                     } else {
 
                         for (Player player1 : player.getWorld().getPlayers()) {
-                            player1.playSound(player.getLocation(), "shaman.heal.impact", 2, 1);
+                            player1.playSound(totemStand.getLocation(), "shaman.heal.impact", 2, 1);
                         }
 
                         new FallingBlockWaveEffect(totemStand.getLocation().clone().add(0, 1, 0), 7, 1.2, Material.SAPLING, (byte) 1).play();

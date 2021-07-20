@@ -42,7 +42,7 @@ public class HammerOfLight extends AbstractAbility {
         damageHealCircle.spawnHammer();
         damageHealCircle.getLocation().add(0, 1, 0);
         wp.subtractEnergy(energyCost);
-        wp.getSpec().getOrange().setCurrentCooldown(cooldown);
+        wp.getSpec().getOrange().setCurrentCooldown((float) (cooldown * wp.getCooldownModifier()));
 
         for (Player player1 : player.getWorld().getPlayers()) {
             player1.playSound(player.getLocation(), "paladin.hammeroflight.impact", 2, 1);
@@ -59,7 +59,7 @@ public class HammerOfLight extends AbstractAbility {
                     .entitiesAround(damageHealCircle.getLocation(), 6, 4, 6)
                     .isAlive()
                 ) {
-                    if (damageHealCircle.getWarlordsPlayer().isTeammate(warlordsPlayer)) {
+                    if (damageHealCircle.getWarlordsPlayer().isTeammateAlive(warlordsPlayer)) {
                         warlordsPlayer.addHealth(damageHealCircle.getWarlordsPlayer(), damageHealCircle.getName(), damageHealCircle.getMinDamage(), damageHealCircle.getMaxDamage(), damageHealCircle.getCritChance(), damageHealCircle.getCritMultiplier());
                     } else {
                         warlordsPlayer.addHealth(damageHealCircle.getWarlordsPlayer(), damageHealCircle.getName(), -118.8f, -158.4f, damageHealCircle.getCritChance(), damageHealCircle.getCritMultiplier());

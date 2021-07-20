@@ -40,7 +40,7 @@ public class HealingRain extends AbstractAbility {
         damageHealCircle.getLocation().add(0, 1, 0);
         wp.getCooldownManager().addCooldown(HealingRain.this.getClass(), new HealingRain(), "RAIN", 12, wp, CooldownTypes.ABILITY);
         wp.subtractEnergy(energyCost);
-        wp.getSpec().getOrange().setCurrentCooldown(cooldown);
+        wp.getSpec().getOrange().setCurrentCooldown((float) (cooldown * wp.getCooldownModifier()));
 
         for (Player player1 : player.getWorld().getPlayers()) {
             player1.playSound(player.getLocation(), "mage.healingrain.impact", 2, 1);
@@ -53,7 +53,7 @@ public class HealingRain extends AbstractAbility {
 
             @Override
             public void run() {
-                if (player.isSneaking() && !wasSneaking) {
+                if (wp.isAlive() && player.isSneaking() && !wasSneaking) {
                     if (recastCooldown != 0) {
                         player.sendMessage(ChatColor.RED + "Your recast ability is on cooldown, please wait 3 seconds!");
                     } else {
@@ -74,14 +74,17 @@ public class HealingRain extends AbstractAbility {
             public void run() {
                 damageHealCircle.setDuration(damageHealCircle.getDuration() - 1);
 
-                PlayerFilter.entitiesAround(damageHealCircle.getLocation(), 6, 4, 6)
+                PlayerFilter.entitiesAround(damageHealCircle.getLocation(), damageHealCircle.getRadius(), 4, damageHealCircle.getRadius())
                         .aliveTeammatesOf(wp)
                         .forEach((warlordsPlayer) -> {
-                            double distance = damageHealCircle.getLocation().distanceSquared(player.getLocation());
-                            if (distance < damageHealCircle.getRadius() * damageHealCircle.getRadius()) {
-                                warlordsPlayer.addHealth(damageHealCircle.getWarlordsPlayer(), damageHealCircle.getName(), damageHealCircle.getMinDamage(), damageHealCircle.getMaxDamage(), damageHealCircle.getCritChance(), damageHealCircle.getCritMultiplier());
-                            }
-
+                            warlordsPlayer.addHealth(
+                                    damageHealCircle.getWarlordsPlayer(),
+                                    damageHealCircle.getName(),
+                                    damageHealCircle.getMinDamage(),
+                                    damageHealCircle.getMaxDamage(),
+                                    damageHealCircle.getCritChance(),
+                                    damageHealCircle.getCritMultiplier()
+                            );
                         });
                 if (damageHealCircle.getDuration() < 0) {
                     this.cancel();
@@ -96,11 +99,6 @@ public class HealingRain extends AbstractAbility {
             }
 
         }.runTaskTimer(Warlords.getInstance(), 0, 20);
-
-    }
-
-    @Override
-    public void openMenu(Player player) {
 
     }
 }

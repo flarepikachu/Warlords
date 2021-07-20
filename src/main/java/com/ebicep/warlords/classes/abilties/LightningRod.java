@@ -13,8 +13,7 @@ import org.bukkit.util.Vector;
 public class LightningRod extends AbstractAbility {
 
     public LightningRod() {
-        super("Lightning Rod", 0, 0, 31.32f, 0, 0, 0
-        );
+        super("Lightning Rod", 0, 0, 31.32f, 0, -1, 0);
     }
 
     @Override
@@ -51,7 +50,7 @@ public class LightningRod extends AbstractAbility {
                     }
                 });
 
-        new FallingBlockWaveEffect(playerLocation, 4, 1.1, Material.RED_ROSE, (byte) 5).play();
+        new FallingBlockWaveEffect(playerLocation, 5, 1, Material.RED_ROSE, (byte) 5).play();
         player.getWorld().spigot().strikeLightningEffect(playerLocation, true);
         for (Player player1 : player.getWorld().getPlayers()) {
             player1.playSound(player.getLocation(), "shaman.lightningrod.activation", 2, 1);

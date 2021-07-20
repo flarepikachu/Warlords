@@ -30,34 +30,42 @@ import java.util.stream.Stream;
 
 public class Utils {
 
-    public static boolean getLookingAt(LivingEntity player, LivingEntity player1) {
-        Location eye = player.getEyeLocation().subtract(player.getLocation().getDirection().multiply(4));
-        eye.setY(eye.getY() + 0.7);
-        Vector toEntity = player1.getEyeLocation().toVector().subtract(eye.toVector());
-        float dot = (float) toEntity.normalize().dot(eye.getDirection());
-        return dot > 0.925D;
+    public static double getDotToPlayerEye(LivingEntity player1, LivingEntity player2) {
+        return getDotToLocation(player1.getEyeLocation(), player2.getEyeLocation());
     }
 
-    //15 blocks = 6.6
-    //10 blocks = 8
-    //7 blocks = 10
-    //5 blocks = 28
-    //2 blocks = WIDE
-    public static boolean getLookingAtChain(LivingEntity player, LivingEntity player1) {
-        Location eye = player.getEyeLocation().subtract(player.getLocation().getDirection().multiply(4));
-        eye.setY(eye.getY() + 0.7);
-        Vector toEntity = player1.getEyeLocation().toVector().subtract(eye.toVector());
-        float dot = (float) toEntity.normalize().dot(eye.getDirection());
-        return dot > 0.95D + (player.getLocation().distanceSquared(player1.getLocation()) / 10000);
+    public static double getDotToPlayerCenter(LivingEntity player1, LivingEntity player2) {
+        System.out.println(getDotToLocation(new LocationBuilder(player1.getEyeLocation()).addY(.7).get(), player2.getEyeLocation()));
+        return getDotToLocation(new LocationBuilder(player1.getEyeLocation()).addY(.7).get(), player2.getEyeLocation());
     }
 
-    public static boolean getLookingAtWave(LivingEntity player, LivingEntity player1) {
-        Location eye = player.getEyeLocation();
-        eye.setY(eye.getY() + 0.7);
-        eye.setPitch(0);
-        Vector toEntity = player1.getEyeLocation().toVector().subtract(eye.toVector());
-        float dot = (float) toEntity.normalize().dot(eye.getDirection());
-        return dot > 0.91D;
+    public static double getDotToLocation(Location location1, Location location2) {
+        Vector toEntity = location2.toVector().subtract(location1.toVector());
+        return toEntity.normalize().dot(location1.getDirection());
+    }
+
+    public static boolean isLookingAt(LivingEntity player1, LivingEntity player2) {
+        Location eye = new LocationBuilder(player1.getEyeLocation())
+                .backward(4)
+                .addY(.7)
+                .get();
+        return getDotToLocation(eye, player2.getEyeLocation()) > 0.925;
+    }
+
+    public static boolean isLookingAtChain(LivingEntity player1, LivingEntity player2) {
+        Location eye = new LocationBuilder(player1.getEyeLocation())
+                .backward(4)
+                .addY(.7)
+                .get();
+        return getDotToLocation(eye, player2.getEyeLocation()) > 0.95 + (player1.getLocation().distanceSquared(player2.getLocation()) / 10000);
+    }
+
+    public static boolean isLookingAtWave(LivingEntity player1, LivingEntity player2) {
+        Location eye = new LocationBuilder(player1.getEyeLocation())
+                .addY(.7)
+                .pitch(0)
+                .get();
+        return getDotToLocation(eye, player2.getEyeLocation()) > 0.91;
     }
 
     public static boolean hasLineOfSight(LivingEntity player, LivingEntity player2) {
@@ -115,11 +123,11 @@ public class Utils {
     public static Stream<WarlordsPlayer> filterOnlyEnemies(Collection<Entity> entities, Entity player) {
         WarlordsPlayer wp = Warlords.getPlayer(player);
         return wp == null ? Stream.empty() : entities.stream()
-            .map(e -> Warlords.getPlayer(e))
+                .map(Warlords::getPlayer)
             .filter(filterOnlyEnemies(wp));
     }
     public static Predicate<WarlordsPlayer> filterOnlyEnemies(@Nullable WarlordsPlayer wp) {
-        return wp == null ? (player) -> false : wp::isEnemy;
+        return wp == null ? (player) -> false : wp::isEnemyAlive;
     }
 
 
@@ -163,7 +171,7 @@ public class Utils {
             .filter(filterOnlyTeammates(wp));
     }
     public static Predicate<WarlordsPlayer> filterOnlyTeammates(@Nullable WarlordsPlayer wp) {
-        return wp == null ? (player) -> false : wp::isTeammate;
+        return wp == null ? (player) -> false : wp::isTeammateAlive;
     }
 
     // Old methods:
@@ -171,14 +179,14 @@ public class Utils {
     public static List<Entity> filterOutTeammates(Collection<Entity> entities, Player player) {
         WarlordsPlayer wp = Warlords.getPlayer(player);
         return wp == null ? Collections.emptyList() : entities.stream()
-            .filter(e -> wp.isEnemy(e))
+                .filter(e -> wp.isEnemyAlive(e))
             .collect(Collectors.toList());
     }
     @Deprecated
     public static List<Entity> filterTeammates(Collection<Entity> entities, Player player) {
         WarlordsPlayer wp = Warlords.getPlayer(player);
         return wp == null ? Collections.emptyList() : entities.stream()
-            .filter(e -> wp.isTeammate(e))
+                .filter(e -> wp.isTeammateAlive(e))
             .collect(Collectors.toList());
     }
 
@@ -252,14 +260,24 @@ public class Utils {
         return walkStatistic + horseStatistic;
     }
 
-    public static boolean tunnelUnder(Player p) {
-        Location location = p.getLocation().clone();
+    public static boolean isMountableZone(Location location) {
+        if (location.getWorld().getBlockAt((int) location.getX(), 2, (int) location.getZ()).getType() == Material.NETHERRACK) {
+            if (location.getWorld().getBlockAt((int) location.getX(), 4, (int) location.getZ()).getType() == Material.SOUL_SAND && !insideTunnel(location)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean insideTunnel(Location location) {
+        Location newLocation = location.clone();
         for (int i = 0; i < 15; i++) {
-            location.add(0, -1, 0);
-            p.sendMessage("" + p.getWorld().getBlockAt(location).getType());
-            if (p.getWorld().getBlockAt(location).getType() == Material.AIR) {
+            if (newLocation.getWorld().getBlockAt(newLocation).getType() != Material.AIR) {
                 return true;
             }
+            newLocation.add(0, 1, 0);
         }
         return false;
     }
@@ -347,7 +365,7 @@ public class Utils {
         player.spigot().sendMessage(componentBuilder.create());
     }
 
-    public static String addCommaAndRound(float amount) {
+    public static String addCommaAndRound(double amount) {
         amount = Math.round(amount);
         DecimalFormat formatter = new DecimalFormat("#,###");
         return formatter.format(amount);

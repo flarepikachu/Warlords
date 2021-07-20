@@ -3,6 +3,7 @@ package com.ebicep.warlords.classes.abilties;
 import com.ebicep.customentities.CustomFallingBlock;
 import com.ebicep.warlords.Warlords;
 import com.ebicep.warlords.classes.AbstractAbility;
+import com.ebicep.warlords.events.WarlordsEvents;
 import com.ebicep.warlords.player.WarlordsPlayer;
 import com.ebicep.warlords.util.PlayerFilter;
 import org.bukkit.Location;
@@ -83,8 +84,8 @@ public class GroundSlam extends AbstractAbility {
                     for (WarlordsPlayer player : PlayerFilter.playingGame(wp.getGame()).isAlive()) {
                         if (player != customFallingBlock.getOwner()) {
                             AbstractAbility ability = customFallingBlock.getAbility();
-                            if (!((GroundSlam) ability).getPlayersHit().contains(player) && player.isEnemy(customFallingBlock.getOwner())) {
-                                if (player.getLocation().distanceSquared(customFallingBlock.getFallingBlock().getLocation()) < 2) {
+                            if (!((GroundSlam) ability).getPlayersHit().contains(player) && player.isEnemyAlive(customFallingBlock.getOwner())) {
+                                if (player.getLocation().distanceSquared(customFallingBlock.getFallingBlock().getLocation()) < 3) {
                                     ((GroundSlam) ability).getPlayersHit().add(player);
                                     final Location loc = player.getLocation();
                                     final Vector v = customFallingBlock.getOwner().getLocation().toVector().subtract(loc.toVector()).normalize().multiply(-1.15).setY(0.35);
@@ -170,6 +171,7 @@ public class GroundSlam extends AbstractAbility {
                 location.getWorld().getBlockAt(blockToGet).getData());
         fallingBlock.setVelocity(new Vector(0, .14, 0));
         fallingBlock.setDropItem(false);
+        WarlordsEvents.addEntityUUID(fallingBlock.getUniqueId());
         return fallingBlock;
     }
 }

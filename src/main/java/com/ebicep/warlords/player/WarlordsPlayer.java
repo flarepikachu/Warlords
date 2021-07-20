@@ -5,8 +5,6 @@ import com.ebicep.warlords.classes.AbstractAbility;
 import com.ebicep.warlords.classes.AbstractPlayerClass;
 import com.ebicep.warlords.classes.abilties.*;
 import com.ebicep.warlords.classes.shaman.specs.spiritguard.Spiritguard;
-import com.ebicep.warlords.classes.warrior.specs.berserker.Berserker;
-import com.ebicep.warlords.classes.warrior.specs.defender.Defender;
 import com.ebicep.warlords.events.WarlordsDeathEvent;
 import com.ebicep.warlords.maps.Game;
 import com.ebicep.warlords.maps.Team;
@@ -19,6 +17,8 @@ import com.ebicep.warlords.util.PlayerFilter;
 import com.ebicep.warlords.util.Utils;
 import net.minecraft.server.v1_8_R3.EntityLiving;
 import net.minecraft.server.v1_8_R3.GenericAttributes;
+import net.minecraft.server.v1_8_R3.NBTTagCompound;
+import net.minecraft.server.v1_8_R3.PacketPlayOutEntityDestroy;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
@@ -69,6 +69,12 @@ public final class WarlordsPlayer {
     private int flagsReturned = 0;
     // We have to store these in here as the new player might logout midgame
     private float walkspeed = 1;
+    private int blocksTravelledCM = 0;
+    private boolean infiniteEnergy;
+    private boolean disableCooldowns;
+    private double energyModifier = 1;
+    private double cooldownModifier = 1;
+    private boolean takeDamage = true;
 
     private final int[] kills = new int[Warlords.game.getMap().getGameTimerInTicks() / 20 / 60];
     private final int[] assists = new int[Warlords.game.getMap().getGameTimerInTicks() / 20 / 60];
@@ -83,9 +89,6 @@ public final class WarlordsPlayer {
     private final CalculateSpeed speed;
 
     private boolean teamFlagCompass = true;
-
-    //SHAMAN
-    private boolean firstProc = false;
 
     //POWERUPS
     private boolean powerUpHeal = false;
@@ -113,13 +116,15 @@ public final class WarlordsPlayer {
         this.team = team;
         this.specClass = settings.selectedClass();
         this.spec = specClass.create.get();
-        this.health = this.spec.getMaxHealth();
-        this.maxHealth = this.spec.getMaxHealth();
+        this.maxHealth = (int) (this.spec.getMaxHealth() * (gameState.getGame().getCooldownMode()? 1.5 : 1));
+        this.health = this.maxHealth;
         this.respawnTimer = -1;
         this.energy = this.spec.getMaxEnergy();
+        this.energyModifier = gameState.getGame().getCooldownMode() ? 0.5 : 1;
         this.maxEnergy = this.spec.getMaxEnergy();
         this.horseCooldown = 0;
         this.flagCooldown = 0;
+        this.cooldownModifier = gameState.getGame().getCooldownMode() ? 0.5 : 1;
         this.hitCooldown = 20;
         this.spawnProtection = 0;
         this.speed = new CalculateSpeed(this::setWalkSpeed, 13);
@@ -133,12 +138,20 @@ public final class WarlordsPlayer {
 
     public Zombie spawnJimmy(@Nonnull Location loc, @Nullable PlayerInventory inv) {
         Zombie jimmy = loc.getWorld().spawn(loc, Zombie.class);
+        jimmy.setBaby(false);
         jimmy.setCustomNameVisible(true);
-        jimmy.setCustomName(this.getColoredName()); // TODO add level and class into the name of this jimmy
+        jimmy.setCustomName(this.getSpec().getClassNameShortWithBrackets() + " " + this.getColoredName() + " " + ChatColor.RED + this.health + "❤"); // TODO add level and class into the name of this jimmy
         jimmy.setMetadata("WARLORDS_PLAYER", new FixedMetadataValue(Warlords.getInstance(), this));
         ((EntityLiving) ((CraftEntity) jimmy).getHandle()).getAttributeInstance(GenericAttributes.MOVEMENT_SPEED).setValue(0);
         ((EntityLiving) ((CraftEntity) jimmy).getHandle()).getAttributeInstance(GenericAttributes.FOLLOW_RANGE).setValue(0);
-        if(inv != null) {
+        //prevents jimmy from moving
+        net.minecraft.server.v1_8_R3.Entity nmsEn = ((CraftEntity) jimmy).getHandle();
+        NBTTagCompound compound = new NBTTagCompound();
+        nmsEn.c(compound);
+        compound.setByte("NoAI", (byte) 1);
+        nmsEn.f(compound);
+
+        if (inv != null) {
             jimmy.getEquipment().setBoots(inv.getBoots());
             jimmy.getEquipment().setLeggings(inv.getLeggings());
             jimmy.getEquipment().setChestplate(inv.getChestplate());
@@ -178,8 +191,14 @@ public final class WarlordsPlayer {
         actionBarMessage.append("§l").append(health).append(ChatColor.GOLD).append("§l/§l").append(maxHealth).append("    ");
         actionBarMessage.append(team.boldColoredPrefix()).append(" TEAM  ");
         for (Cooldown cooldown : cooldownManager.getCooldowns()) {
-            actionBarMessage.append(ChatColor.GREEN).append(cooldown.getName()).append(ChatColor.GRAY).append(":").append(ChatColor.GOLD).append((int) cooldown.getTimeLeft() + 1).append(" ");
-
+            if (!cooldown.isHidden()) {
+                if (cooldown.getName().equals("WND") || cooldown.getName().equals("CRIP")) {
+                    actionBarMessage.append(ChatColor.RED);
+                } else {
+                    actionBarMessage.append(ChatColor.GREEN);
+                }
+                actionBarMessage.append(cooldown.getName()).append(ChatColor.GRAY).append(":").append(ChatColor.GOLD).append((int) cooldown.getTimeLeft() + 1).append(" ");
+            }
         }
         if (entity instanceof Player) {
             PacketUtils.sendActionBar((Player) entity, actionBarMessage.toString());
@@ -241,7 +260,7 @@ public final class WarlordsPlayer {
 
     public void assignItemLore(Player player) {
         //§
-        ItemStack weapon = new ItemStack(Material.COOKED_FISH, 1, (short) 1);
+        ItemStack weapon = new ItemStack(this.weapon.item);
         ItemMeta weaponMeta = weapon.getItemMeta();
         weaponMeta.setDisplayName("§cWarlord's Felflame of the " + spec.getWeapon().getName());
         ArrayList<String> weaponLore = new ArrayList<>();
@@ -366,7 +385,7 @@ public final class WarlordsPlayer {
 
     public void updatePurpleItem() {
         if (entity instanceof Player) {
-            updateRedItem((Player)entity);
+            updatePurpleItem((Player) entity);
         }
     }
 
@@ -376,7 +395,7 @@ public final class WarlordsPlayer {
 
     public void updateBlueItem() {
         if (entity instanceof Player) {
-            updateRedItem((Player)entity);
+            updateBlueItem((Player) entity);
         }
     }
     public void updateBlueItem(Player player) {
@@ -385,7 +404,7 @@ public final class WarlordsPlayer {
 
     public void updateOrangeItem() {
         if (entity instanceof Player) {
-            updateRedItem((Player)entity);
+            updateOrangeItem((Player) entity);
         }
     }
     public void updateOrangeItem(Player player) {
@@ -473,33 +492,10 @@ public final class WarlordsPlayer {
                 sendMessage("" + ChatColor.RED + "\u00AB" + ChatColor.GRAY + " You took " + ChatColor.RED + Math.round(min * -1) + ChatColor.GRAY + " melee damage.");
                 regenTimer = 10;
                 if (health + min <= 0) {
-                    dead = true;
-
-                    addGrave();
-
-                    Zombie zombie = entity.getWorld().spawn(entity.getLocation(), Zombie.class);
-                    zombie.getEquipment().setBoots(entity.getEquipment().getBoots());
-                    zombie.getEquipment().setLeggings(entity.getEquipment().getLeggings());
-                    zombie.getEquipment().setChestplate(entity.getEquipment().getChestplate());
-                    zombie.getEquipment().setHelmet(entity.getEquipment().getHelmet());
-                    zombie.getEquipment().setItemInHand(entity.getEquipment().getItemInHand());
-                    zombie.damage(2000);
-
-                    hitBy.remove(attacker);
-                    hitBy.add(0, attacker);
-
-                    this.addDeath();
-                    this.scoreboard.updateKillsAssists();
-                    Bukkit.getPluginManager().callEvent(new WarlordsDeathEvent(this));
-
+                    die(attacker);
                     gameState.addKill(team, false);
-                    showDeathAnimation();
-
-                    cooldownManager.clearCooldowns();
-
                     if (entity instanceof Player)
                         PacketUtils.sendTitle((Player) entity, ChatColor.RED + "YOU DIED!", ChatColor.GRAY + "You took " + ChatColor.RED + Math.round(min * -1) + ChatColor.GRAY + " melee damage and died.", 0, 40, 0);
-
                     health = 0;
                 } else {
                     health += min;
@@ -507,29 +503,17 @@ public final class WarlordsPlayer {
 
                 if (min < 0) {
                     this.entity.playEffect(EntityEffect.HURT);
+                    for (Player player1 : attacker.getWorld().getPlayers()) {
+                        player1.playSound(entity.getLocation(), Sound.HURT_FLESH, 1, 1);
+                    }
                 }
             } else {
                 //TODO FIX FIX IT JUST GETS MORE MESSY LETS GOOOOOOOOOOOOOOO
                 sendMessage("" + ChatColor.RED + "\u00AB" + ChatColor.GRAY + " You took " + ChatColor.RED + Math.round(min * -1) + ChatColor.GRAY + " fall damage.");
                 regenTimer = 10;
                 if (health + min < 0) {
-                    dead = true;
-
-                    addGrave();
-
-                    hitBy.remove(attacker);
-                    hitBy.add(0, attacker);
-
-                    this.addDeath();
-                    this.scoreboard.updateKillsAssists();
-                    Bukkit.getPluginManager().callEvent(new WarlordsDeathEvent(this));
-
-
+                    die(attacker);
                     gameState.addKill(team, false); // TODO, fall damage is only a suicide if it happens more than 5 seconds after the last damage
-                    showDeathAnimation();
-
-                    cooldownManager.clearCooldowns();
-
                     //title YOU DIED
                     if (entity instanceof Player) {
                         PacketUtils.sendTitle((Player) entity, ChatColor.RED + "YOU DIED!", ChatColor.GRAY + "You took " + ChatColor.RED + Math.round(min * -1) + ChatColor.GRAY + " fall damage and died.", 0, 40, 0);
@@ -540,6 +524,9 @@ public final class WarlordsPlayer {
                     health += min;
                 }
                 entity.playEffect(EntityEffect.HURT);
+                for (Player player1 : attacker.getWorld().getPlayers()) {
+                    player1.playSound(entity.getLocation(), Sound.HURT_FLESH, 1, 1);
+                }
             }
         } else {
             if (!attacker.getCooldownManager().getCooldown(Inferno.class).isEmpty() && (!ability.isEmpty() && !ability.equals("Time Warp"))) {
@@ -585,69 +572,73 @@ public final class WarlordsPlayer {
                     totalReduction *= .5;
                 }
 
-                for (Cooldown cooldown : cooldownManager.getCooldown("CHAIN")) {
+                for (Cooldown cooldown : cooldownManager.getCooldown(ChainLightning.class)) {
                     String chainName = cooldown.getName();
                     totalReduction *= 1 - Integer.parseInt(chainName.charAt(chainName.indexOf("(") + 1) + "") * .1;
                 }
 
-                for (Cooldown cooldown : cooldownManager.getCooldown("LINK")) {
+                for (Cooldown cooldown : cooldownManager.getCooldown(SpiritLink.class)) {
                     totalReduction *= .8;
                 }
 
                 //TODO maybe change to hypixel warlords where crippling effects hammer
-                if (!attacker.getCooldownManager().getCooldown("CRIP").isEmpty()) {
+                if (!attacker.getCooldownManager().getCooldown(CripplingStrike.class).isEmpty()) {
                     totalReduction *= .875;
                     //totalReduction -= .125;
                 }
             }
             if (!cooldownManager.getCooldown(Intervene.class).isEmpty() && cooldownManager.getCooldown(Intervene.class).get(0).getFrom() != this && !HammerOfLight.standingInHammer(attacker, entity)) {
-                if (this.isEnemy(attacker)) {
+                if (this.isEnemyAlive(attacker)) {
                     damageHealValue *= totalReduction;
                     damageHealValue *= .5;
-                    if (isCrit) {
-                        cooldownManager.getCooldown(Intervene.class).get(0).getFrom().sendMessage("" + ChatColor.RED + "\u00AB" + ChatColor.GRAY + " " + attacker.getName() + "'s Intervene hit you for " + ChatColor.RED + "§l" + Math.round(damageHealValue) * -1 + "! " + ChatColor.GRAY + "critical damage.");
-                        attacker.sendMessage(ChatColor.GREEN + "\u00BB" + ChatColor.GRAY + " Your Intervene hit " + cooldownManager.getCooldown(Intervene.class).get(0).getFrom().getName() + " for " + ChatColor.RED + "§l" + Math.round(damageHealValue) * -1 + "! " + ChatColor.GRAY + "critical damage.");
-                        Location loc = getLocation();
-                        gameState.getGame().forEachOnlinePlayer((player1, t) -> {
-                            player1.playSound(loc, "warrior.intervene.block.3", 2, 1);
-                        });
-                    } else {
-                        cooldownManager.getCooldown(Intervene.class).get(0).getFrom().sendMessage("" + ChatColor.RED + "\u00AB" + ChatColor.GRAY + " " + attacker.getName() + "'s Intervene hit you for " + ChatColor.RED + Math.round(damageHealValue) * -1 + ChatColor.GRAY + " damage.");
-                        attacker.sendMessage(ChatColor.GREEN + "\u00BB" + ChatColor.GRAY + " Your Intervene hit " + cooldownManager.getCooldown(Intervene.class).get(0).getFrom().getName() + " for " + ChatColor.RED + Math.round(damageHealValue) * -1 + ChatColor.GRAY + " damage.");
+                    WarlordsPlayer intervenedBy = cooldownManager.getCooldown(Intervene.class).get(0).getFrom();
 
+                    Location loc = getLocation();
+                    gameState.getGame().forEachOnlinePlayer((player1, t) -> {
+                        player1.playSound(loc, "warrior.intervene.block", 2, 1);
+                    });
 
-                        Location loc = getLocation();
-                        gameState.getGame().forEachOnlinePlayer((p, t) -> {
-                            p.playSound(loc, "warrior.intervene.block.1", 2, 1);
-                        });
-                    }
-
-                    cooldownManager.getCooldown(Intervene.class).get(0).getFrom().setHealth((int) (cooldownManager.getCooldown(Intervene.class).get(0).getFrom().getHealth() + damageHealValue));
-                    cooldownManager.getCooldown(Intervene.class).get(0).getFrom().getEntity().playEffect(EntityEffect.HURT);
-                    cooldownManager.getCooldown(Intervene.class).get(0).getFrom().setRegenTimer(10);
+                    intervenedBy.getEntity().playEffect(EntityEffect.HURT);
+                    intervenedBy.setRegenTimer(10);
                     ((Intervene) cooldownManager.getCooldown(Intervene.class).get(0).getCooldownObject()).addDamagePrevented(-damageHealValue);
+
+                    removeHorse();
+                    intervenedBy.removeHorse();
 
                     //removing intervene if out damaged
                     if (((Intervene) cooldownManager.getCooldown(Intervene.class).get(0).getCooldownObject()).getDamagePrevented() >= 3600) {
                         //remove from intervener
-                        cooldownManager.getCooldown(Intervene.class).get(0).getFrom().sendMessage("§c\u00AB§7 " + "Your " + ChatColor.YELLOW + "Intervene " + ChatColor.GRAY + "has expired!");
-                        cooldownManager.getCooldown(Intervene.class).get(0).getFrom().getCooldownManager().getCooldowns().remove(cooldownManager.getCooldown(Intervene.class).get(0));
+                        intervenedBy.sendMessage("§c\u00AB§7 " + "Your " + ChatColor.YELLOW + "Intervene " + ChatColor.GRAY + "has expired!");
+                        intervenedBy.getCooldownManager().getCooldowns().remove(cooldownManager.getCooldown(Intervene.class).get(0));
                         //remove from intervened
-                        sendMessage("§c\u00AB§7 " + cooldownManager.getCooldown(Intervene.class).get(0).getFrom().getName() + "'s " + ChatColor.YELLOW + "Intervene " + ChatColor.GRAY + "has expired!");
+                        sendMessage("§c\u00AB§7 " + intervenedBy.getName() + "'s " + ChatColor.YELLOW + "Intervene " + ChatColor.GRAY + "has expired!");
                         cooldownManager.getCooldowns().remove(cooldownManager.getCooldown(Intervene.class).get(0));
                     }
+
+                    intervenedBy.addHealth(attacker, "Intervene", damageHealValue, damageHealValue, isCrit ? 100 : -1, 100);
 
                     this.addAbsorbed(-damageHealValue);
                     attacker.addAbsorbed(-damageHealValue);
                 }
-            } else if (!cooldownManager.getCooldown(ArcaneShield.class).isEmpty() && this.isEnemy(attacker) && !HammerOfLight.standingInHammer(attacker, entity)) {
+            } else if (!cooldownManager.getCooldown(ArcaneShield.class).isEmpty() && this.isEnemyAlive(attacker) && !HammerOfLight.standingInHammer(attacker, entity)) {
                 damageHealValue *= totalReduction;
                 if (((ArcaneShield) spec.getBlue()).getShieldHealth() + damageHealValue < 0) {
-                    cooldownManager.getCooldowns().remove(cooldownManager.getCooldown(ArcaneShield.class).get(0));
+                    if (entity instanceof Player) {
+                        ((EntityLiving) ((CraftPlayer) entity).getHandle()).setAbsorptionHearts(0);
+                    }
+
+                    cooldownManager.removeCooldown(ArcaneShield.class);
                     addHealth(attacker, ability, (((ArcaneShield) spec.getBlue()).getShieldHealth() + damageHealValue), (((ArcaneShield) spec.getBlue()).getShieldHealth() + damageHealValue), isCrit ? 100 : -1, 100);
 
                     addAbsorbed(-(((ArcaneShield) spec.getBlue()).getShieldHealth()));
+                    attacker.addAbsorbed(-(((ArcaneShield) spec.getBlue()).getShieldHealth()));
                 } else {
+                    ((ArcaneShield) spec.getBlue()).addShieldHealth(damageHealValue);
+
+                    if (entity instanceof Player) {
+                        ((EntityLiving) ((CraftPlayer) entity).getHandle()).setAbsorptionHearts((float) (((ArcaneShield) spec.getBlue()).getShieldHealth() / (maxHealth * .5) * 20));
+                    }
+
                     if (ability.isEmpty()) {
                         sendMessage("" + ChatColor.RED + "\u00AB" + ChatColor.GRAY + " You absorbed " + attacker.getName() + "'s melee " + ChatColor.GRAY + "hit.");
                         attacker.sendMessage(ChatColor.GREEN + "\u00BB" + ChatColor.GRAY + " Your melee hit was absorbed by " + name);
@@ -657,21 +648,23 @@ public final class WarlordsPlayer {
                     }
 
                     addAbsorbed(-damageHealValue);
-                }
-                ((ArcaneShield) spec.getBlue()).addShieldHealth(damageHealValue);
-                if (entity instanceof Player) {
-                    ((EntityLiving) ((CraftPlayer) entity).getHandle()).setAbsorptionHearts((float) (((ArcaneShield) spec.getBlue()).getShieldHealth() / (maxHealth * .5) * 20));
+                    attacker.addAbsorbed(-damageHealValue);
                 }
                 this.entity.playEffect(EntityEffect.HURT);
+                for (Player player1 : attacker.getWorld().getPlayers()) {
+                    player1.playSound(entity.getLocation(), Sound.HURT_FLESH, 1, 1);
+                }
+
+                removeHorse();
             } else {
                 System.out.println(attacker.getName() + " hit " + name + " for " + damageHealValue);
                 boolean debt = false;
 
                 //Self heal
                 if (this == attacker) {
-                    if (!cooldownManager.getCooldown(Strike.class).isEmpty() && attacker.getCooldownManager().getCooldown(Strike.class).get(0).getFrom().getSpec() instanceof Berserker) {
+                    if (!cooldownManager.getCooldown(WoundingStrikeBerserker.class).isEmpty()) {
                         damageHealValue *= .65;
-                    } else if (!cooldownManager.getCooldown(Strike.class).isEmpty() && attacker.getCooldownManager().getCooldown(Strike.class).get(0).getFrom().getSpec() instanceof Defender) {
+                    } else if (!cooldownManager.getCooldown(WoundingStrikeDefender.class).isEmpty()) {
                         damageHealValue *= .75;
                     }
                     if (this.health + damageHealValue > this.maxHealth) {
@@ -689,7 +682,7 @@ public final class WarlordsPlayer {
                 } else {
                     damageHealValue *= totalReduction;
                     //DAMAGE
-                    if (damageHealValue < 0 && isEnemy(attacker)) {
+                    if (damageHealValue < 0 && isEnemyAlive(attacker)) {
                         if (!hitBy.contains(attacker)) {
                             hitBy.add(attacker);
                         }
@@ -697,9 +690,7 @@ public final class WarlordsPlayer {
                             powerUpHeal = false;
                             sendMessage(ChatColor.GRAY + "Your §aHealing Powerup §7has worn off.");
                         }
-                        if (entity.getVehicle() != null) {
-                            entity.getVehicle().remove();
-                        }
+                        removeHorse();
                         regenTimer = 10;
                         if (!cooldownManager.getCooldown(LastStand.class).isEmpty() && !HammerOfLight.standingInHammer(attacker, entity)) {
                             for (Cooldown cooldown : cooldownManager.getCooldown(LastStand.class)) {
@@ -768,21 +759,40 @@ public final class WarlordsPlayer {
                                 int healthToAdd = (int) (((Repentance) attacker.getSpec().getBlue()).getPool() * .1) + 11;
                                 attacker.addHealth(attacker, "Repentance", healthToAdd, healthToAdd, -1, 100);
                                 ((Repentance) attacker.getSpec().getBlue()).setPool(((Repentance) attacker.getSpec().getBlue()).getPool() * .5f);
-                                attacker.addEnergy(attacker, "Repentance", (int) (healthToAdd * .035));
+                                attacker.addEnergy(attacker, "Repentance", (float) (healthToAdd * .035));
                             }
                         }
 
                         //ORBS
                         if (!attacker.getCooldownManager().getCooldown(OrbsOfLife.class).isEmpty() && !ability.isEmpty()) {
-                            Location location = getLocation();
-                            OrbsOfLife.Orb orb = new OrbsOfLife.Orb(((CraftWorld) location.getWorld()).getHandle(), location, attacker);
-                            //TODO Add team whitelist
-                            ArmorStand orbStand = (ArmorStand) location.getWorld().spawnEntity(location.add(Math.random() * 3 - 1.5, 0, Math.random() * 3 - 1.5), EntityType.ARMOR_STAND);
-                            orbStand.setVisible(false);
-                            //WOW need to set passenger to orb or else the orb will move   like ???
-                            orbStand.setPassenger(orb.spawn(location).getBukkitEntity());
-                            orb.setArmorStand(orbStand);
-                            Warlords.getOrbs().add(orb);
+                            for (Cooldown cooldown : attacker.getCooldownManager().getCooldown(OrbsOfLife.class)) {
+                                OrbsOfLife orbsOfLife = (OrbsOfLife) cooldown.getCooldownObject();
+                                Location location = getLocation();
+                                Location spawnLocation = orbsOfLife.generateSpawnLocation(location);
+
+                                OrbsOfLife.Orb orb = new OrbsOfLife.Orb(((CraftWorld) location.getWorld()).getHandle(), spawnLocation, attacker);
+                                ArmorStand orbStand = (ArmorStand) location.getWorld().spawnEntity(spawnLocation, EntityType.ARMOR_STAND);
+                                orbStand.setVisible(false);
+                                orbStand.setGravity(false);
+                                orbStand.setPassenger(orb.spawn(spawnLocation).getBukkitEntity());
+                                orb.setArmorStand(orbStand);
+
+                                orbsOfLife.getSpawnedOrbs().add(orb);
+
+                                // Hacky way
+                                new BukkitRunnable() {
+                                    @Override
+                                    public void run() {
+                                        for (WarlordsPlayer player : PlayerFilter.playingGame(attacker.getGame()).enemiesOf(attacker)) {
+                                            if (player.getEntity() instanceof Player) {
+                                                ((CraftPlayer) player.getEntity()).getHandle().playerConnection.sendPacket(
+                                                        new PacketPlayOutEntityDestroy(orb.getId())
+                                                );
+                                            }
+                                        }
+                                    }
+                                }.runTaskLater(Warlords.getInstance(), 1);
+                            }
                         }
 
                         //prot strike
@@ -817,10 +827,10 @@ public final class WarlordsPlayer {
                     }
                     //HEALING
                     else {
-                        if (isTeammate(attacker)) {
-                            if (!cooldownManager.getCooldown(Strike.class).isEmpty() && attacker.getCooldownManager().getCooldown(Strike.class).get(0).getFrom().getSpec() instanceof Berserker) {
+                        if (isTeammateAlive(attacker)) {
+                            if (!cooldownManager.getCooldown(WoundingStrikeBerserker.class).isEmpty()) {
                                 damageHealValue *= .65;
-                            } else if (!cooldownManager.getCooldown(Strike.class).isEmpty() && attacker.getCooldownManager().getCooldown(Strike.class).get(0).getFrom().getSpec() instanceof Defender) {
+                            } else if (!cooldownManager.getCooldown(WoundingStrikeDefender.class).isEmpty()) {
                                 damageHealValue *= .75;
                             }
                             if (this.health + damageHealValue > maxHealth) {
@@ -844,60 +854,44 @@ public final class WarlordsPlayer {
 
                 // adding/subtracing health
                 //debt and healing
-                if (!(debt && damageHealValue < 0)) {
+                if (!(debt && damageHealValue < 0) && takeDamage) {
                     this.health += Math.round(damageHealValue);
                 }
                 if (damageHealValue < 0) {
                     attacker.addDamage(-damageHealValue);
                     this.entity.playEffect(EntityEffect.HURT);
+                    for (Player player1 : attacker.getWorld().getPlayers()) {
+                        player1.playSound(entity.getLocation(), Sound.HURT_FLESH, 1, 1);
+                    }
                 }
                 if (this.health <= 0 && cooldownManager.getCooldown(UndyingArmy.class).size() == 0) {
-                    dead = true;
-                    health = 0;
-
-                    addGrave();
-
-                    showDeathAnimation();
-
                     if (attacker.entity instanceof Player) {
                         ((Player)attacker.entity).playSound(attacker.getLocation(), Sound.ORB_PICKUP, 500f, 0.3f);
                     }
 
-                    hitBy.remove(attacker);
-                    hitBy.add(0, attacker);
+                    die(attacker);
 
                     attacker.addKill();
                     attacker.scoreboard.updateKillsAssists();
-                    this.addDeath();
-                    this.scoreboard.updateKillsAssists();
-                    Bukkit.getPluginManager().callEvent(new WarlordsDeathEvent(this));
 
                     sendMessage(ChatColor.GRAY + "You were killed by " + attacker.getColoredName());
                     attacker.sendMessage(ChatColor.GRAY + "You killed " + getColoredName());
                     gameState.getGame().forEachOnlinePlayer((p, t) -> {
                         if(p != this.entity && p != attacker.entity) {
-                            p.sendMessage(getColoredName() + ChatColor.GRAY + " was killed by " + ChatColor.BLUE + attacker.getName());
+                            p.sendMessage(getColoredName() + ChatColor.GRAY + " was killed by " + attacker.getColoredName());
                         }
                     });
                     gameState.addKill(team, false);
 
-                    if (team == Team.BLUE) {
-                        Warlords.redKills++;
-                    } else {
-                        Warlords.blueKills++;
-                    }
-
-                    //removing cooldowns
-                    cooldownManager.clearCooldowns();
 
                     //title YOU DIED
                     if (this.entity instanceof Player) {
                         PacketUtils.sendTitle((Player) entity, ChatColor.RED + "YOU DIED!", ChatColor.GRAY + attacker.getName() + " killed you.", 0, 40, 0);
                     }
                 } else {
-                    if (!ability.isEmpty() && !ability.equals("Time Warp") && !ability.equals("Healing Rain") && !ability.equals("Hammer of Light")) {
+                    if (!ability.isEmpty() && this != attacker && damageHealValue != 0) {
                         if (attacker.entity instanceof Player) {
-                            ((Player)attacker.entity).playSound(attacker.getLocation(), Sound.ORB_PICKUP, 0.95f, 1);
+                            ((Player) attacker.entity).playSound(attacker.getLocation(), Sound.ORB_PICKUP, 1, 1);
                         }
                     }
                 }
@@ -907,8 +901,8 @@ public final class WarlordsPlayer {
             if (ability.isEmpty()) {
                 if (!attacker.getCooldownManager().getCooldown(Windfury.class).isEmpty()) {
                     int windfuryActivate = (int) (Math.random() * 100);
-                    if (attacker.isFirstProc()) {
-                        attacker.setFirstProc(false);
+                    if (((Windfury) attacker.getSpec().getPurple()).isFirstProc()) {
+                        ((Windfury) attacker.getSpec().getPurple()).setFirstProc(false);
                         windfuryActivate = 0;
                     }
                     if (windfuryActivate < 35) {
@@ -929,7 +923,7 @@ public final class WarlordsPlayer {
                     }
                 } else if (!attacker.getCooldownManager().getCooldown(Earthliving.class).isEmpty()) {
                     int earthlivingActivate = (int) (Math.random() * 100);
-                    if (attacker.isFirstProc() || Utils.getTotemDownAndClose(attacker, attacker.getEntity()) != null) {
+                    if (((Earthliving) attacker.getSpec().getPurple()).isFirstProc() || Utils.getTotemDownAndClose(attacker, attacker.getEntity()) != null) {
                         //self heal
                         attacker.addHealth(attacker, "Earthliving Weapon", (132 * 2.4f), (179 * 2.4f), 25, 200);
 
@@ -937,9 +931,9 @@ public final class WarlordsPlayer {
                             player1.playSound(getLocation(), "shaman.earthlivingweapon.impact", 2, 1);
                         });
 
-                        attacker.setFirstProc(false);
+                        ((Earthliving) attacker.getSpec().getPurple()).setFirstProc(false);
                         for (WarlordsPlayer nearPlayer : PlayerFilter
-                            .entitiesAround(attacker, 3, 3, 3)
+                                .entitiesAround(attacker, 3, 3, 3)
                             .aliveTeammatesOfExcludingSelf(attacker)
                             .limit(2)
                         ) {
@@ -954,7 +948,7 @@ public final class WarlordsPlayer {
 
                         for (WarlordsPlayer nearPlayer : PlayerFilter.entitiesAround(attacker, 3, 3, 3)
                             .aliveTeammatesOfExcludingSelf(attacker)
-                            .limit(2)
+                                .limit(2)
                         ) {
                             nearPlayer.addHealth(attacker, "Earthliving Weapon", 132 * 2.4f, 179 * 2.4f, 25, 200);
                         }
@@ -963,6 +957,30 @@ public final class WarlordsPlayer {
             }
             System.out.println(attacker.name + " - " + attacker.getTotalDamage());
         }
+    }
+
+    public void removeHorse() {
+        if (entity.getVehicle() != null) {
+            entity.getVehicle().remove();
+        }
+    }
+
+    public void die(WarlordsPlayer attacker) {
+        dead = true;
+
+        addGrave();
+
+        showDeathAnimation();
+
+        hitBy.remove(attacker);
+        hitBy.add(0, attacker);
+
+        this.addDeath();
+        this.scoreboard.updateKillsAssists();
+        Bukkit.getPluginManager().callEvent(new WarlordsDeathEvent(this));
+
+        cooldownManager.clearCooldowns();
+
     }
 
     public void addGrave() {
@@ -1067,6 +1085,14 @@ public final class WarlordsPlayer {
         this.respawnTimer = respawnTimer;
     }
 
+    public void giveRespawnTimer() {
+        int respawn = gameState.getTimerInSeconds() % 12;
+        if (respawn <= 4) {
+            respawn += 12;
+        }
+        setRespawnTimer(respawn);
+    }
+
     public float getEnergy() {
         return energy;
     }
@@ -1075,17 +1101,19 @@ public final class WarlordsPlayer {
         this.energy = energy;
     }
 
-    public void addEnergy(WarlordsPlayer giver, String ability, int amount) {
+    public void addEnergy(WarlordsPlayer giver, String ability, float amount) {
         if (energy + amount > maxEnergy) {
             this.energy = maxEnergy;
         } else {
             this.energy += amount;
         }
-        if (this == giver) {
-            sendMessage(ChatColor.GREEN + "\u00AB" + ChatColor.GRAY + " Your " + ability + " gave you " + ChatColor.YELLOW + amount + " " + ChatColor.GRAY + "energy.");
-        } else {
-            sendMessage(ChatColor.GREEN + "\u00AB" + ChatColor.GRAY + " " + giver.getName() + "'s " + ability + " gave you " + ChatColor.YELLOW + amount + " " + ChatColor.GRAY + "energy.");
-            giver.sendMessage(ChatColor.GREEN + "\u00BB" + ChatColor.GRAY + " " + "Your " + ability + " gave " + name + " " + ChatColor.YELLOW + amount + " " + ChatColor.GRAY + "energy.");
+        if ((int) amount != 0) {
+            if (this == giver) {
+                sendMessage(ChatColor.GREEN + "\u00AB" + ChatColor.GRAY + " Your " + ability + " gave you " + ChatColor.YELLOW + (int) amount + " " + ChatColor.GRAY + "energy.");
+            } else {
+                sendMessage(ChatColor.GREEN + "\u00AB" + ChatColor.GRAY + " " + giver.getName() + "'s " + ability + " gave you " + ChatColor.YELLOW + (int) amount + " " + ChatColor.GRAY + "energy.");
+                giver.sendMessage(ChatColor.GREEN + "\u00BB" + ChatColor.GRAY + " " + "Your " + ability + " gave " + name + " " + ChatColor.YELLOW + (int) amount + " " + ChatColor.GRAY + "energy.");
+            }
         }
     }
     public void sendMessage(String message) {
@@ -1095,10 +1123,13 @@ public final class WarlordsPlayer {
     }
 
     public void subtractEnergy(int amount) {
-        if (energy - amount > maxEnergy) {
-            energy = maxEnergy;
-        } else {
-            this.energy -= amount;
+        if (!infiniteEnergy) {
+            amount *= energyModifier;
+            if (energy - amount > maxEnergy) {
+                energy = maxEnergy;
+            } else {
+                this.energy -= amount;
+            }
         }
     }
 
@@ -1248,14 +1279,6 @@ public final class WarlordsPlayer {
         return itemStack;
     }
 
-    public boolean isFirstProc() {
-        return firstProc;
-    }
-
-    public void setFirstProc(boolean firstProc) {
-        this.firstProc = firstProc;
-    }
-
     public boolean isTeamFlagCompass() {
         return teamFlagCompass;
     }
@@ -1357,6 +1380,11 @@ public final class WarlordsPlayer {
             this.assignItemLore(player);
             ArmorManager.resetArmor(player, getSpecClass(), getTeam());
             player.setScoreboard(this.getScoreboard().getScoreboard());
+
+            if (isDeath()) {
+                player.setGameMode(GameMode.SPECTATOR);
+                giveRespawnTimer();
+            }
             // TODO Update the inventory based on the status of isUndyingArmyDead here
 
             //SKILL TREE JUICERS
@@ -1380,7 +1408,7 @@ public final class WarlordsPlayer {
     }
 
     public boolean isDeath() {
-        return this.health <= 0 || this.dead;
+        return this.health <= 0 || this.dead || (entity instanceof Player && ((Player) entity).getGameMode() == GameMode.SPECTATOR);
     }
 
     public boolean isAlive() {
@@ -1402,25 +1430,38 @@ public final class WarlordsPlayer {
         return this.entity.getLocation(copyInto);
     }
 
-    public boolean isEnemy(Entity other) {
-        return isEnemy(Warlords.getPlayer(other));
+    public boolean isEnemyAlive(Entity other) {
+        return isEnemyAlive(Warlords.getPlayer(other));
+    }
+
+    public boolean isEnemyAlive(@Nullable WarlordsPlayer p) {
+        return p != null &&
+                p.getGame() == getGame() &&
+                !p.isDeath() &&
+                p.getTeam() != getTeam();
     }
 
     public boolean isEnemy(@Nullable WarlordsPlayer p) {
         return p != null &&
-            p.getGame() == getGame() &&
-            !p.isDeath() &&
-            p.getTeam() != getTeam();
+                p.getGame() == getGame() &&
+                p.getTeam() != getTeam();
     }
 
-    public boolean isTeammate(Entity other) {
-        return isEnemy(Warlords.getPlayer(other));
+    public boolean isTeammateAlive(Entity other) {
+        return isEnemyAlive(Warlords.getPlayer(other));
     }
+
+    public boolean isTeammateAlive(@Nullable WarlordsPlayer p) {
+        return p != null &&
+                p.getGame() == getGame() &&
+                !p.isDeath() &&
+                p.getTeam() == getTeam();
+    }
+
     public boolean isTeammate(@Nullable WarlordsPlayer p) {
         return p != null &&
-            p.getGame() == getGame() &&
-            !p.isDeath() &&
-            p.getTeam() == getTeam();
+                p.getGame() == getGame() &&
+                p.getTeam() == getTeam();
     }
 
     public void teleport(Location location) {
@@ -1473,5 +1514,53 @@ public final class WarlordsPlayer {
 
     public int getRespawnTimeSpent() {
         return respawnTimeSpent;
+    }
+
+    public boolean getInfiniteEnergy() {
+        return infiniteEnergy;
+    }
+
+    public void setInfiniteEnergy(boolean infiniteEnergy) {
+        this.infiniteEnergy = infiniteEnergy;
+    }
+
+    public boolean getDisableCooldowns() {
+        return disableCooldowns;
+    }
+
+    public void setDisableCooldowns(boolean disableCooldowns) {
+        this.disableCooldowns = disableCooldowns;
+    }
+
+    public double getEnergyModifier() {
+        return energyModifier;
+    }
+
+    public void setEnergyModifier(double energyModifier) {
+        this.energyModifier = energyModifier;
+    }
+
+    public double getCooldownModifier() {
+        return cooldownModifier;
+    }
+
+    public void setCooldownModifier(double cooldownModifier) {
+        this.cooldownModifier = cooldownModifier;
+    }
+
+    public boolean isTakeDamage() {
+        return takeDamage;
+    }
+
+    public void setTakeDamage(boolean takeDamage) {
+        this.takeDamage = takeDamage;
+    }
+
+    public int getBlocksTravelledCM() {
+        return blocksTravelledCM;
+    }
+
+    public void setBlocksTravelledCM(int blocksTravelledCM) {
+        this.blocksTravelledCM = blocksTravelledCM;
     }
 }

@@ -35,7 +35,7 @@ public class CustomScoreboard {
             tempTeam.addEntry(teamEntries[i]);
             switch (i + 1) {
                 case 1:
-                    tempTeam.setPrefix(ChatColor.YELLOW + "WL 2.0 RC-3");
+                    tempTeam.setPrefix(ChatColor.YELLOW + Warlords.VERSION);
                     break;
                 case 5:
                     tempTeam.setPrefix(ChatColor.WHITE + "Class: ");
@@ -56,16 +56,14 @@ public class CustomScoreboard {
     }
 
     public void updateHealth() {
-        if (health != null) {
-            health.unregister();
+        if (health == null) {
+            health = scoreboard.registerNewObjective("health", "dummy");
+            health.setDisplaySlot(DisplaySlot.BELOW_NAME);
+            health.setDisplayName(ChatColor.RED + "❤");
         }
-        health = scoreboard.registerNewObjective("health", "dummy");
-        health.setDisplaySlot(DisplaySlot.BELOW_NAME);
-        health.setDisplayName(ChatColor.RED + "❤");
         this.gameState.getGame().forEachOfflinePlayer((player, team) -> {
             WarlordsPlayer s = Warlords.getPlayer(player);
-            Score score = health.getScore(s.getName());
-            score.setScore(s.getHealth());
+            health.getScore(s.getName()).setScore(s.getHealth());
         });
     }
 
@@ -149,7 +147,7 @@ public class CustomScoreboard {
                     scoreboard.getTeam("team_7").setSuffix("olen!" + ChatColor.YELLOW + " +" + flag.getComputedHumanMultiplier() + "§e%");
                 }
             } else if (gameState.flags().getBlue().getFlag() instanceof GroundFlagLocation) {
-                GroundFlagLocation flag = (GroundFlagLocation) gameState.flags().getRed().getFlag();
+                GroundFlagLocation flag = (GroundFlagLocation) gameState.flags().getBlue().getFlag();
                 scoreboard.getTeam("team_7").setPrefix(ChatColor.BLUE + "BLU Flag: ");
                 scoreboard.getTeam("team_7").setSuffix(ChatColor.YELLOW + "Dropped! " + ChatColor.GRAY + flag.getDespawnTimerSeconds());
             } else {
@@ -181,13 +179,13 @@ public class CustomScoreboard {
         sideBar.getScore("Wins: " + ChatColor.GREEN + Utils.addCommaAndRound(((Integer) Warlords.databaseManager.getPlayerInformation(player, "wins")))).setScore(10);
         sideBar.getScore("Losses: " + ChatColor.GREEN + Utils.addCommaAndRound(((Integer) Warlords.databaseManager.getPlayerInformation(player, "losses")))).setScore(9);
         sideBar.getScore("  ").setScore(8);
-        sideBar.getScore("Damage: " + ChatColor.DARK_RED + Utils.addCommaAndRound(((Integer) Warlords.databaseManager.getPlayerInformation(player, "damage")))).setScore(7);
-        sideBar.getScore("Healing: " + ChatColor.DARK_GREEN + Utils.addCommaAndRound(((Integer) Warlords.databaseManager.getPlayerInformation(player, "healing")))).setScore(6);
-        sideBar.getScore("Absorbed: " + ChatColor.GOLD + Utils.addCommaAndRound(((Integer) Warlords.databaseManager.getPlayerInformation(player, "absorbed")))).setScore(5);
+        sideBar.getScore("Damage: " + ChatColor.RED + Utils.addCommaAndRound(((Number) Warlords.databaseManager.getPlayerInformation(player, "damage")).doubleValue())).setScore(7);
+        sideBar.getScore("Healing: " + ChatColor.DARK_GREEN + Utils.addCommaAndRound(((Number) Warlords.databaseManager.getPlayerInformation(player, "healing")).doubleValue())).setScore(6);
+        sideBar.getScore("Absorbed: " + ChatColor.GOLD + Utils.addCommaAndRound(((Number) Warlords.databaseManager.getPlayerInformation(player, "absorbed")).doubleValue())).setScore(5);
         sideBar.getScore("   ").setScore(4);
-        sideBar.getScore("dubious").setScore(3);
+        sideBar.getScore("   ").setScore(3);
         sideBar.getScore("    ").setScore(2);
-        sideBar.getScore(ChatColor.YELLOW + "WL 2.0 RC-3").setScore(1);
+        sideBar.getScore(ChatColor.YELLOW + Warlords.VERSION).setScore(1);
         player.setScoreboard(mainLobbyScoreboard);
     }
 }

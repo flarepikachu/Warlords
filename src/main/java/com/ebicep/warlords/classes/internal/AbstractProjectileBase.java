@@ -3,10 +3,7 @@ package com.ebicep.warlords.classes.internal;
 import com.ebicep.warlords.Warlords;
 import com.ebicep.warlords.classes.AbstractAbility;
 import com.ebicep.warlords.player.WarlordsPlayer;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import net.minecraft.server.v1_8_R3.*;
-import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
@@ -14,23 +11,25 @@ import org.bukkit.craftbukkit.v1_8_R3.entity.CraftEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Horse;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Zombie;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.BlockIterator;
 import org.bukkit.util.Vector;
 
-public abstract class ProjectileBase extends AbstractAbility {
-    
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+public abstract class AbstractProjectileBase extends AbstractAbility {
+
     protected final double projectileSpeed;
     protected final int maxTicks;
     protected final double maxDistance;
     protected final boolean hitTeammates;
 
-    public ProjectileBase(String name, float minDamageHeal, float maxDamageHeal, float cooldown, int energyCost, int critChance, int critMultiplier, double projectileSpeed, double maxDistance, boolean hitTeammates) {
+    public AbstractProjectileBase(String name, float minDamageHeal, float maxDamageHeal, float cooldown, int energyCost, int critChance, int critMultiplier, double projectileSpeed, double maxDistance, boolean hitTeammates) {
         super(name, minDamageHeal, maxDamageHeal, cooldown, energyCost, critChance, critMultiplier);
         this.projectileSpeed = projectileSpeed;
         this.maxDistance = maxDistance;
-        this.maxTicks = (int)(maxDistance / projectileSpeed) + 1;
+        this.maxTicks = (int) (maxDistance / projectileSpeed) + 1;
         this.hitTeammates = hitTeammates;
     }
 
@@ -52,7 +51,7 @@ public abstract class ProjectileBase extends AbstractAbility {
         Location startingLocation = player.getEyeLocation();
         
         for (Player player1 : player.getWorld().getPlayers()) {
-            player1.playSound(startingLocation, getActivationSound(), 2, 1);
+            player1.playSound(startingLocation, getActivationSound(), 2.3f, 1);
         }
         new BukkitRunnable() {
 
@@ -62,6 +61,7 @@ public abstract class ProjectileBase extends AbstractAbility {
 
             @Override
             public void run() {
+                updateSpeed(speed, ticksLived);
                 MovingObjectPosition hasCollided = checkCollisionAndMove(currentLocation, speed, shooter);
                 if (hasCollided != null) {
                     onHit(
@@ -87,6 +87,9 @@ public abstract class ProjectileBase extends AbstractAbility {
         }
         return Warlords.getPlayer(e);
     }
+
+    protected void updateSpeed(Vector speedVector, int ticksLived) {
+    }
     
     @Nullable
     private MovingObjectPosition checkCollisionAndMove(Location currentLocation, Vector speed, WarlordsPlayer shooter) {
@@ -98,18 +101,18 @@ public abstract class ProjectileBase extends AbstractAbility {
         double hitDistance = 0;
         for (Entity entity : currentLocation.getWorld().getEntities()) {
             WarlordsPlayer wp = getFromEntity(entity);
-            if (wp != null && (!hitTeammates || shooter.isEnemy(wp)) && wp.isAlive() && wp != shooter) {
+            if (wp != null && (hitTeammates || shooter.isEnemyAlive(wp)) && wp.isAlive() && wp != shooter) {
                 // This logic does not properly deal with an EnderDragon entity, as it has a complex hitbox
                 assert entity instanceof CraftEntity;
                 net.minecraft.server.v1_8_R3.Entity nmsEntity = ((CraftEntity) entity).getHandle();
                 AxisAlignedBB aabb = nmsEntity.getBoundingBox();
                 aabb = new AxisAlignedBB(
-                        aabb.a-0.25,
-                        aabb.b-0.25,
-                        aabb.c-0.25,
-                        aabb.d+0.25,
-                        aabb.e+0.25,
-                        aabb.f+0.25
+                        aabb.a - 0.4,
+                        aabb.b - 0.4,
+                        aabb.c - 0.4,
+                        aabb.d + 0.4,
+                        aabb.e + 0.4,
+                        aabb.f + 0.4
                         );
                 MovingObjectPosition mop = aabb.a(after, before);
                 if (mop != null) {

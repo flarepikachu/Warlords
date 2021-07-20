@@ -1,9 +1,9 @@
 name: Warlords
-version: 1.0.0
+version: WL 2.0 RC-5
 author: ebic
 main: com.ebicep.warlords.Warlords
-depend: [ MultiWorld ]
-softdepend: [ HolographicDisplays ]
+depend: [ MultiWorld, HolographicDisplays ]
+load: POSTWORLD
 commands:
   start:
     description: Starts a new game.
@@ -20,6 +20,6 @@ commands:
   hotkeymode:
     description: Switches between hotkeymode and classic
     usage: /hotkeymode
-  wldebug:
+  wl:
     description: Debug tools.
-    usage: /wldebug [args]
+    usage: /wl [args]

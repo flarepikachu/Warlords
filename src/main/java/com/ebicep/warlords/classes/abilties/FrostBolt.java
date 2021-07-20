@@ -1,18 +1,18 @@
 package com.ebicep.warlords.classes.abilties;
 
-import com.ebicep.warlords.classes.internal.ProjectileBase;
+import com.ebicep.warlords.classes.internal.AbstractProjectileBase;
 import com.ebicep.warlords.player.WarlordsPlayer;
 import com.ebicep.warlords.util.ParticleEffect;
 import com.ebicep.warlords.util.PlayerFilter;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-public class FrostBolt extends ProjectileBase {
+public class FrostBolt extends AbstractProjectileBase {
 
     private static final int MAX_FULL_DAMAGE_DISTANCE = 30;
     private static final double DIRECT_HIT_MULTIPLIER = 1.15;
-    private static final float HITBOX = 2;
-    
+    private static final float HITBOX = 3.75f;
+
     public FrostBolt() {
         super("Frostbolt", -268.8f, -345.45f, 0, 70, 20, 175, 2, 250, false);
     }
@@ -40,7 +40,7 @@ public class FrostBolt extends ProjectileBase {
         double toReduceBy = MAX_FULL_DAMAGE_DISTANCE * MAX_FULL_DAMAGE_DISTANCE > distanceSquared ? 1 : 
             1 - (Math.sqrt(distanceSquared) - MAX_FULL_DAMAGE_DISTANCE) / 100.;
         if (toReduceBy < 0) toReduceBy = 0;
-        if (victim != null) {
+        if (victim != null && victim.isEnemyAlive(shooter)) {
             victim.getSpeed().addSpeedModifier("Frostbolt", -25, 2 * 20);
             victim.addHealth(
                     shooter,
@@ -76,13 +76,8 @@ public class FrostBolt extends ProjectileBase {
                 "§7by §e20% §7for §62 §7seconds. A\n" +
                 "§7direct hit will cause the enemy\n" +
                 "§7to take an additional §c15% §7extra\n" +
-                "§7damage." + "\n\n§7Has an optimal range of §e" + maxDistance + "\n" +
+                "§7damage." + "\n\n§7Has an optimal range of §e" + MAX_FULL_DAMAGE_DISTANCE + "\n" +
                 "§7blocks.";
     }
-
-    @Override
-    public void openMenu(Player player) {
-
-    }
-
+	
 }

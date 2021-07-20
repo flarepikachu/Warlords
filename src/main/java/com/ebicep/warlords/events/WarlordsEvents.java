@@ -15,6 +15,7 @@ import com.ebicep.warlords.player.CustomScoreboard;
 import com.ebicep.warlords.player.WarlordsPlayer;
 import com.ebicep.warlords.util.ItemBuilder;
 import com.ebicep.warlords.util.PacketUtils;
+import com.ebicep.warlords.util.Utils;
 import net.minecraft.server.v1_8_R3.EntityLiving;
 import net.minecraft.server.v1_8_R3.GenericAttributes;
 import org.bukkit.*;
@@ -25,10 +26,12 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.*;
+import org.bukkit.event.vehicle.VehicleExitEvent;
 import org.bukkit.event.weather.WeatherChangeEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -70,7 +73,9 @@ public class WarlordsEvents implements Listener {
     public static void onPlayerQuit(PlayerQuitEvent e) {
         WarlordsPlayer player = Warlords.getPlayer(e.getPlayer());
         if (player != null) {
-            player.updatePlayerReference(null);
+            if (!player.isDeath()) {
+                player.updatePlayerReference(null);
+            }
         }
     }
 
@@ -97,11 +102,20 @@ public class WarlordsEvents implements Listener {
             player.sendMessage(" ");
             player.sendMessage(ChatColor.GRAY + "Click the Nether Star or do /menu to open the selection menu.");
             player.sendMessage(" ");
-            player.sendMessage(ChatColor.GRAY + "BUILD: " + ChatColor.RED + "RC-3");
+            player.sendMessage(ChatColor.GRAY + "BUILD: " + ChatColor.RED + Warlords.VERSION);
+            if (player.isOp()) {
+                player.sendMessage(" ");
+                player.sendMessage(ChatColor.GRAY + "Skip Timer: /wl timer skip/reset");
+                player.sendMessage(ChatColor.GRAY + "Infinite Energy: /wl energy disable/enable");
+                player.sendMessage(ChatColor.GRAY + "Endless Cooldown: /wl cooldown disable/enable");
+                player.sendMessage(ChatColor.GRAY + "Disable Damage: /wl damage disable/enable");
+                player.sendMessage(" ");
+                player.sendMessage(ChatColor.GRAY + "Cooldown Mode: /wl cooldownmode disable/enable");
+            }
 
             player.getInventory().clear();
             player.getInventory().setArmorContents(new ItemStack[]{null, null, null, null});
-            player.getInventory().setItem(4, new ItemBuilder(Material.NETHER_STAR).name("Â§aSelection Menu").get());
+            player.getInventory().setItem(4, new ItemBuilder(Material.NETHER_STAR).name("§aSelection Menu").get());
 
             CustomScoreboard.giveMainLobbyScoreboard(player);
         }
@@ -110,6 +124,11 @@ public class WarlordsEvents implements Listener {
             player.teleport(p.getLocation());
             p.updatePlayerReference(player);
         }
+    }
+
+    @EventHandler
+    public void onDismount(VehicleExitEvent evt) {
+        evt.getVehicle().remove();
     }
 
     @EventHandler
@@ -131,11 +150,8 @@ public class WarlordsEvents implements Listener {
             Player attacker = (Player) e.getDamager();
             WarlordsPlayer warlordsPlayerAttacker = Warlords.getPlayer(attacker);
             WarlordsPlayer warlordsPlayerVictim = Warlords.getPlayer(e.getEntity());
-            if (warlordsPlayerAttacker != null && warlordsPlayerAttacker.isEnemy(warlordsPlayerVictim)) {
+            if (warlordsPlayerAttacker != null && warlordsPlayerAttacker.isEnemyAlive(warlordsPlayerVictim)) {
                 if (attacker.getInventory().getHeldItemSlot() == 0 && warlordsPlayerAttacker.getHitCooldown() == 0) {
-                    for (Player player1 : attacker.getWorld().getPlayers()) {
-                        player1.playSound(warlordsPlayerVictim.getLocation(), Sound.HURT_FLESH, 1, 1);
-                    }
                     warlordsPlayerAttacker.setHitCooldown(12);
                     warlordsPlayerAttacker.subtractEnergy(warlordsPlayerAttacker.getSpec().getEnergyOnHit() * -1);
 
@@ -163,6 +179,16 @@ public class WarlordsEvents implements Listener {
                                 });
                     }
                     warlordsPlayerVictim.addHealth(warlordsPlayerAttacker, "", -132, -179, 25, 200);
+
+                    if (warlordsPlayerVictim.getEntity() instanceof Zombie) {
+                        if (warlordsPlayerVictim.isDeath()) {
+                            warlordsPlayerVictim.getEntity().setCustomName("");
+                        } else {
+                            String oldName = warlordsPlayerVictim.getEntity().getCustomName();
+                            String newName = oldName.substring(0, oldName.lastIndexOf(" ") + 1) + ChatColor.RED + warlordsPlayerVictim.getHealth() + "❤";
+                            warlordsPlayerVictim.getEntity().setCustomName(newName);
+                        }
+                    }
                 }
 
                 if (!warlordsPlayerVictim.getCooldownManager().getCooldown(IceBarrier.class).isEmpty()) {
@@ -188,10 +214,8 @@ public class WarlordsEvents implements Listener {
         if (action == Action.RIGHT_CLICK_BLOCK || action == Action.RIGHT_CLICK_AIR) {
             ItemStack itemHeld = player.getItemInHand();
             if (wp != null) {
-                if (player.getInventory().getHeldItemSlot() == 0 || !wp.isHotKeyMode()) {
-                    wp.getSpec().onRightClick(wp, player);
-                } else if (player.getInventory().getHeldItemSlot() == 7 && itemHeld.getType() == Material.GOLD_BARDING && player.getVehicle() == null) {
-                    if (location.getWorld().getBlockAt((int) location.getX(), 2, (int) location.getZ()).getType() == Material.NETHERRACK) { //&& !Utils.tunnelUnder(e.getPlayer())) {
+                if (player.getInventory().getHeldItemSlot() == 7 && itemHeld.getType() == Material.GOLD_BARDING && player.getVehicle() == null) {
+                    if (!Utils.isMountableZone(location)) {
                         player.sendMessage(ChatColor.RED + "You can't mount here!");
                     } else {
                         double distance = player.getLocation().getY() - player.getWorld().getHighestBlockYAt(player.getLocation());
@@ -229,6 +253,8 @@ public class WarlordsEvents implements Listener {
                     openSkillTreeMenu(player);
                 } else if (itemHeld.getType() == Material.COMPASS) {
                     wp.toggleTeamFlagCompass();
+                } else if (player.getInventory().getHeldItemSlot() == 0 || !wp.isHotKeyMode()) {
+                    wp.getSpec().onRightClick(wp, player);
                 }
             } else {
                 if (itemHeld.getType() == Material.NETHER_STAR) {
@@ -280,16 +306,11 @@ public class WarlordsEvents implements Listener {
                 } else if (e.isRightClick()) {
                     wp.weaponRightClick(player);
                 }
-            }/* else if (Warlords.game.getState() == Game.State.PRE_GAME) {
-                WarlordsPlayer temp = Game.State.updateTempPlayer(player);
-                if (e.isLeftClick()) {
-                    temp.weaponLeftClick();
-                } else if (e.isRightClick()) {
-                    temp.weaponRightClick();
-                }
-            }*/
+            }
         }
-        e.setCancelled(true);
+        if (e.getWhoClicked().getGameMode() != GameMode.CREATIVE) {
+            e.setCancelled(true);
+        }
     }
 
     @EventHandler
@@ -302,10 +323,15 @@ public class WarlordsEvents implements Listener {
     }
 
     @EventHandler
+    public void onPlayerDropEvent(PlayerDropItemEvent e) {
+        e.setCancelled(true);
+    }
+
+    @EventHandler
     public void onPlayerMove(PlayerMoveEvent e) {
         if (e.getPlayer().getVehicle() instanceof Horse) {
             Location location = e.getPlayer().getLocation();
-            if (location.getWorld().getBlockAt((int) location.getX(), 2, (int) location.getZ()).getType() == Material.NETHERRACK) { // && !Utils.tunnelUnder(e.getPlayer())) {
+            if (!Utils.isMountableZone(location)) {
                 e.getPlayer().getVehicle().remove();
             }
         }
@@ -313,36 +339,40 @@ public class WarlordsEvents implements Listener {
 
     @EventHandler
     public void onPlayerDamage(EntityDamageEvent e) {
-        if (e.getCause() == EntityDamageEvent.DamageCause.VOID && e.getEntity() instanceof Player) {
-            e.setCancelled(true);
-            e.getEntity().teleport(Warlords.getRejoinPoint(((Player) e.getEntity()).getUniqueId()));
-            WarlordsPlayer wp = Warlords.getPlayer(e.getEntity());
-            if (wp != null) {
-                wp.addHealth(wp, "Fall", -1000000, -1000000, -1, 100);
-            }
-        } else if (e.getCause() == EntityDamageEvent.DamageCause.FALL) {
-            //HEIGHT - DAMAGE
-            //PLAYER
-            //9 - 160 - 6
-            //15 - 400 - 12
-            //30ish - 1040
-
-            //HORSE
-            //HEIGHT - DAMAGE
-            //18 - 160
-            //HEIGHT x 40 - 200
-            WarlordsPlayer wp = Warlords.getPlayer(e.getEntity());
-            if (wp != null) {
-                int damage = (int) e.getDamage();
-                if (damage > 5) {
-                    wp.addHealth(wp, "Fall", -((damage + 3) * 40 - 200), -((damage + 3) * 40 - 200), -1, 100);
-                    wp.setRegenTimer(10);
+        if (e.getEntity() instanceof Player || e.getEntity() instanceof Horse) {
+            if (e.getCause() == EntityDamageEvent.DamageCause.VOID) {
+                e.getEntity().teleport(Warlords.getRejoinPoint(e.getEntity().getUniqueId()));
+                WarlordsPlayer wp = Warlords.getPlayer(e.getEntity());
+                if (wp != null) {
+                    wp.addHealth(wp, "Fall", -1000000, -1000000, -1, 100);
                 }
-            }
+                e.setCancelled(true);
+            } else if (e.getCause() == EntityDamageEvent.DamageCause.FALL) {
+                //HEIGHT - DAMAGE
+                //PLAYER
+                //9 - 160 - 6
+                //15 - 400 - 12
+                //30ish - 1040
 
-            e.setCancelled(true);
-        } else if (e.getCause() == EntityDamageEvent.DamageCause.SUFFOCATION) {
-            e.setCancelled(true);
+                //HORSE
+                //HEIGHT - DAMAGE
+                //18 - 160
+                //HEIGHT x 40 - 200
+                if (e.getEntity() instanceof Player) {
+                    WarlordsPlayer wp = Warlords.getPlayer(e.getEntity());
+                    if (wp != null) {
+                        int damage = (int) e.getDamage();
+                        if (damage > 5) {
+                            wp.addHealth(wp, "Fall", -((damage + 3) * 40 - 200), -((damage + 3) * 40 - 200), -1, 100);
+                            wp.setRegenTimer(10);
+                        }
+                    }
+                }
+
+                e.setCancelled(true);
+            } else if (e.getCause() == EntityDamageEvent.DamageCause.SUFFOCATION) {
+                e.setCancelled(true);
+            }
         }
     }
 
@@ -368,14 +398,16 @@ public class WarlordsEvents implements Listener {
                 if (wp == null) {
                     return null;
                 }
-                e.setFormat(wp.getTeam().coloredPrefix() +
+                e.setFormat(
                         ChatColor.DARK_GRAY + "[" +
-                        ChatColor.GOLD + wp.getSpec().getClassNameShort() +
-                        ChatColor.DARK_GRAY + "][" +
-                        ChatColor.GOLD + "90" +
-                        ChatColor.DARK_GRAY + "] " +
-                        ChatColor.AQUA + "%1$s" +
-                        ChatColor.WHITE + ": %2$s"
+                                wp.getTeam().coloredPrefix() +
+                                ChatColor.DARK_GRAY + "][" +
+                                ChatColor.GOLD + wp.getSpec().getClassNameShort() +
+                                ChatColor.DARK_GRAY + "][" +
+                                ChatColor.GOLD + "90" +
+                                ChatColor.DARK_GRAY + "] " +
+                                ChatColor.AQUA + "%1$s" +
+                                ChatColor.WHITE + ": %2$s"
                 );
                 e.getRecipients().removeIf(p -> wp.getGame().getPlayerTeamOrNull(p.getUniqueId()) != wp.getTeam());
                 return null;
@@ -401,6 +433,11 @@ public class WarlordsEvents implements Listener {
     @EventHandler
     public void onWeatherChange(WeatherChangeEvent change) {
         change.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onBlockPhysics(BlockPhysicsEvent e) {
+        e.setCancelled(true);
     }
 
     @EventHandler
