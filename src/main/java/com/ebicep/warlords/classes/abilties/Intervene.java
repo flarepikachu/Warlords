@@ -107,6 +107,11 @@ public class Intervene extends AbstractAbility {
                 });
     }
 
+    @Override
+    public void openMenu(Player player) {
+
+    }
+
     public void setDamagePrevented(float damagePrevented) {
         this.damagePrevented = damagePrevented;
     }

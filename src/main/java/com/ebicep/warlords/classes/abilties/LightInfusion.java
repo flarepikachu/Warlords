@@ -57,4 +57,6 @@ public class LightInfusion extends AbstractAbility {
     public void openMenu(Player player) {
 
     }
+
+
 }

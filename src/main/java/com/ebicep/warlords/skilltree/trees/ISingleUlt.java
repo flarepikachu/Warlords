@@ -1,6 +1,6 @@
-package com.ebicep.warlords.skilltree;
+package com.ebicep.warlords.skilltree.trees;
 
-public interface SingleUltTree {
+public interface ISingleUlt {
 
     void doFirstLeftUpgrade();
 
@@ -14,5 +14,6 @@ public interface SingleUltTree {
 
     void doThirdRightUpgrade();
 
-    void doUltimateUpgrade();
+    void doLastUpgrade();
+
 }

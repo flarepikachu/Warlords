@@ -110,6 +110,7 @@ public class RecklessCharge extends AbstractAbility {
 
     }
 
+
     public List<Player> getPlayersHit() {
         return playersHit;
     }

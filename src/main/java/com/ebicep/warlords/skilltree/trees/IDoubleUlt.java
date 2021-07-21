@@ -1,19 +1,19 @@
-package com.ebicep.warlords.skilltree;
+package com.ebicep.warlords.skilltree.trees;
 
-public interface DoubleUltTree {
+public interface IDoubleUlt {
 
     void doFirstUpgrade();
+
+    void doFirstLeftUpgrade();
 
     void doSecondLeftUpgrade();
 
     void doThirdLeftUpgrade();
 
-    void doUltimateLeftUpgrade();
+    void doFirstRightUpgrade();
 
     void doSecondRightUpgrade();
 
     void doThirdRightUpgrade();
-
-    void doUltimateRightUpgrade();
 
 }

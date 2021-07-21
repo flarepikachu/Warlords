@@ -24,6 +24,11 @@ public class CripplingStrike extends AbstractStrikeBase {
     }
 
     @Override
+    public void openMenu(Player player) {
+
+    }
+
+    @Override
     protected void onHit(@Nonnull WarlordsPlayer wp, @Nonnull Player player, @Nonnull WarlordsPlayer nearPlayer) {
         nearPlayer.addHealth(wp, name, minDamageHeal, maxDamageHeal, critChance, critMultiplier);
         nearPlayer.getCooldownManager().addCooldown(this.getClass(), new CripplingStrike(), "CRIP", 3, wp, CooldownTypes.DEBUFF);

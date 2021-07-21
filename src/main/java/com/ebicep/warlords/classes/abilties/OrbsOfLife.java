@@ -45,6 +45,11 @@ public class OrbsOfLife extends AbstractAbility {
         }
     }
 
+    @Override
+    public void openMenu(Player player) {
+
+    }
+
     public Location generateSpawnLocation(Location location) {
         Location spawnLocation;
         int counter = 0;

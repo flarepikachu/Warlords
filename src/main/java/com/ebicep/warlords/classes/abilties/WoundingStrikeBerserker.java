@@ -24,6 +24,11 @@ public class WoundingStrikeBerserker extends AbstractStrikeBase {
     }
 
     @Override
+    public void openMenu(Player player) {
+
+    }
+
+    @Override
     protected void onHit(@Nonnull WarlordsPlayer wp, @Nonnull Player player, @Nonnull WarlordsPlayer nearPlayer) {
         nearPlayer.addHealth(wp, name, minDamageHeal, maxDamageHeal, critChance, critMultiplier);
         nearPlayer.getCooldownManager().addCooldown(this.getClass(), new WoundingStrikeBerserker(), "WND", 3, wp, CooldownTypes.DEBUFF);

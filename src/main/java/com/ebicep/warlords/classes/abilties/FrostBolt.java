@@ -79,5 +79,10 @@ public class FrostBolt extends AbstractProjectileBase {
                 "§7damage." + "\n\n§7Has an optimal range of §e" + MAX_FULL_DAMAGE_DISTANCE + "\n" +
                 "§7blocks.";
     }
-	
+
+    @Override
+    public void openMenu(Player player) {
+
+    }
+
 }

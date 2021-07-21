@@ -74,4 +74,9 @@ public class FreezingBreath extends AbstractAbility {
             }
         }.runTaskTimer(Warlords.getInstance(), 0, 1);
     }
+
+    @Override
+    public void openMenu(Player player) {
+
+    }
 }

@@ -52,4 +52,6 @@ public class Inferno extends AbstractAbility {
     public void openMenu(Player player) {
 
     }
+
+
 }

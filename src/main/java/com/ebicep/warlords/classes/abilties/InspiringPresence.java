@@ -73,6 +73,11 @@ public class InspiringPresence extends AbstractAbility {
         }.runTaskTimer(Warlords.getInstance(), 0, 0);
     }
 
+    @Override
+    public void openMenu(Player player) {
+
+    }
+
     public float getDuration() {
         return duration;
     }
@@ -81,8 +86,5 @@ public class InspiringPresence extends AbstractAbility {
         this.duration -= .05;
     }
 
-    @Override
-    public void openMenu(Player player) {
 
-    }
 }

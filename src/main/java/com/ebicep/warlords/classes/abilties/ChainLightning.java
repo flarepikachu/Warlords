@@ -42,6 +42,11 @@ public class ChainLightning extends AbstractChainBase {
     }
 
     @Override
+    public void openMenu(Player player) {
+
+    }
+
+    @Override
     protected int getHitCounterAndActivate(WarlordsPlayer warlordsPlayer, Player player) {
         return partOfChainLightning(warlordsPlayer, new HashSet<>(), warlordsPlayer.getEntity(), false);
     }

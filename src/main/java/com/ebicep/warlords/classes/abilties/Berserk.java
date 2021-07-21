@@ -51,4 +51,6 @@ public class Berserk extends AbstractAbility {
     public void openMenu(Player player) {
 
     }
+
+
 }

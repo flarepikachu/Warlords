@@ -110,6 +110,7 @@ public class SeismicWave extends AbstractAbility {
 
     }
 
+
     private List<Location> getWave(Location center, int distance) {
         List<Location> locations = new ArrayList<>();
         Location location = new Location(center.getWorld(), center.getX(), center.getY(), center.getZ());

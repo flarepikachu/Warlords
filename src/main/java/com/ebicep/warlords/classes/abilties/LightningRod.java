@@ -61,4 +61,6 @@ public class LightningRod extends AbstractAbility {
     public void openMenu(Player player) {
 
     }
+
+
 }

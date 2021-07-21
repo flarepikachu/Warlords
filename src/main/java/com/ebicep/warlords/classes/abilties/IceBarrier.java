@@ -53,4 +53,6 @@ public class IceBarrier extends AbstractAbility {
     public void openMenu(Player player) {
 
     }
+
+
 }

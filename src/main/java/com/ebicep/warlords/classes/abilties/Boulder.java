@@ -31,10 +31,7 @@ public class Boulder extends AbstractAbility {
                 "§7and knocks them back slightly.";
     }
 
-    @Override
-    public void openMenu(Player player) {
 
-    }
 
     @Override
     public void onActivate(WarlordsPlayer wp, Player player) {
@@ -158,5 +155,10 @@ public class Boulder extends AbstractAbility {
         for (Player player1 : player.getWorld().getPlayers()) {
             player1.playSound(player.getLocation(), "shaman.boulder.activation", 2, 1);
         }
+    }
+
+    @Override
+    public void openMenu(Player player) {
+
     }
 }

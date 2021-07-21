@@ -70,6 +70,7 @@ public class Repentance extends AbstractAbility {
 
     }
 
+
     public float getPool() {
         return pool;
     }

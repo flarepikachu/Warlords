@@ -35,10 +35,7 @@ public class EarthenSpike extends AbstractAbility {
         );
     }
 
-    @Override
-    public void openMenu(Player player) {
 
-    }
 
     @Override
     public void updateDescription(Player player) {
@@ -229,6 +226,11 @@ public class EarthenSpike extends AbstractAbility {
                 break;
             }
         }
+    }
+
+    @Override
+    public void openMenu(Player player) {
+
     }
 
     public class EarthenSpikeBlock {

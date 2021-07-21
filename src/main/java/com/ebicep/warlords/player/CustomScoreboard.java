@@ -155,6 +155,10 @@ public class CustomScoreboard {
                 scoreboard.getTeam("team_7").setSuffix(ChatColor.GRAY + "Respawning...");
             }
         }
+        //POINTS
+        {
+            scoreboard.getTeam("team_4").setPrefix("Points: " + ChatColor.GREEN + (int) warlordsPlayer.getPoints());
+        }
     }
 
     public void updateKillsAssists() {

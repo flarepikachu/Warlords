@@ -114,6 +114,7 @@ public class GroundSlam extends AbstractAbility {
 
     }
 
+
     /**
      * Return A List Of Locations That
      * Make Up A Circle Using A Provided

@@ -52,6 +52,11 @@ public class Earthliving extends AbstractAbility {
         }.runTaskTimer(Warlords.getInstance(), 0, 4);
     }
 
+    @Override
+    public void openMenu(Player player) {
+
+    }
+
     public boolean isFirstProc() {
         return firstProc;
     }
@@ -60,10 +65,7 @@ public class Earthliving extends AbstractAbility {
         this.firstProc = firstProc;
     }
 
-    @Override
-    public void openMenu(Player player) {
 
-    }
 }
 
 

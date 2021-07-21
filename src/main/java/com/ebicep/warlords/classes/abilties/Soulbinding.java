@@ -68,6 +68,7 @@ public class Soulbinding extends AbstractAbility {
 
     }
 
+
     public List<SoulBoundPlayer> getSoulBindedPlayers() {
         return soulBindedPlayers;
     }

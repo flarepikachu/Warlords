@@ -21,6 +21,11 @@ public class AvengersStrike extends AbstractStrikeBase {
     }
 
     @Override
+    public void openMenu(Player player) {
+
+    }
+
+    @Override
     protected void onHit(@Nonnull WarlordsPlayer wp, @Nonnull Player player, @Nonnull WarlordsPlayer nearPlayer) {
         if (standingOnConsecrate(player, nearPlayer.getEntity())) {
             nearPlayer.addHealth(wp, name, (minDamageHeal * 1.2f), (maxDamageHeal * 1.2f), critChance, critMultiplier);

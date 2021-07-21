@@ -113,6 +113,7 @@ public class LightningBolt extends AbstractAbility {
 
     }
 
+
     public static class Bolt {
 
         private WarlordsPlayer shooter;

@@ -98,5 +98,10 @@ public class WaterBolt extends AbstractProjectileBase {
                 "§7damage or healing for the target hit.\n" +
                 "§7Has an optimal range of §e" + MAX_FULL_DAMAGE_DISTANCE + " §7blocks.";
     }
-	
+
+    @Override
+    public void openMenu(Player player) {
+
+    }
+
 }

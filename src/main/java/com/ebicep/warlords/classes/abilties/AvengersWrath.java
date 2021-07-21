@@ -53,4 +53,6 @@ public class AvengersWrath extends AbstractAbility {
     public void openMenu(Player player) {
 
     }
+
+
 }

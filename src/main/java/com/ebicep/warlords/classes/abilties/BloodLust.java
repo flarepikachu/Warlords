@@ -50,4 +50,6 @@ public class BloodLust extends AbstractAbility {
     public void openMenu(Player player) {
 
     }
+
+
 }

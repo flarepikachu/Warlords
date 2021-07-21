@@ -28,10 +28,7 @@ public class LastStand extends AbstractAbility {
                 "§7prevented on allies.";
     }
 
-    @Override
-    public void openMenu(Player player) {
 
-    }
 
     @Override
     public void onActivate(WarlordsPlayer wp, Player player) {
@@ -81,5 +78,10 @@ public class LastStand extends AbstractAbility {
                         matrix.translateVector(player.getWorld(), distance, Math.sin(angle) * width, Math.cos(angle) * width), 500);
             }
         }
+    }
+
+    @Override
+    public void openMenu(Player player) {
+
     }
 }

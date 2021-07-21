@@ -27,6 +27,11 @@ public class ProtectorsStrike extends AbstractStrikeBase {
     }
 
     @Override
+    public void openMenu(Player player) {
+
+    }
+
+    @Override
     protected void onHit(@Nonnull WarlordsPlayer wp, @Nonnull Player player, @Nonnull WarlordsPlayer nearPlayer) {
         if (standingOnConsecrate(player, nearPlayer)) {
             nearPlayer.addHealth(wp, name, minDamageHeal * 1.15f, maxDamageHeal * 1.15f, critChance, critMultiplier);

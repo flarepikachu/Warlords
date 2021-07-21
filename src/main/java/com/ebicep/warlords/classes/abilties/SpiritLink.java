@@ -27,6 +27,11 @@ public class SpiritLink extends AbstractChainBase {
     }
 
     @Override
+    public void openMenu(Player player) {
+
+    }
+
+    @Override
     protected int getHitCounterAndActivate(WarlordsPlayer warlordsPlayer, Player player) {
         int hitCounter = 0;
         for (WarlordsPlayer nearPlayer : PlayerFilter

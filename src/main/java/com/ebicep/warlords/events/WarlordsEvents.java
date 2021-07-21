@@ -42,7 +42,8 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 
-import static com.ebicep.warlords.menu.GameMenu.*;
+import static com.ebicep.warlords.menu.GameMenu.openMainMenu;
+import static com.ebicep.warlords.menu.GameMenu.openTeamMenu;
 
 public class WarlordsEvents implements Listener {
 
@@ -250,7 +251,7 @@ public class WarlordsEvents implements Listener {
                         wp.setFlagCooldown(5);
                     }
                 } else if (itemHeld.getType() == Material.FIREWORK_CHARGE) {
-                    openSkillTreeMenu(player);
+                    wp.getSkillTree().openSkillTreeMenu();
                 } else if (itemHeld.getType() == Material.COMPASS) {
                     wp.toggleTeamFlagCompass();
                 } else if (player.getInventory().getHeldItemSlot() == 0 || !wp.isHotKeyMode()) {

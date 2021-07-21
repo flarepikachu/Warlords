@@ -47,4 +47,6 @@ public class HolyRadiance extends AbstractAbility {
     public void openMenu(Player player) {
 
     }
+
+
 }

@@ -11,6 +11,7 @@ import com.ebicep.warlords.maps.Team;
 import com.ebicep.warlords.maps.flags.*;
 import com.ebicep.warlords.maps.state.PlayingState;
 import com.ebicep.warlords.powerups.DamagePowerUp;
+import com.ebicep.warlords.skilltree.SkillTree;
 import com.ebicep.warlords.util.ItemBuilder;
 import com.ebicep.warlords.util.PacketUtils;
 import com.ebicep.warlords.util.PlayerFilter;
@@ -103,6 +104,8 @@ public final class WarlordsPlayer {
     private double flagDamageMultipler = 0;
 
     private CooldownManager cooldownManager = new CooldownManager(this);
+    private SkillTree skillTree;
+    private float points = 0;
 
     public WarlordsPlayer(
             @Nonnull OfflinePlayer player,
@@ -133,6 +136,7 @@ public final class WarlordsPlayer {
         this.entity = spawnJimmy(p == null ? Warlords.getRejoinPoint(uuid) : p.getLocation(), null);
         this.weapon = settings.weapon();
         this.hotKeyMode = settings.hotKeyMode();
+        this.skillTree = new SkillTree(this);
         updatePlayerReference(p);
     }
 
@@ -1388,10 +1392,10 @@ public final class WarlordsPlayer {
             // TODO Update the inventory based on the status of isUndyingArmyDead here
 
             //SKILL TREE JUICERS
-            /*player.getInventory().setItem(6, new ItemBuilder(Material.FIREWORK_CHARGE)
+            player.getInventory().setItem(6, new ItemBuilder(Material.FIREWORK_CHARGE)
                     .name(ChatColor.GREEN + "Skill Tree" + ChatColor.GRAY + " - " + ChatColor.YELLOW + "Right-Click!")
                     .lore(ChatColor.GRAY + "Opens your Skill Tree to upgrade your class!")
-                    .get());*/
+                    .get());
         }
     }
 
@@ -1562,5 +1566,25 @@ public final class WarlordsPlayer {
 
     public void setBlocksTravelledCM(int blocksTravelledCM) {
         this.blocksTravelledCM = blocksTravelledCM;
+    }
+
+    public Weapons getWeapon() {
+        return weapon;
+    }
+
+    public SkillTree getSkillTree() {
+        return skillTree;
+    }
+
+    public float getPoints() {
+        return points;
+    }
+
+    public void addPoints(float amount) {
+        this.points += amount;
+    }
+
+    public void subtractPoints(float amount) {
+        this.points -= amount;
     }
 }

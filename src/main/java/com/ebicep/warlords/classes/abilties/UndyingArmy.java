@@ -52,10 +52,7 @@ public class UndyingArmy extends AbstractAbility {
                 "§7after this abilty was cast.";
     }
 
-    @Override
-    public void openMenu(Player player) {
 
-    }
 
     @Override
     public void onActivate(WarlordsPlayer wp, Player player) {
@@ -83,5 +80,10 @@ public class UndyingArmy extends AbstractAbility {
         CircleEffect circle = new CircleEffect(wp.getGame(), wp.getTeam(), player.getLocation(), 5);
         circle.addEffect(new CircumferenceEffect(ParticleEffect.VILLAGER_HAPPY).particlesPerCircumference(1));
         circle.playEffects();
+    }
+
+    @Override
+    public void openMenu(Player player) {
+
     }
 }

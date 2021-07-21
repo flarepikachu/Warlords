@@ -76,4 +76,5 @@ public class FlameBurst extends AbstractProjectileBase {
 
     }
 
+
 }
