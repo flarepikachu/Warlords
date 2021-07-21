@@ -95,7 +95,9 @@ public class WarlordsEvents implements Listener {
         }
         if (isSpawnWorld) {
             player.setGameMode(GameMode.ADVENTURE);
+            player.sendMessage(ChatColor.GRAY + "---------------------------");
             player.sendMessage(ChatColor.GRAY + "You are now on Warlords 2.0");
+            player.sendMessage(ChatColor.GRAY + "---------------------------");
             player.sendMessage(" ");
             player.sendMessage(ChatColor.GRAY + "Developed by " + ChatColor.RED + "sumSmash " + ChatColor.GRAY + "&" + ChatColor.RED + " Plikie");
             player.sendMessage(" ");
@@ -105,6 +107,8 @@ public class WarlordsEvents implements Listener {
             player.sendMessage(" ");
             player.sendMessage(ChatColor.GRAY + "BUILD: " + ChatColor.RED + Warlords.VERSION);
             if (player.isOp()) {
+                player.sendMessage(" ");
+                player.sendMessage(ChatColor.GRAY + "For staff members: ");
                 player.sendMessage(" ");
                 player.sendMessage(ChatColor.GRAY + "Skip Timer: /wl timer skip/reset");
                 player.sendMessage(ChatColor.GRAY + "Infinite Energy: /wl energy disable/enable");

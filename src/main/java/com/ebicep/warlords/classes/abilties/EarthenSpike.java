@@ -31,7 +31,7 @@ public class EarthenSpike extends AbstractAbility {
     };
 
     public EarthenSpike() {
-        super("Earthen Spike", -404, -562, 0, 100, 15, 175
+        super("Earthen Spike", -476, -662, 0, 120, 15, 175
         );
     }
 
@@ -160,7 +160,7 @@ public class EarthenSpike extends AbstractAbility {
                                 warlordsPlayer.addHealth(user, name, minDamageHeal, maxDamageHeal, critChance, critMultiplier);
                                 wp.sendMessage("" + Utils.getDistance(warlordsPlayer, 1));
                                 if (Utils.getDistance(warlordsPlayer, 1) < 2.3) {
-                                    warlordsPlayer.setVelocity(new Vector(0, .44, 0));
+                                    warlordsPlayer.setVelocity(new Vector(0, .6, 0));
                                 }
                             }
 
@@ -199,10 +199,9 @@ public class EarthenSpike extends AbstractAbility {
                             earthenSpikeBlock.setDuration(-1);
                             this.cancel();
                         }
-                        System.out.println(earthenSpikeBlock.duration);
                     }
 
-                }.runTaskTimer(Warlords.getInstance(), 0, 2);
+                }.runTaskTimer(Warlords.getInstance(), 0, 3);
 
                 new BukkitRunnable() {
 

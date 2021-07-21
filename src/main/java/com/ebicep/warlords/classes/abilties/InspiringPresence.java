@@ -56,21 +56,7 @@ public class InspiringPresence extends AbstractAbility {
                     this.cancel();
                 }
             }
-        }.runTaskTimer(Warlords.getInstance(), 0, 2);
-
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                PlayerFilter.entitiesAround(wp, 10, 10, 10)
-                        .aliveTeammatesOfExcludingSelf(wp)
-                        .filter(p -> !p.getCooldownManager().hasCooldown(tempPresence))
-                        .forEach((nearPlayer) -> {
-                            nearPlayer.getSpeed().addSpeedModifier("Inspiring Presence", 30, (int) tempPresence.getDuration() * 20, "BASE");
-                            nearPlayer.getCooldownManager().addCooldown(InspiringPresence.this.getClass(), tempPresence, "PRES", (int) tempPresence.getDuration(), wp, CooldownTypes.BUFF);
-                        });
-                tempPresence.decrementDuration();
-            }
-        }.runTaskTimer(Warlords.getInstance(), 0, 0);
+        }.runTaskTimer(Warlords.getInstance(), 0, 4);
     }
 
     @Override
