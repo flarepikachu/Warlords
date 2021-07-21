@@ -3,6 +3,7 @@ package com.ebicep.warlords.skilltree.trees;
 import com.ebicep.warlords.Warlords;
 import com.ebicep.warlords.skilltree.SkillTree;
 import com.ebicep.warlords.skilltree.Upgrade;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -29,7 +30,23 @@ public class MiscellaneousTree extends DoubleUltTree implements IDoubleUlt {
 
     @Override
     public void doFirstLeftUpgrade() {
+        leftUpgrades.getFirst().setLocked(true);
+        int pointsInvested = 150;
+        skillTree.getWarlordsPlayer().addPoints(-150);
+        skillTree.getWarlordsPlayer().sendMessage(ChatColor.GREEN + "You invested " + pointsInvested + " points");
+        new BukkitRunnable() {
+            int timeLeft = 60 * 20;
 
+            @Override
+            public void run() {
+                timeLeft--;
+                if (timeLeft <= 0) {
+                    skillTree.getWarlordsPlayer().addPoints(pointsInvested * 1.5f);
+                    skillTree.getWarlordsPlayer().sendMessage("You received " + (pointsInvested * 1.5) + " from your investment");
+                    this.cancel();
+                }
+            }
+        }.runTaskTimer(Warlords.getInstance(), 0, 0);
     }
 
     @Override
@@ -55,7 +72,6 @@ public class MiscellaneousTree extends DoubleUltTree implements IDoubleUlt {
             public void run() {
                 rightUpgrades.getFirst().setLocked(false);
                 skillTree.getWarlordsPlayer().setPointGainRate(5 + rightUpgrades.getFirst().getCounter());
-
             }
         }.runTaskLater(Warlords.getInstance(), 60 * 20);
     }
