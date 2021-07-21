@@ -16,11 +16,11 @@ import com.ebicep.warlords.player.WarlordsPlayer;
 import com.ebicep.warlords.util.ItemBuilder;
 import com.ebicep.warlords.util.PacketUtils;
 import com.ebicep.warlords.util.Utils;
-import net.minecraft.server.v1_8_R3.EntityLiving;
-import net.minecraft.server.v1_8_R3.GenericAttributes;
 import org.bukkit.*;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftEntity;
-import org.bukkit.entity.*;
+import org.bukkit.entity.FallingBlock;
+import org.bukkit.entity.Horse;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Zombie;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -226,16 +226,7 @@ public class WarlordsEvents implements Listener {
                             player.sendMessage(ChatColor.RED + "You can't mount while holding the flag!");
                         } else {
                             player.playSound(player.getLocation(), "mountup", 1, 1);
-                            Horse horse = (Horse) player.getWorld().spawnEntity(player.getLocation(), EntityType.HORSE);
-                            horse.setTamed(true);
-                            horse.getInventory().setSaddle(new ItemStack(Material.SADDLE));
-                            horse.setOwner(player);
-                            horse.setJumpStrength(0);
-                            horse.setVariant(Horse.Variant.HORSE);
-                            horse.setAdult();
-                            ((EntityLiving) ((CraftEntity) horse).getHandle()).getAttributeInstance(GenericAttributes.MOVEMENT_SPEED).setValue(.308);
-                            //((EntityLiving) ((CraftEntity) horse).getHandle()).getAttributeInstance(GenericAttributes.MOVEMENT_SPEED).setValue(1);
-                            horse.setPassenger(player);
+                            wp.getHorse().spawn();
                             wp.setHorseCooldown(15);
                         }
                     }
@@ -317,8 +308,10 @@ public class WarlordsEvents implements Listener {
     @EventHandler
     public void onOpenInventory(InventoryOpenEvent e) {
         if (e.getPlayer().getVehicle() != null) {
-            if (e.getInventory().getHolder().getInventory().getTitle().equals("Horse")) {
-                e.setCancelled(true);
+            if (e.getInventory().getHolder() != null) {
+                if (e.getInventory().getHolder().getInventory().getTitle().equals("Horse")) {
+                    e.setCancelled(true);
+                }
             }
         }
     }

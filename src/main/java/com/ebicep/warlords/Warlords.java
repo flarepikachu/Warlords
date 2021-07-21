@@ -10,7 +10,6 @@ import com.ebicep.warlords.maps.Game;
 import com.ebicep.warlords.menu.MenuEventListener;
 import com.ebicep.warlords.player.*;
 import com.ebicep.warlords.powerups.EnergyPowerUp;
-import com.ebicep.warlords.skilltree.trees.DoubleUltTree;
 import com.ebicep.warlords.util.LocationBuilder;
 import com.ebicep.warlords.util.PacketUtils;
 import com.ebicep.warlords.util.PlayerFilter;
@@ -558,7 +557,7 @@ public class Warlords extends JavaPlugin {
                         for (WarlordsPlayer warlordsPlayer : players.values()) {
                             Player player = warlordsPlayer.getEntity() instanceof Player ? (Player) warlordsPlayer.getEntity() : null;
                             //POINTS
-                            warlordsPlayer.addPoints(((DoubleUltTree) warlordsPlayer.getSkillTree().getSkillTrees()[0]).getFirstUpgrade().getCounter() + 5);
+                            warlordsPlayer.addPoints(warlordsPlayer.getMiscellaneousTree().getFirstUpgrade().getCounter() + 5);
                             if (player != null) {
                                 //ACTION BAR
                                 if (player.getInventory().getHeldItemSlot() != 8) {

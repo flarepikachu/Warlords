@@ -1,5 +1,6 @@
 package com.ebicep.warlords.player;
 
+import com.ebicep.customentities.CustomHorse;
 import com.ebicep.warlords.Warlords;
 import com.ebicep.warlords.classes.AbstractAbility;
 import com.ebicep.warlords.classes.AbstractPlayerClass;
@@ -12,6 +13,7 @@ import com.ebicep.warlords.maps.flags.*;
 import com.ebicep.warlords.maps.state.PlayingState;
 import com.ebicep.warlords.powerups.DamagePowerUp;
 import com.ebicep.warlords.skilltree.SkillTree;
+import com.ebicep.warlords.skilltree.trees.DoubleUltTree;
 import com.ebicep.warlords.util.ItemBuilder;
 import com.ebicep.warlords.util.PacketUtils;
 import com.ebicep.warlords.util.PlayerFilter;
@@ -107,6 +109,8 @@ public final class WarlordsPlayer {
     private SkillTree skillTree;
     private float points = 0;
 
+    private CustomHorse horse;
+
     public WarlordsPlayer(
             @Nonnull OfflinePlayer player,
             @Nonnull PlayingState gameState,
@@ -137,6 +141,7 @@ public final class WarlordsPlayer {
         this.weapon = settings.weapon();
         this.hotKeyMode = settings.hotKeyMode();
         this.skillTree = new SkillTree(this);
+        this.horse = new CustomHorse(((CraftWorld) entity.getWorld()).getHandle(), this);
         updatePlayerReference(p);
     }
 
@@ -1586,5 +1591,21 @@ public final class WarlordsPlayer {
 
     public void subtractPoints(float amount) {
         this.points -= amount;
+    }
+
+    public DoubleUltTree getMiscellaneousTree() {
+        return (DoubleUltTree) this.skillTree.getWarlordsPlayer().getSkillTree().getSkillTrees()[0];
+    }
+
+    public DoubleUltTree getFlagTree() {
+        return (DoubleUltTree) this.skillTree.getWarlordsPlayer().getSkillTree().getSkillTrees()[1];
+    }
+
+    public DoubleUltTree getMountTree() {
+        return (DoubleUltTree) this.skillTree.getWarlordsPlayer().getSkillTree().getSkillTrees()[2];
+    }
+
+    public CustomHorse getHorse() {
+        return horse;
     }
 }

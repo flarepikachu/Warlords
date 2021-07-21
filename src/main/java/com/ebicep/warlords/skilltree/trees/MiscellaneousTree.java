@@ -10,13 +10,13 @@ public class MiscellaneousTree extends DoubleUltTree implements IDoubleUlt {
 
     public MiscellaneousTree(SkillTree skillTree) {
         super(skillTree, null, "Miscellaneous", new ItemStack(Material.YELLOW_FLOWER));
-        firstUpgrade = new Upgrade(this, 4, 4, 0, 1, "Increase passive point gain", "TODO");
-        leftUpgrades.add(new Upgrade(this, 3, 3, 0, 1, "Point investment", "TODO"));
-        leftUpgrades.add(new Upgrade(this, 3, 2, 0, 1, "Passive energy gain", "TODO"));
-        leftUpgrades.add(new Upgrade(this, 3, 1, 0, 1, "Passive regeneration", "TODO"));
-        rightUpgrades.add(new Upgrade(this, 5, 3, 0, 1, "Point loan", "TODO"));
-        rightUpgrades.add(new Upgrade(this, 5, 2, 0, 1, "Active energy gain", "TODO"));
-        rightUpgrades.add(new Upgrade(this, 5, 1, 0, 1, "Reduced respawn time", "TODO"));
+        firstUpgrade = new Upgrade(this, 4, 4, 0, 1, "Increase Passive Point Gain", "TODO");
+        leftUpgrades.add(new Upgrade(this, 3, 3, 0, 1, "Point Investment", "TODO"));
+        leftUpgrades.add(new Upgrade(this, 3, 2, 0, 1, "Passive Energy Gain", "TODO"));
+        leftUpgrades.add(new Upgrade(this, 3, 1, 0, 1, "Passive Regeneration", "TODO"));
+        rightUpgrades.add(new Upgrade(this, 5, 3, 0, 1, "Point Loan", "TODO"));
+        rightUpgrades.add(new Upgrade(this, 5, 2, 0, 1, "Active Energy Gain", "TODO"));
+        rightUpgrades.add(new Upgrade(this, 5, 1, 0, 1, "Reduced Respawn Time", "TODO"));
     }
 
     @Override
