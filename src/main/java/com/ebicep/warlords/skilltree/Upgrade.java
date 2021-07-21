@@ -18,6 +18,7 @@ public class Upgrade {
     private int cost;
     private String name;
     private String description;
+    private String subDescription = "";
     private boolean locked = false;
 
     public Upgrade(AbstractTree tree, int x, int y, int cost, int maxCounter, String name, String description) {
@@ -34,7 +35,7 @@ public class Upgrade {
     public void onClick() {
         if (tree.canUpgrade(this)) {
             if (tree.getSkillTree().getWarlordsPlayer().getPoints() < cost) {
-                tree.skillTree.getWarlordsPlayer().sendMessage(ChatColor.RED + "Insufficient Amount Of Points! retard");
+                tree.skillTree.getWarlordsPlayer().sendMessage(ChatColor.RED + "Insufficient Amount of Points! retard");
             } else {
                 if (tree.ability instanceof IDoubleUlt) {
                     switch (getUpgradeNumber()) {
@@ -143,18 +144,28 @@ public class Upgrade {
     }
 
     public ItemStack getItem() {
-        if (counter != 0) {
+        if (locked) {
+            return new ItemBuilder(Material.STAINED_CLAY, counter, (byte) 14)
+                    .name(ChatColor.GOLD + name + ChatColor.GRAY + " (LOCKED)")
+                    .lore(ChatColor.GRAY.toString() + counter + "/" + maxCounter,
+                            ChatColor.GRAY.toString() + description,
+                            ChatColor.GRAY.toString() + subDescription
+                    )
+                    .get();
+        } else if (counter != 0) {
             return new ItemBuilder(Material.STAINED_CLAY, counter, (byte) 5)
                     .name(ChatColor.GOLD + name)
                     .lore(ChatColor.GRAY.toString() + counter + "/" + maxCounter,
-                            description
+                            ChatColor.GRAY.toString() + description,
+                            ChatColor.GRAY.toString() + subDescription
                     )
                     .get();
         } else {
             return new ItemBuilder(Material.STAINED_CLAY)
                     .name(ChatColor.GOLD + name)
                     .lore(ChatColor.GRAY.toString() + counter + "/" + maxCounter,
-                            description
+                            ChatColor.GRAY.toString() + description,
+                            ChatColor.GRAY.toString() + subDescription
                     )
                     .get();
         }
@@ -186,6 +197,10 @@ public class Upgrade {
 
     public String getDescription() {
         return description;
+    }
+
+    public void setSubDescription(String subDescription) {
+        this.subDescription = subDescription;
     }
 
     public boolean isLocked() {

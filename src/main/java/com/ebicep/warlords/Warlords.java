@@ -557,7 +557,7 @@ public class Warlords extends JavaPlugin {
                         for (WarlordsPlayer warlordsPlayer : players.values()) {
                             Player player = warlordsPlayer.getEntity() instanceof Player ? (Player) warlordsPlayer.getEntity() : null;
                             //POINTS
-                            warlordsPlayer.addPoints(warlordsPlayer.getMiscellaneousTree().getFirstUpgrade().getCounter() + 5);
+                            warlordsPlayer.addPoints(warlordsPlayer.getPointGainRate());
                             if (player != null) {
                                 //ACTION BAR
                                 if (player.getInventory().getHeldItemSlot() != 8) {

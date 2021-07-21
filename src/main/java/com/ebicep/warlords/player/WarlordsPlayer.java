@@ -13,7 +13,9 @@ import com.ebicep.warlords.maps.flags.*;
 import com.ebicep.warlords.maps.state.PlayingState;
 import com.ebicep.warlords.powerups.DamagePowerUp;
 import com.ebicep.warlords.skilltree.SkillTree;
-import com.ebicep.warlords.skilltree.trees.DoubleUltTree;
+import com.ebicep.warlords.skilltree.trees.FlagTree;
+import com.ebicep.warlords.skilltree.trees.MiscellaneousTree;
+import com.ebicep.warlords.skilltree.trees.MountTree;
 import com.ebicep.warlords.util.ItemBuilder;
 import com.ebicep.warlords.util.PacketUtils;
 import com.ebicep.warlords.util.PlayerFilter;
@@ -108,6 +110,7 @@ public final class WarlordsPlayer {
     private CooldownManager cooldownManager = new CooldownManager(this);
     private SkillTree skillTree;
     private float points = 0;
+    private float pointGainRate = 5;
 
     private CustomHorse horse;
 
@@ -1593,16 +1596,28 @@ public final class WarlordsPlayer {
         this.points -= amount;
     }
 
-    public DoubleUltTree getMiscellaneousTree() {
-        return (DoubleUltTree) this.skillTree.getWarlordsPlayer().getSkillTree().getSkillTrees()[0];
+    public float getPointGainRate() {
+        return pointGainRate;
     }
 
-    public DoubleUltTree getFlagTree() {
-        return (DoubleUltTree) this.skillTree.getWarlordsPlayer().getSkillTree().getSkillTrees()[1];
+    public void setPointGainRate(float pointGainRate) {
+        this.pointGainRate = pointGainRate;
     }
 
-    public DoubleUltTree getMountTree() {
-        return (DoubleUltTree) this.skillTree.getWarlordsPlayer().getSkillTree().getSkillTrees()[2];
+    public void addPointGainRate(float amount) {
+        this.pointGainRate += amount;
+    }
+
+    public MiscellaneousTree getMiscellaneousTree() {
+        return (MiscellaneousTree) this.skillTree.getWarlordsPlayer().getSkillTree().getSkillTrees()[0];
+    }
+
+    public FlagTree getFlagTree() {
+        return (FlagTree) this.skillTree.getWarlordsPlayer().getSkillTree().getSkillTrees()[1];
+    }
+
+    public MountTree getMountTree() {
+        return (MountTree) this.skillTree.getWarlordsPlayer().getSkillTree().getSkillTrees()[2];
     }
 
     public CustomHorse getHorse() {
