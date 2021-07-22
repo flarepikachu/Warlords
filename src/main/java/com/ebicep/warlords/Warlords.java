@@ -343,6 +343,9 @@ public class Warlords extends JavaPlugin {
                             }
                         }
 
+                        warlordsPlayer.setTimeAfterDismount(warlordsPlayer.getTimeAfterDismount() + .05f);
+                        warlordsPlayer.setTimeAfterMount(warlordsPlayer.getTimeAfterMount() + .05f);
+
                         warlordsPlayer.getCooldownManager().reduceCooldowns();
 
                         //respawn
@@ -574,7 +577,7 @@ public class Warlords extends JavaPlugin {
                                     warlordsPlayer.getHitBy().clear();
                                 }
                             } else {
-                                int healthToAdd = (int) (warlordsPlayer.getMaxHealth() / 55.3);
+                                int healthToAdd = (int) (warlordsPlayer.getMaxHealth() / warlordsPlayer.getRegenDivisor());
                                 warlordsPlayer.setHealth(Math.min(warlordsPlayer.getHealth() + healthToAdd, warlordsPlayer.getMaxHealth()));
                             }
                             //RESPAWN

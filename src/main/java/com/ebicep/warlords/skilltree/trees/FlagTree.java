@@ -6,7 +6,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 
-public class FlagTree extends DoubleUltTree {
+public class FlagTree extends DoubleUltTree implements IDoubleUlt {
 
     public FlagTree(SkillTree skillTree) {
         super(skillTree, null, "Flag", new ItemStack(Material.BANNER));
@@ -19,4 +19,38 @@ public class FlagTree extends DoubleUltTree {
         rightUpgrades.add(new Upgrade(this, 5, 1, 0, 1, "TODO", "TODO"));
     }
 
+    @Override
+    public void doFirstUpgrade() {
+
+    }
+
+    @Override
+    public void doFirstLeftUpgrade() {
+
+    }
+
+    @Override
+    public void doSecondLeftUpgrade() {
+
+    }
+
+    @Override
+    public void doThirdLeftUpgrade() {
+
+    }
+
+    @Override
+    public void doFirstRightUpgrade() {
+
+    }
+
+    @Override
+    public void doSecondRightUpgrade() {
+
+    }
+
+    @Override
+    public void doThirdRightUpgrade() {
+
+    }
 }

@@ -231,7 +231,7 @@ public class WarlordsEvents implements Listener {
                         } else {
                             player.playSound(player.getLocation(), "mountup", 1, 1);
                             wp.getHorse().spawn();
-                            wp.setHorseCooldown(15);
+                            wp.setHorseCooldown(wp.getHorse().getCooldown());
                         }
                     }
 
@@ -247,6 +247,8 @@ public class WarlordsEvents implements Listener {
                     }
                 } else if (itemHeld.getType() == Material.FIREWORK_CHARGE) {
                     wp.getSkillTree().openSkillTreeMenu();
+                } else if (itemHeld.getType() == Material.SUGAR) {
+                    wp.getHorse().boostSpeed();
                 } else if (itemHeld.getType() == Material.COMPASS) {
                     wp.toggleTeamFlagCompass();
                 } else if (player.getInventory().getHeldItemSlot() == 0 || !wp.isHotKeyMode()) {
@@ -362,7 +364,7 @@ public class WarlordsEvents implements Listener {
                         int damage = (int) e.getDamage();
                         if (damage > 5) {
                             wp.addHealth(wp, "Fall", -((damage + 3) * 40 - 200), -((damage + 3) * 40 - 200), -1, 100);
-                            wp.setRegenTimer(10);
+                            wp.setRegenTimer(wp.getBaseRegenTimer());
                         }
                     }
                 }

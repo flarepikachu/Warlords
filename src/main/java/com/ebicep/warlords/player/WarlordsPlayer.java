@@ -60,12 +60,17 @@ public final class WarlordsPlayer {
     private int maxHealth;
     private int regenTimer;
     private int timeInCombat = 0;
+    private float regenDivisor = 55.3f;
+    private int baseRegenTimer = 10;
     private int respawnTimer;
     private int respawnTimeSpent = 0;
+    private int baseAdditionalRespawn = 0;
     private boolean dead = false;
     private float energy;
     private float maxEnergy;
     private float horseCooldown;
+    private float timeAfterDismount = 0;
+    private float timeAfterMount = 0;
     private int flagCooldown;
     private int hitCooldown;
     private int spawnProtection;
@@ -109,8 +114,9 @@ public final class WarlordsPlayer {
 
     private CooldownManager cooldownManager = new CooldownManager(this);
     private SkillTree skillTree;
-    private float points = 0;
+    private float points = 1000;
     private float pointGainRate = 5;
+
 
     private CustomHorse horse;
 
@@ -502,7 +508,7 @@ public final class WarlordsPlayer {
         if (attacker == this && (ability.equals("Fall") || ability.isEmpty())) {
             if (ability.isEmpty()) {
                 sendMessage("" + ChatColor.RED + "\u00AB" + ChatColor.GRAY + " You took " + ChatColor.RED + Math.round(min * -1) + ChatColor.GRAY + " melee damage.");
-                regenTimer = 10;
+                regenTimer = baseRegenTimer;
                 if (health + min <= 0) {
                     die(attacker);
                     gameState.addKill(team, false);
@@ -522,7 +528,7 @@ public final class WarlordsPlayer {
             } else {
                 //TODO FIX FIX IT JUST GETS MORE MESSY LETS GOOOOOOOOOOOOOOO
                 sendMessage("" + ChatColor.RED + "\u00AB" + ChatColor.GRAY + " You took " + ChatColor.RED + Math.round(min * -1) + ChatColor.GRAY + " fall damage.");
-                regenTimer = 10;
+                regenTimer = baseRegenTimer;
                 if (health + min < 0) {
                     die(attacker);
                     gameState.addKill(team, false); // TODO, fall damage is only a suicide if it happens more than 5 seconds after the last damage
@@ -591,6 +597,10 @@ public final class WarlordsPlayer {
                     totalReduction *= .8;
                 }
 
+                if (timeAfterDismount < 5) {
+                    totalReduction *= horse.getDamageResistance();
+                }
+
                 //TODO maybe change to hypixel warlords where crippling effects hammer
                 if (!attacker.getCooldownManager().getCooldown(CripplingStrike.class).isEmpty()) {
                     totalReduction *= .875;
@@ -608,7 +618,7 @@ public final class WarlordsPlayer {
                     });
 
                     intervenedBy.getEntity().playEffect(EntityEffect.HURT);
-                    intervenedBy.setRegenTimer(10);
+                    intervenedBy.setRegenTimer(intervenedBy.getBaseRegenTimer());
                     ((Intervene) cooldownManager.getCooldown(Intervene.class).get(0).getCooldownObject()).addDamagePrevented(-damageHealValue);
 
                     removeHorse();
@@ -669,7 +679,10 @@ public final class WarlordsPlayer {
                         ((Player) attacker.entity).playSound(attacker.getLocation(), Sound.ORB_PICKUP, 1, 1);
                     }
                 }
-                removeHorse();
+
+                if (damageHorse(damageHealValue)) {
+                    removeHorse();
+                }
             } else {
                 boolean debt = false;
 
@@ -703,8 +716,17 @@ public final class WarlordsPlayer {
                             powerUpHeal = false;
                             sendMessage(ChatColor.GRAY + "Your §aHealing Powerup §7has worn off.");
                         }
-                        removeHorse();
-                        regenTimer = 10;
+                        regenTimer = baseRegenTimer;
+                        //mount protection
+                        if (entity.getVehicle() != null) {
+                            if (damageHorse(damageHealValue)) {
+                                removeHorse();
+                                if (entity.getVehicle() == null && !horse.isDamageOnDismount()) {
+                                    sendMessage(ChatColor.GREEN + "Your Mount Protection prevented you from taking damage on dismount");
+                                    return;
+                                }
+                            }
+                        }
                         if (!cooldownManager.getCooldown(LastStand.class).isEmpty() && !HammerOfLight.standingInHammer(attacker, entity)) {
                             for (Cooldown cooldown : cooldownManager.getCooldown(LastStand.class)) {
                                 WarlordsPlayer lastStandedBy = cooldown.getFrom();
@@ -971,9 +993,20 @@ public final class WarlordsPlayer {
         }
     }
 
+    public boolean damageHorse(float amount) {
+        if (!(horse.isHasDivineMount() && timeAfterMount < 5)) {
+            horse.addHealth(amount);
+            return horse.getHorseHealth() <= 0;
+        }
+        return false;
+    }
+
     public void removeHorse() {
         if (entity.getVehicle() != null) {
-            entity.getVehicle().remove();
+            if (!horse.isHasDivineMount() || timeAfterMount >= 5) {
+                timeAfterDismount = 0;
+                entity.getVehicle().remove();
+            }
         }
     }
 
@@ -1102,7 +1135,24 @@ public final class WarlordsPlayer {
         if (respawn <= 4) {
             respawn += 12;
         }
+        respawn += baseAdditionalRespawn;
         setRespawnTimer(respawn);
+    }
+
+    public float getRegenDivisor() {
+        return regenDivisor;
+    }
+
+    public void setRegenDivisor(float regenDivisor) {
+        this.regenDivisor = regenDivisor;
+    }
+
+    public int getBaseRegenTimer() {
+        return baseRegenTimer;
+    }
+
+    public void setBaseRegenTimer(int baseRegenTimer) {
+        this.baseRegenTimer = baseRegenTimer;
     }
 
     public float getEnergy() {
@@ -1528,6 +1578,14 @@ public final class WarlordsPlayer {
         return respawnTimeSpent;
     }
 
+    public int getBaseAdditionalRespawn() {
+        return baseAdditionalRespawn;
+    }
+
+    public void setBaseAdditionalRespawn(int baseAdditionalRespawn) {
+        this.baseAdditionalRespawn = baseAdditionalRespawn;
+    }
+
     public boolean getInfiniteEnergy() {
         return infiniteEnergy;
     }
@@ -1622,5 +1680,21 @@ public final class WarlordsPlayer {
 
     public CustomHorse getHorse() {
         return horse;
+    }
+
+    public float getTimeAfterDismount() {
+        return timeAfterDismount;
+    }
+
+    public void setTimeAfterDismount(float timeAfterDismount) {
+        this.timeAfterDismount = timeAfterDismount;
+    }
+
+    public float getTimeAfterMount() {
+        return timeAfterMount;
+    }
+
+    public void setTimeAfterMount(float timeAfterMount) {
+        this.timeAfterMount = timeAfterMount;
     }
 }

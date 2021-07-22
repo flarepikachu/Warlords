@@ -8,6 +8,9 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Upgrade {
 
     private AbstractTree tree;
@@ -19,6 +22,7 @@ public class Upgrade {
     private String name;
     private String description;
     private String subDescription = "";
+    private String currentEffect = "";
     private boolean locked = false;
 
     public Upgrade(AbstractTree tree, int x, int y, int cost, int maxCounter, String name, String description) {
@@ -144,29 +148,32 @@ public class Upgrade {
     }
 
     public ItemStack getItem() {
+        List<String> lore = new ArrayList<>();
+        lore.add(ChatColor.GRAY + "Cost: " + ChatColor.GREEN + cost);
+        lore.add(ChatColor.GRAY.toString() + "Unlocked: " + ChatColor.YELLOW + counter + "/" + maxCounter);
+        if (!description.isEmpty()) {
+            lore.add(ChatColor.GRAY.toString() + "Description: " + ChatColor.LIGHT_PURPLE + description);
+        }
+        if (!subDescription.isEmpty()) {
+            lore.add(ChatColor.GRAY.toString() + subDescription);
+        }
+        if (!currentEffect.isEmpty()) {
+            lore.add(ChatColor.GRAY.toString() + "Current Effect: " + ChatColor.AQUA + currentEffect);
+        }
         if (locked) {
             return new ItemBuilder(Material.STAINED_CLAY, counter, (byte) 14)
                     .name(ChatColor.GOLD + name + ChatColor.GRAY + " (LOCKED)")
-                    .lore(ChatColor.GRAY.toString() + counter + "/" + maxCounter,
-                            ChatColor.GRAY.toString() + description,
-                            ChatColor.GRAY.toString() + subDescription
-                    )
+                    .lore(lore)
                     .get();
         } else if (counter != 0) {
             return new ItemBuilder(Material.STAINED_CLAY, counter, (byte) 5)
                     .name(ChatColor.GOLD + name)
-                    .lore(ChatColor.GRAY.toString() + counter + "/" + maxCounter,
-                            ChatColor.GRAY.toString() + description,
-                            ChatColor.GRAY.toString() + subDescription
-                    )
+                    .lore(lore)
                     .get();
         } else {
             return new ItemBuilder(Material.STAINED_CLAY)
                     .name(ChatColor.GOLD + name)
-                    .lore(ChatColor.GRAY.toString() + counter + "/" + maxCounter,
-                            ChatColor.GRAY.toString() + description,
-                            ChatColor.GRAY.toString() + subDescription
-                    )
+                    .lore(lore)
                     .get();
         }
     }
@@ -187,6 +194,10 @@ public class Upgrade {
         return counter;
     }
 
+    public int getCounterPlusOne() {
+        return counter + 1;
+    }
+
     public int getMaxCounter() {
         return maxCounter;
     }
@@ -201,6 +212,10 @@ public class Upgrade {
 
     public void setSubDescription(String subDescription) {
         this.subDescription = subDescription;
+    }
+
+    public void setCurrentEffect(String currentEffect) {
+        this.currentEffect = currentEffect;
     }
 
     public boolean isLocked() {
