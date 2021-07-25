@@ -32,6 +32,7 @@ public class CripplingStrike extends AbstractStrikeBase {
     @Override
     protected void onHit(@Nonnull WarlordsPlayer wp, @Nonnull Player player, @Nonnull WarlordsPlayer nearPlayer) {
         nearPlayer.addHealth(wp, name, minDamageHeal, maxDamageHeal, critChance, critMultiplier);
+        nearPlayer.getCooldownManager().removeCooldown(CripplingStrike.class);
         nearPlayer.getCooldownManager().addCooldown(this.getClass(), new CripplingStrike(), "CRIP", 3, wp, CooldownTypes.DEBUFF);
         nearPlayer.sendMessage(ChatColor.GRAY + "You are " + ChatColor.RED + "crippled" + ChatColor.GRAY + ".");
     }
