@@ -201,7 +201,7 @@ public class EarthenSpike extends AbstractAbility {
                         }
                     }
 
-                }.runTaskTimer(Warlords.getInstance(), 0, 3);
+                }.runTaskTimer(Warlords.getInstance(), 0, 2);
 
                 new BukkitRunnable() {
 

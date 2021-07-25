@@ -145,7 +145,6 @@ public class Warlords extends JavaPlugin {
 
     private int counter = 0;
 
-    //TODO remove static EVERYWHERE FUCK ME
     public static Game game;
     public static DatabaseManager databaseManager;
     public static boolean holographicDisplaysEnabled;
@@ -634,6 +633,10 @@ public class Warlords extends JavaPlugin {
                             //COMBAT TIMER - counts dmg taken within 4 seconds
                             if (warlordsPlayer.getRegenTimer() > 6) {
                                 warlordsPlayer.addTimeInCombat();
+                            }
+
+                            if (warlordsPlayer.getName().equals("sumSmash")) {
+
                             }
                         }
 

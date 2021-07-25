@@ -108,6 +108,7 @@ public class WarlordsEvents implements Listener {
             player.sendMessage(ChatColor.GRAY + "BUILD: " + ChatColor.RED + Warlords.VERSION);
             if (player.isOp()) {
                 player.sendMessage(" ");
+                player.sendMessage(ChatColor.GRAY + "(DO NOT USE THESE IN REAL GAMES)");
                 player.sendMessage(ChatColor.GRAY + "For staff members: ");
                 player.sendMessage(" ");
                 player.sendMessage(ChatColor.GRAY + "Skip Timer: /wl timer skip/reset");
@@ -178,7 +179,7 @@ public class WarlordsEvents implements Listener {
                                         warlordsPlayerAttacker.sendMessage(ChatColor.GREEN + "\u00BB " + ChatColor.GRAY + "Your " + ChatColor.LIGHT_PURPLE + "Soulbinding Weapon " + ChatColor.GRAY + "has bound " + warlordsPlayerVictim.getName() + "!");
                                         soulbinding.getSoulBindedPlayers().add(new Soulbinding.SoulBoundPlayer(warlordsPlayerVictim, 3));
                                         for (Player player1 : warlordsPlayerVictim.getWorld().getPlayers()) {
-                                            player1.playSound(warlordsPlayerVictim.getLocation(), "shaman.earthliving.activation", 2, 1);
+                                            player1.playSound(warlordsPlayerVictim.getLocation(), "shaman.earthlivingweapon.activation", 2, 1);
                                         }
                                     }
                                 });

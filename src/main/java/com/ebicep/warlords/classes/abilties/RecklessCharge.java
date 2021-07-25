@@ -3,14 +3,13 @@ package com.ebicep.warlords.classes.abilties;
 import com.ebicep.warlords.Warlords;
 import com.ebicep.warlords.classes.AbstractAbility;
 import com.ebicep.warlords.player.WarlordsPlayer;
+import com.ebicep.warlords.util.PacketUtils;
 import com.ebicep.warlords.util.Utils;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
@@ -19,9 +18,9 @@ import java.util.List;
 
 public class RecklessCharge extends AbstractAbility {
 
-    private List<Player> playersHit = new ArrayList<>();
+    public List<Player> playersHit = new ArrayList<>();
     private Location chargeLocation;
-    private int charge;
+    private int charge = 0;
 
     public RecklessCharge() {
         super("Reckless Charge", -466, -612, 9.98f, 60, 20, 200);
@@ -39,8 +38,8 @@ public class RecklessCharge extends AbstractAbility {
 
     @Override
     public void onActivate(WarlordsPlayer wp, Player player) {
-        playersHit.clear();
         wp.subtractEnergy(energyCost);
+        playersHit.clear();
         Location eyeLocation = player.getLocation();
         eyeLocation.setPitch(-10);
 
@@ -83,16 +82,33 @@ public class RecklessCharge extends AbstractAbility {
                     if (entity instanceof Player && ((Player) entity).getGameMode() != GameMode.SPECTATOR) {
                         ((RecklessCharge) wp.getSpec().getRed()).getPlayersHit().add((Player) entity);
 
-                        Warlords.getPlayer((Player) entity).addHealth(wp,
+                        WarlordsPlayer nearPlayer = Warlords.getPlayer((Player) entity);
+
+                        nearPlayer.addHealth(wp,
                                 wp.getSpec().getRed().getName(),
                                 wp.getSpec().getRed().getMinDamageHeal(),
                                 wp.getSpec().getRed().getMaxDamageHeal(),
                                 wp.getSpec().getRed().getCritChance(),
                                 wp.getSpec().getRed().getCritMultiplier());
 
-                        // little scuffed might wanna change
-                        ((Player) entity).addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 17, 50));
-                        ((Player) entity).addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 17, 150));
+                        new BukkitRunnable() {
+                            Location stunLocation = nearPlayer.getLocation();
+                            int timer = 0;
+
+                            @Override
+                            public void run() {
+                                stunLocation.setPitch(entity.getLocation().getPitch());
+                                stunLocation.setYaw(entity.getLocation().getYaw());
+                                entity.teleport(stunLocation);
+                                //.75 seconds
+                                if (timer >= 15) {
+                                    this.cancel();
+                                }
+                                timer++;
+                            }
+                        }.runTaskTimer(Warlords.getInstance(), 0, 0);
+
+                        PacketUtils.sendTitle((Player) entity, "", "§dIMMOBILIZED", 0, 30, 0);
                     }
                 }
                 //cancel charge if hit a block, making the player stand still

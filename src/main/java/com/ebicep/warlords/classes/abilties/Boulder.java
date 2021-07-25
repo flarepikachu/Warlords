@@ -20,7 +20,7 @@ public class Boulder extends AbstractAbility {
     private static final double GRAVITY = -0.0139;
 
     public Boulder() {
-        super("Boulder", -490, -731, 7.05f, 80, 15, 175);
+        super("Boulder", -465, -694, 7.05f, 80, 15, 175);
     }
 
     @Override
@@ -35,6 +35,7 @@ public class Boulder extends AbstractAbility {
 
     @Override
     public void onActivate(WarlordsPlayer wp, Player player) {
+        wp.subtractEnergy(energyCost);
 
         Location location = player.getLocation();
         Vector speed = player.getLocation().getDirection().multiply(SPEED);
@@ -46,8 +47,6 @@ public class Boulder extends AbstractAbility {
         stand.setBasePlate(false);
         stand.setArms(false);
         stand.setVisible(false);
-
-        wp.subtractEnergy(energyCost);
 
         new BukkitRunnable() {
 

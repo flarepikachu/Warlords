@@ -30,12 +30,18 @@ import java.util.stream.Stream;
 
 public class Utils {
 
+    public static double getDotToPlayer(LivingEntity player1, LivingEntity player2, double yIncrease) {
+        System.out.println(player1.getName() + " to " + player2.getName());
+        System.out.println(getDotToLocation(new LocationBuilder(player1.getEyeLocation()).addY(.7).get(), player2.getEyeLocation()));
+        System.out.println("-----");
+        return getDotToLocation(new LocationBuilder(player1.getEyeLocation()).addY(yIncrease).get(), player2.getEyeLocation());
+    }
+
     public static double getDotToPlayerEye(LivingEntity player1, LivingEntity player2) {
         return getDotToLocation(player1.getEyeLocation(), player2.getEyeLocation());
     }
 
     public static double getDotToPlayerCenter(LivingEntity player1, LivingEntity player2) {
-        System.out.println(getDotToLocation(new LocationBuilder(player1.getEyeLocation()).addY(.7).get(), player2.getEyeLocation()));
         return getDotToLocation(new LocationBuilder(player1.getEyeLocation()).addY(.7).get(), player2.getEyeLocation());
     }
 
@@ -45,6 +51,14 @@ public class Utils {
     }
 
     public static boolean isLookingAt(LivingEntity player1, LivingEntity player2) {
+        Location eye = new LocationBuilder(player1.getEyeLocation())
+                .backward(4)
+                .addY(.7)
+                .get();
+        return getDotToLocation(eye, player2.getEyeLocation()) > 0.925;
+    }
+
+    public static boolean isLookingAtIntervene(LivingEntity player1, LivingEntity player2) {
         Location eye = new LocationBuilder(player1.getEyeLocation())
                 .backward(4)
                 .addY(.7)

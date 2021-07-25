@@ -25,6 +25,8 @@ public abstract class AbstractProjectileBase extends AbstractAbility {
     protected final double maxDistance;
     protected final boolean hitTeammates;
 
+    private final float playerHitbox = 0.7f;
+
     public AbstractProjectileBase(String name, float minDamageHeal, float maxDamageHeal, float cooldown, int energyCost, int critChance, int critMultiplier, double projectileSpeed, double maxDistance, boolean hitTeammates) {
         super(name, minDamageHeal, maxDamageHeal, cooldown, energyCost, critChance, critMultiplier);
         this.projectileSpeed = projectileSpeed;
@@ -107,13 +109,13 @@ public abstract class AbstractProjectileBase extends AbstractAbility {
                 net.minecraft.server.v1_8_R3.Entity nmsEntity = ((CraftEntity) entity).getHandle();
                 AxisAlignedBB aabb = nmsEntity.getBoundingBox();
                 aabb = new AxisAlignedBB(
-                        aabb.a - 0.4,
-                        aabb.b - 0.4,
-                        aabb.c - 0.4,
-                        aabb.d + 0.4,
-                        aabb.e + 0.4,
-                        aabb.f + 0.4
-                        );
+                        aabb.a - playerHitbox,
+                        aabb.b - playerHitbox,
+                        aabb.c - playerHitbox,
+                        aabb.d + playerHitbox,
+                        aabb.e + playerHitbox,
+                        aabb.f + playerHitbox
+                );
                 MovingObjectPosition mop = aabb.a(after, before);
                 if (mop != null) {
                     mop.entity = nmsEntity;

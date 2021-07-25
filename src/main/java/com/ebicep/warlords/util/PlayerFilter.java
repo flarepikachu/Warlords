@@ -124,7 +124,19 @@ public class PlayerFilter implements Iterable<WarlordsPlayer> {
 
     @Nonnull
     public PlayerFilter lookingAtFirst(WarlordsPlayer user) {
-        return sorted(Comparator.comparing(wp -> -Utils.getDotToPlayerCenter(user.getEntity(), wp.getEntity())));
+        return sorted((wp1, wp2) -> {
+            int output;
+            double wp1Dot = -Utils.getDotToPlayer(user.getEntity(), wp1.getEntity(), 0);
+            double wp2Dot = -Utils.getDotToPlayer(user.getEntity(), wp2.getEntity(), 0);
+            output = Double.compare(wp1Dot, wp2Dot);
+            if (Math.abs(wp1Dot - wp2Dot) < .01) {
+                Location userLocation = user.getLocation();
+                Location w1Location = wp1.getLocation();
+                Location w2Location = wp2.getLocation();
+                output = Double.compare(userLocation.distanceSquared(w1Location), userLocation.distanceSquared(w2Location));
+            }
+            return output;
+        });
     }
 
     @Nonnull
@@ -317,6 +329,16 @@ public class PlayerFilter implements Iterable<WarlordsPlayer> {
     @Nonnull
     public PlayerFilter requireLineOfSight(@Nonnull LivingEntity entity) {
         return filter(wp -> Utils.isLookingAt(entity, wp.getEntity()) && Utils.hasLineOfSight(entity, wp.getEntity()));
+    }
+
+    @Nonnull
+    public PlayerFilter requireLineOfSightIntervene(@Nonnull WarlordsPlayer warlordsPlayer) {
+        return requireLineOfSightIntervene(warlordsPlayer.getEntity());
+    }
+
+    @Nonnull
+    public PlayerFilter requireLineOfSightIntervene(@Nonnull LivingEntity entity) {
+        return filter(wp -> Utils.isLookingAtIntervene(entity, wp.getEntity()) && Utils.hasLineOfSight(entity, wp.getEntity()));
     }
 
     @Nonnull
