@@ -9,7 +9,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
 
-public class MiscellaneousTree extends DoubleUltTree implements IDoubleUlt {
+public class MiscellaneousTree extends DoubleUltTree {
 
     public MiscellaneousTree(SkillTree skillTree) {
         super(skillTree, null, "Miscellaneous", new ItemStack(Material.YELLOW_FLOWER));
@@ -105,6 +105,5 @@ public class MiscellaneousTree extends DoubleUltTree implements IDoubleUlt {
         skillTree.getWarlordsPlayer().setBaseAdditionalRespawn(skillTree.getWarlordsPlayer().getBaseAdditionalRespawn() - 1);
         rightUpgrades.getLast().setCurrentEffect(skillTree.getWarlordsPlayer().getBaseAdditionalRespawn() + " seconds on respawn");
     }
-
 }
 

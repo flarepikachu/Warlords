@@ -3,6 +3,7 @@ package com.ebicep.warlords.classes.abilties;
 import com.ebicep.warlords.classes.internal.AbstractStrikeBase;
 import com.ebicep.warlords.player.CooldownTypes;
 import com.ebicep.warlords.player.WarlordsPlayer;
+import com.ebicep.warlords.skilltree.SkillTree;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -24,14 +25,17 @@ public class WoundingStrikeDefender extends AbstractStrikeBase {
     }
 
     @Override
-    public void openMenu(Player player) {
+    public void createSkillTreeAbility(WarlordsPlayer warlordsPlayer, SkillTree skillTree) {
 
     }
 
     @Override
     protected void onHit(@Nonnull WarlordsPlayer wp, @Nonnull Player player, @Nonnull WarlordsPlayer nearPlayer) {
         nearPlayer.addHealth(wp, name, minDamageHeal, maxDamageHeal, critChance, critMultiplier);
-        nearPlayer.getCooldownManager().addCooldown(this.getClass(), new WoundingStrikeDefender(), "WND", 3, wp, CooldownTypes.DEBUFF);
+        if (!nearPlayer.getCooldownManager().hasCooldown(WoundingStrikeBerserker.class)) {
+            nearPlayer.getCooldownManager().removeCooldown(WoundingStrikeDefender.class);
+            nearPlayer.getCooldownManager().addCooldown(this.getClass(), new WoundingStrikeDefender(), "WND", 3, wp, CooldownTypes.DEBUFF);
+        }
         nearPlayer.sendMessage(ChatColor.GRAY + "You are " + ChatColor.RED + "wounded" + ChatColor.GRAY + ".");
     }
 }

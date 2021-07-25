@@ -6,7 +6,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 
-public class FlagTree extends DoubleUltTree implements IDoubleUlt {
+public class FlagTree extends DoubleUltTree {
 
     public FlagTree(SkillTree skillTree) {
         super(skillTree, null, "Flag", new ItemStack(Material.BANNER));

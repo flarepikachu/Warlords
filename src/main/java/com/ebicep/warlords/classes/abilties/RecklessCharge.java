@@ -3,6 +3,7 @@ package com.ebicep.warlords.classes.abilties;
 import com.ebicep.warlords.Warlords;
 import com.ebicep.warlords.classes.AbstractAbility;
 import com.ebicep.warlords.player.WarlordsPlayer;
+import com.ebicep.warlords.skilltree.SkillTree;
 import com.ebicep.warlords.util.PacketUtils;
 import com.ebicep.warlords.util.Utils;
 import org.bukkit.GameMode;
@@ -122,7 +123,7 @@ public class RecklessCharge extends AbstractAbility {
     }
 
     @Override
-    public void openMenu(Player player) {
+    public void createSkillTreeAbility(WarlordsPlayer warlordsPlayer, SkillTree skillTree) {
 
     }
 

@@ -1,5 +1,6 @@
 package com.ebicep.warlords.skilltree;
 
+import com.ebicep.warlords.classes.AbstractPlayerClass;
 import com.ebicep.warlords.menu.Menu;
 import com.ebicep.warlords.player.WarlordsPlayer;
 import com.ebicep.warlords.skilltree.trees.FlagTree;
@@ -18,10 +19,13 @@ public class SkillTree {
         skillTrees[0] = new MiscellaneousTree(this);
         skillTrees[1] = new FlagTree(this);
         skillTrees[2] = new MountTree(this);
-//        AbstractPlayerClass wpClass = warlordsPlayer.getSpec();
-//        skillTrees[3] = wpClass.getWeapon() instanceof ISingleUlt ?
-//                new SingleUltTree(this,wpClass.getWeapon(), wpClass.getWeapon().getName(), new ItemStack(warlordsPlayer.getWeapon().item)) :
-//                new DoubleUltTree(this,wpClass.getWeapon(), wpClass.getWeapon().getName(), new ItemStack(warlordsPlayer.getWeapon().item));
+        AbstractPlayerClass wpClass = warlordsPlayer.getSpec();
+        wpClass.getWeapon().createSkillTreeAbility(warlordsPlayer, this);
+        wpClass.getRed().createSkillTreeAbility(warlordsPlayer, this);
+        wpClass.getPurple().createSkillTreeAbility(warlordsPlayer, this);
+        wpClass.getBlue().createSkillTreeAbility(warlordsPlayer, this);
+        wpClass.getOrange().createSkillTreeAbility(warlordsPlayer, this);
+        skillTrees[3] = wpClass.getWeapon().getSkillTree();
 //        skillTrees[4] = wpClass.getRed() instanceof ISingleUlt ?
 //                new SingleUltTree(this,wpClass.getRed(), wpClass.getRed().getName(), new ItemStack(Material.INK_SACK, 1, (byte)1)) :
 //                new DoubleUltTree(this,wpClass.getRed(), wpClass.getRed().getName(), new ItemStack(Material.INK_SACK, 1, (byte)1));
@@ -38,7 +42,7 @@ public class SkillTree {
 
     public void openSkillTreeMenu() {
         Menu menu = new Menu("Skill Tree", 9 * 6);
-        for (int i = 0; i < skillTrees.length / 2 - 1; i++) {
+        for (int i = 0; i < skillTrees.length / 2; i++) {
             AbstractTree tree = skillTrees[i];
             menu.setItem((i * 2) + 1,
                     1,

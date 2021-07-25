@@ -4,6 +4,7 @@ import com.ebicep.warlords.Warlords;
 import com.ebicep.warlords.classes.AbstractAbility;
 import com.ebicep.warlords.player.CooldownTypes;
 import com.ebicep.warlords.player.WarlordsPlayer;
+import com.ebicep.warlords.skilltree.SkillTree;
 import com.ebicep.warlords.util.PlayerFilter;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -106,7 +107,7 @@ public class HealingRain extends AbstractAbility {
     }
 
     @Override
-    public void openMenu(Player player) {
+    public void createSkillTreeAbility(WarlordsPlayer warlordsPlayer, SkillTree skillTree) {
 
     }
 }

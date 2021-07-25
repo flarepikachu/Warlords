@@ -1,7 +1,7 @@
 package com.ebicep.warlords.skilltree;
 
-import com.ebicep.warlords.skilltree.trees.IDoubleUlt;
-import com.ebicep.warlords.skilltree.trees.ISingleUlt;
+import com.ebicep.warlords.skilltree.trees.DoubleUltTree;
+import com.ebicep.warlords.skilltree.trees.SingleUltTree;
 import com.ebicep.warlords.util.ItemBuilder;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -41,78 +41,56 @@ public class Upgrade {
             if (tree.getSkillTree().getWarlordsPlayer().getPoints() < cost) {
                 tree.skillTree.getWarlordsPlayer().sendMessage(ChatColor.RED + "Insufficient Amount of Points! retard");
             } else {
-                if (tree.ability instanceof IDoubleUlt) {
+                if (tree instanceof DoubleUltTree) {
                     switch (getUpgradeNumber()) {
                         case 1:
-                            ((IDoubleUlt) tree.ability).doFirstLeftUpgrade();
+                            ((DoubleUltTree) tree).doFirstLeftUpgrade();
                             break;
                         case 2:
-                            ((IDoubleUlt) tree.ability).doSecondLeftUpgrade();
+                            ((DoubleUltTree) tree).doSecondLeftUpgrade();
                             break;
                         case 3:
-                            ((IDoubleUlt) tree.ability).doThirdLeftUpgrade();
+                            ((DoubleUltTree) tree).doThirdLeftUpgrade();
                             break;
                         case 4:
-                            ((IDoubleUlt) tree.ability).doFirstUpgrade();
+                            ((DoubleUltTree) tree).doFirstUpgrade();
                             break;
                         case 5:
-                            ((IDoubleUlt) tree.ability).doFirstRightUpgrade();
+                            ((DoubleUltTree) tree).doFirstRightUpgrade();
                             break;
                         case 6:
-                            ((IDoubleUlt) tree.ability).doSecondRightUpgrade();
+                            ((DoubleUltTree) tree).doSecondRightUpgrade();
                             break;
                         case 7:
-                            ((IDoubleUlt) tree.ability).doThirdRightUpgrade();
+                            ((DoubleUltTree) tree).doThirdRightUpgrade();
                             break;
                     }
-                } else if (tree.ability instanceof ISingleUlt) {
+                } else if (tree instanceof SingleUltTree) {
                     switch (getUpgradeNumber()) {
                         case 1:
-                            ((ISingleUlt) tree.ability).doFirstLeftUpgrade();
+                            ((SingleUltTree) tree).doFirstLeftUpgrade();
                             break;
                         case 2:
-                            ((ISingleUlt) tree.ability).doSecondLeftUpgrade();
+                            ((SingleUltTree) tree).doSecondLeftUpgrade();
                             break;
                         case 3:
-                            ((ISingleUlt) tree.ability).doThirdLeftUpgrade();
+                            ((SingleUltTree) tree).doThirdLeftUpgrade();
                             break;
                         case 4:
-                            ((ISingleUlt) tree.ability).doLastUpgrade();
+                            ((SingleUltTree) tree).doLastUpgrade();
                             break;
                         case 5:
-                            ((ISingleUlt) tree.ability).doFirstRightUpgrade();
+                            ((SingleUltTree) tree).doFirstRightUpgrade();
                             break;
                         case 6:
-                            ((ISingleUlt) tree.ability).doSecondRightUpgrade();
+                            ((SingleUltTree) tree).doSecondRightUpgrade();
                             break;
                         case 7:
-                            ((ISingleUlt) tree.ability).doThirdRightUpgrade();
+                            ((SingleUltTree) tree).doThirdRightUpgrade();
                             break;
                     }
-                } else if (tree instanceof IDoubleUlt) {
-                    switch (getUpgradeNumber()) {
-                        case 1:
-                            ((IDoubleUlt) tree).doFirstLeftUpgrade();
-                            break;
-                        case 2:
-                            ((IDoubleUlt) tree).doSecondLeftUpgrade();
-                            break;
-                        case 3:
-                            ((IDoubleUlt) tree).doThirdLeftUpgrade();
-                            break;
-                        case 4:
-                            ((IDoubleUlt) tree).doFirstUpgrade();
-                            break;
-                        case 5:
-                            ((IDoubleUlt) tree).doFirstRightUpgrade();
-                            break;
-                        case 6:
-                            ((IDoubleUlt) tree).doSecondRightUpgrade();
-                            break;
-                        case 7:
-                            ((IDoubleUlt) tree).doThirdRightUpgrade();
-                            break;
-                    }
+                } else {
+                    System.out.println("SKILL TREE DID A BAD THING");
                 }
                 this.counter++;
                 tree.skillTree.getWarlordsPlayer().subtractPoints(cost);
@@ -132,12 +110,12 @@ public class Upgrade {
     private int getUpgradeNumber() {
         switch (x) {
             case 3:
-                if (tree.ability instanceof IDoubleUlt || tree instanceof IDoubleUlt)
+                if (tree instanceof DoubleUltTree)
                     return 4 - y;
                 else
                     return 5 - y;
             case 5:
-                if (tree.ability instanceof IDoubleUlt || tree instanceof IDoubleUlt)
+                if (tree instanceof DoubleUltTree)
                     return 8 - y;
                 else
                     return 9 - y;

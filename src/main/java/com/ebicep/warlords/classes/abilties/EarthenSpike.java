@@ -4,6 +4,7 @@ import com.ebicep.warlords.Warlords;
 import com.ebicep.warlords.classes.AbstractAbility;
 import com.ebicep.warlords.events.WarlordsEvents;
 import com.ebicep.warlords.player.WarlordsPlayer;
+import com.ebicep.warlords.skilltree.SkillTree;
 import com.ebicep.warlords.util.PlayerFilter;
 import com.ebicep.warlords.util.Utils;
 import net.minecraft.server.v1_8_R3.PacketPlayOutAnimation;
@@ -228,7 +229,7 @@ public class EarthenSpike extends AbstractAbility {
     }
 
     @Override
-    public void openMenu(Player player) {
+    public void createSkillTreeAbility(WarlordsPlayer warlordsPlayer, SkillTree skillTree) {
 
     }
 

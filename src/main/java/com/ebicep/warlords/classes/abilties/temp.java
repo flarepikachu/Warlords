@@ -2,6 +2,7 @@ package com.ebicep.warlords.classes.abilties;
 
 import com.ebicep.warlords.classes.AbstractAbility;
 import com.ebicep.warlords.player.WarlordsPlayer;
+import com.ebicep.warlords.skilltree.SkillTree;
 import org.bukkit.entity.Player;
 
 public class temp extends AbstractAbility {
@@ -21,7 +22,7 @@ public class temp extends AbstractAbility {
     }
 
     @Override
-    public void openMenu(Player player) {
+    public void createSkillTreeAbility(WarlordsPlayer warlordsPlayer, SkillTree skillTree) {
 
     }
 

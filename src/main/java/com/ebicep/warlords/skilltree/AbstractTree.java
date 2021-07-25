@@ -18,12 +18,19 @@ public abstract class AbstractTree {
         this.skillTree = skillTree;
         this.ability = ability;
         this.name = name;
-        this.itemStack = new ItemBuilder(itemStack).name(ChatColor.GOLD + name).get();
+        this.itemStack = itemStack;
     }
 
     public abstract boolean canUpgrade(Upgrade upgrade);
 
     public abstract void openTreeMenu(Player player);
+
+    public ItemStack getTreeItemStack() {
+        return new ItemBuilder(itemStack)
+                .name(ChatColor.GOLD + name)
+                .lore()
+                .get();
+    }
 
     public AbstractAbility getAbility() {
         return ability;

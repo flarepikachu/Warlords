@@ -520,8 +520,14 @@ public class WarlordsEvents implements Listener {
                     }
                 });
                 event.getGameState().addCapture(pfl.getPlayer());
+                event.getGame().forEachOnlinePlayer((player, team) -> {
+                    player.sendMessage(pfl.getPlayer().getTeam().teamColor() + "+250 Score");
+                });
                 if (pfl.getPlayer().getFlagTree().getRightUpgrades().getLast().getCounter() != 0) {
                     event.getGameState().addPoints(pfl.getPlayer().getTeam(), pfl.getComputedHumanMultiplier());
+                    event.getGame().forEachOnlinePlayer((player, team) -> {
+                        player.sendMessage(pfl.getPlayer().getTeam().teamColor() + "+" + pfl.getComputedHumanMultiplier() + " Score");
+                    });
                 }
             }
         }

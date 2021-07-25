@@ -10,11 +10,11 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.LinkedList;
 
-public class SingleUltTree extends AbstractTree {
+public abstract class SingleUltTree extends AbstractTree {
 
-    private LinkedList<Upgrade> leftUpgrades;
-    private LinkedList<Upgrade> rightUpgrades;
-    private Upgrade lastUpgrade;
+    protected LinkedList<Upgrade> leftUpgrades = new LinkedList<>();
+    protected LinkedList<Upgrade> rightUpgrades = new LinkedList<>();
+    protected Upgrade lastUpgrade;
 
 
     public SingleUltTree(SkillTree skillTree, AbstractAbility ability, String name, ItemStack itemStack) {
@@ -61,6 +61,20 @@ public class SingleUltTree extends AbstractTree {
         }
         menu.openForPlayer(player);
     }
+
+    public abstract void doFirstLeftUpgrade();
+
+    public abstract void doSecondLeftUpgrade();
+
+    public abstract void doThirdLeftUpgrade();
+
+    public abstract void doFirstRightUpgrade();
+
+    public abstract void doSecondRightUpgrade();
+
+    public abstract void doThirdRightUpgrade();
+
+    public abstract void doLastUpgrade();
 
     public LinkedList<Upgrade> getLeftUpgrades() {
         return leftUpgrades;

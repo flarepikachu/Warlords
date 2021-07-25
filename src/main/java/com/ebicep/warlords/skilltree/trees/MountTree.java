@@ -6,7 +6,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 
-public class MountTree extends DoubleUltTree implements IDoubleUlt {
+public class MountTree extends DoubleUltTree {
 
     public MountTree(SkillTree skillTree) {
         super(skillTree, null, "Mount", new ItemStack(Material.GOLD_BARDING));

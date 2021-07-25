@@ -1,6 +1,8 @@
 package com.ebicep.warlords.classes;
 
 import com.ebicep.warlords.player.WarlordsPlayer;
+import com.ebicep.warlords.skilltree.AbstractTree;
+import com.ebicep.warlords.skilltree.SkillTree;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -17,6 +19,7 @@ public abstract class AbstractAbility {
     protected int critMultiplier;
     protected String description;
     protected boolean boosted;
+    protected AbstractTree skillTree;
 
     public AbstractAbility(String name, float minDamageHeal, float maxDamageHeal, float cooldown, int energyCost, int critChance, int critMultiplier) {
         this.name = name;
@@ -33,7 +36,7 @@ public abstract class AbstractAbility {
 
     public abstract void onActivate(@Nonnull WarlordsPlayer wp, @Nonnull Player player);
 
-    public abstract void openMenu(Player player);
+    public abstract void createSkillTreeAbility(WarlordsPlayer warlordsPlayer, SkillTree skillTree);
 
     public void boostSkill() {
         if (!boosted) {
@@ -70,6 +73,16 @@ public abstract class AbstractAbility {
 
     public void setMaxDamageHeal(float maxDamageHeal) {
         this.maxDamageHeal = maxDamageHeal;
+    }
+
+    public void addDamageHeal(float amount) {
+        this.minDamageHeal += amount;
+        this.maxDamageHeal += amount;
+    }
+
+    public void multipleDamageHeal(float amount) {
+        this.minDamageHeal *= amount;
+        this.maxDamageHeal *= amount;
     }
 
     public int getCurrentCooldownItem() {
@@ -118,6 +131,13 @@ public abstract class AbstractAbility {
         return description;
     }
 
+    public AbstractTree getSkillTree() {
+        return skillTree;
+    }
+
+    public void setSkillTree(AbstractTree skillTree) {
+        this.skillTree = skillTree;
+    }
     /*
 flameburst/chain: 9.4
 breath: 6.3

@@ -88,9 +88,6 @@ public class PlayingState implements State, TimerDebugAble {
 
     public void addPoints(@Nonnull Team team, int i) {
         getStats(team).addPoints(i);
-        game.forEachOnlinePlayer((player, team2) -> {
-            player.sendMessage(team.teamColor() + "+" + i + " Score");
-        });
     }
 
     @Deprecated

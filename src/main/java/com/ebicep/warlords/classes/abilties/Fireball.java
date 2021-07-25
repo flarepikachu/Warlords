@@ -1,17 +1,28 @@
 package com.ebicep.warlords.classes.abilties;
 
+import com.ebicep.warlords.Warlords;
+import com.ebicep.warlords.classes.AbstractAbility;
 import com.ebicep.warlords.classes.internal.AbstractProjectileBase;
 import com.ebicep.warlords.player.WarlordsPlayer;
+import com.ebicep.warlords.skilltree.SkillTree;
+import com.ebicep.warlords.skilltree.Upgrade;
+import com.ebicep.warlords.skilltree.trees.SingleUltTree;
 import com.ebicep.warlords.util.ParticleEffect;
 import com.ebicep.warlords.util.PlayerFilter;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public class Fireball extends AbstractProjectileBase {
 
-    private static final int MAX_FULL_DAMAGE_DISTANCE = 50;
-    private static final double DIRECT_HIT_MULTIPLIER = 1.15;
-    private static final float HITBOX = 4;
+    private int maxFullDamageDistance = 50;
+    private double directHitMultiplier = 1.15;
+    private float hitbox = 4;
+
+    private FireBallTree fireBallTree;
+    private boolean burn = false;
+    private boolean reduceCooldown = false;
 
     public Fireball() {
         super("Fireball", -334.4f, -433.4f, 0, 70, 20, 175, 2, 250, false);
@@ -39,23 +50,48 @@ public class Fireball extends AbstractProjectileBase {
             player1.playSound(currentLocation, "mage.fireball.impact", 2, 1);
         }
 
+        boolean hitEnemy = false;
         double distanceSquared = currentLocation.distanceSquared(startingLocation);
-        double toReduceBy = MAX_FULL_DAMAGE_DISTANCE * MAX_FULL_DAMAGE_DISTANCE > distanceSquared ? 1 : 
-            1 - (Math.sqrt(distanceSquared) - MAX_FULL_DAMAGE_DISTANCE) / 100.;
+        double toReduceBy = maxFullDamageDistance * maxFullDamageDistance > distanceSquared ? 1 :
+                1 - (Math.sqrt(distanceSquared) - maxFullDamageDistance) / 100.;
         if (toReduceBy < 0) toReduceBy = 0;
         if (victim != null) {
             victim.addHealth(
                     shooter,
                     name,
-                    (float) (minDamageHeal * DIRECT_HIT_MULTIPLIER * toReduceBy),
-                    (float) (maxDamageHeal * DIRECT_HIT_MULTIPLIER * toReduceBy),
+                    (float) (minDamageHeal * directHitMultiplier * toReduceBy),
+                    (float) (maxDamageHeal * directHitMultiplier * toReduceBy),
                     critChance,
                     critMultiplier
             );
+            if (burn) {
+                if (toReduceBy == 1) {
+                    new BukkitRunnable() {
+                        int counter = 0;
+
+                        @Override
+                        public void run() {
+                            victim.addHealth(
+                                    shooter,
+                                    "Burn",
+                                    -15,
+                                    -15,
+                                    -1,
+                                    100
+                            );
+                            counter++;
+                            if (counter >= 3) {
+                                this.cancel();
+                            }
+                        }
+                    }.runTaskTimer(Warlords.getInstance(), 20, 30);
+                }
+            }
+            hitEnemy = true;
         }
-        
+
         for (WarlordsPlayer nearEntity : PlayerFilter
-                .entitiesAround(currentLocation, HITBOX, HITBOX, HITBOX)
+                .entitiesAround(currentLocation, hitbox, hitbox, hitbox)
                 .excluding(victim)
                 .aliveEnemiesOf(shooter)
         ) {
@@ -67,6 +103,37 @@ public class Fireball extends AbstractProjectileBase {
                     critChance,
                     critMultiplier
             );
+            if (burn) {
+                if (toReduceBy == 1) {
+                    new BukkitRunnable() {
+                        int counter = 0;
+
+                        @Override
+                        public void run() {
+                            nearEntity.addHealth(
+                                    shooter,
+                                    "Burn",
+                                    -15,
+                                    -15,
+                                    -1,
+                                    100
+                            );
+                            counter++;
+                            if (counter >= 3) {
+                                this.cancel();
+                            }
+                        }
+                    }.runTaskTimer(Warlords.getInstance(), 20, 30);
+                }
+            }
+            hitEnemy = true;
+        }
+
+        if (hitEnemy && reduceCooldown) {
+            shooter.getSpec().getRed().subtractCooldown(.5f);
+            shooter.updateRedItem();
+            shooter.getSpec().getOrange().subtractCooldown(1);
+            shooter.updateOrangeItem();
         }
     }
 
@@ -76,12 +143,84 @@ public class Fireball extends AbstractProjectileBase {
                 "§7for §c" + -minDamageHeal + " §7- §c" + -maxDamageHeal + " §7damage. A\n" +
                 "§7direct hit will cause the enemy\n" +
                 "§7to take an additional §c15% §7extra\n" +
-                "§7damage. §7Has an optimal range of §e" + MAX_FULL_DAMAGE_DISTANCE + " §7blocks.";
+                "§7damage. §7Has an optimal range of §e" + maxFullDamageDistance + " §7blocks.";
     }
 
     @Override
-    public void openMenu(Player player) {
-
+    public void createSkillTreeAbility(WarlordsPlayer warlordsPlayer, SkillTree skillTree) {
+        fireBallTree = new FireBallTree(skillTree, this, name, new ItemStack(warlordsPlayer.getWeapon().item));
+        setSkillTree(fireBallTree);
     }
 
+    public void addMaxFullDamageDistance(int amount) {
+        this.maxFullDamageDistance += amount;
+    }
+
+    public void addDirectHitMultiplier(float amount) {
+        this.directHitMultiplier += amount;
+    }
+
+    public void addHitbox(float amount) {
+        this.hitbox += amount;
+    }
+
+    public void setBurn(boolean burn) {
+        this.burn = burn;
+    }
+
+    public void setReduceCooldown(boolean reduceCooldown) {
+        this.reduceCooldown = reduceCooldown;
+    }
+}
+
+class FireBallTree extends SingleUltTree {
+
+    public FireBallTree(SkillTree skillTree, AbstractAbility ability, String name, ItemStack itemStack) {
+        super(skillTree, ability, name, itemStack);
+        leftUpgrades.add(new Upgrade(this, 3, 4, 0, 1, "Increased Range", "The maximum damage range is increased"));
+        leftUpgrades.add(new Upgrade(this, 3, 3, 0, 1, "Increased Damage", "Basic increase in damage"));
+        leftUpgrades.add(new Upgrade(this, 3, 2, 0, 1, "Direct Hit Damage", "Direct hits bonus damage is increased"));
+
+        rightUpgrades.add(new Upgrade(this, 5, 4, 0, 1, "Increased Splash", "Fireball now has increased splash effect"));
+        rightUpgrades.add(new Upgrade(this, 5, 3, 0, 1, "Increased Velocity", "Fireballs travel faster"));
+        rightUpgrades.add(new Upgrade(this, 5, 2, 0, 1, "Burn", "Fireballs burn the target, making them take damage over a short period of time"));
+
+        lastUpgrade = new Upgrade(this, 4, 1, 0, 1, "Cooldown Reduction", "Each Fireball hit reduces the cooldown of Flame Burst / Inferno");
+    }
+
+    @Override
+    public void doFirstLeftUpgrade() {
+        ((Fireball) ability).addMaxFullDamageDistance(15);
+        ((Fireball) ability).addMaxDistance(15);
+    }
+
+    @Override
+    public void doSecondLeftUpgrade() {
+        ability.addDamageHeal(25);
+    }
+
+    @Override
+    public void doThirdLeftUpgrade() {
+        ((Fireball) ability).addDirectHitMultiplier(.05f);
+    }
+
+    @Override
+    public void doFirstRightUpgrade() {
+        ((Fireball) ability).addHitbox(.5f);
+    }
+
+    @Override
+    public void doSecondRightUpgrade() {
+        ((Fireball) ability).addProjectileSpeed(.25f);
+    }
+
+    @Override
+    public void doThirdRightUpgrade() {
+        ((Fireball) ability).setBurn(true);
+    }
+
+    @Override
+    public void doLastUpgrade() {
+        ((Fireball) ability).setReduceCooldown(true);
+    }
 }

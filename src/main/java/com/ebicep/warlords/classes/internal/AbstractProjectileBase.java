@@ -20,18 +20,16 @@ import javax.annotation.Nullable;
 
 public abstract class AbstractProjectileBase extends AbstractAbility {
 
-    protected final double projectileSpeed;
-    protected final int maxTicks;
-    protected final double maxDistance;
+    protected double projectileSpeed;
+    protected double maxDistance;
     protected final boolean hitTeammates;
 
-    private final float playerHitbox = 0.7f;
+    private float playerHitbox = 0.7f;
 
     public AbstractProjectileBase(String name, float minDamageHeal, float maxDamageHeal, float cooldown, int energyCost, int critChance, int critMultiplier, double projectileSpeed, double maxDistance, boolean hitTeammates) {
         super(name, minDamageHeal, maxDamageHeal, cooldown, energyCost, critChance, critMultiplier);
         this.projectileSpeed = projectileSpeed;
         this.maxDistance = maxDistance;
-        this.maxTicks = (int) (maxDistance / projectileSpeed) + 1;
         this.hitTeammates = hitTeammates;
     }
 
@@ -73,7 +71,7 @@ public abstract class AbstractProjectileBase extends AbstractAbility {
                             hasCollided.entity == null ? null : getFromEntity(hasCollided.entity.getBukkitEntity())
                     );
                     cancel();
-                } else if (ticksLived >= maxTicks) {
+                } else if (ticksLived >= getMaxTicks()) {
                     cancel();
                 } else {
                     playEffect(currentLocation, ticksLived++);
@@ -157,6 +155,17 @@ public abstract class AbstractProjectileBase extends AbstractAbility {
         }
         return hit;
     }
-    // public MovingObjectPosition a(Vec3D vec3d, Vec3D vec3d1) 
-   
+    // public MovingObjectPosition a(Vec3D vec3d, Vec3D vec3d1)
+
+    public int getMaxTicks() {
+        return (int) (maxDistance / projectileSpeed) + 1;
+    }
+
+    public void addProjectileSpeed(float amount) {
+        this.projectileSpeed += amount;
+    }
+
+    public void addMaxDistance(int amount) {
+        this.maxDistance += amount;
+    }
 }

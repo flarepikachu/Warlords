@@ -4,6 +4,7 @@ import com.ebicep.warlords.classes.internal.AbstractStrikeBase;
 import com.ebicep.warlords.player.Classes;
 import com.ebicep.warlords.player.ClassesSkillBoosts;
 import com.ebicep.warlords.player.WarlordsPlayer;
+import com.ebicep.warlords.skilltree.SkillTree;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -27,7 +28,7 @@ public class ProtectorsStrike extends AbstractStrikeBase {
     }
 
     @Override
-    public void openMenu(Player player) {
+    public void createSkillTreeAbility(WarlordsPlayer warlordsPlayer, SkillTree skillTree) {
 
     }
 

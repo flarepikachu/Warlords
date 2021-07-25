@@ -549,7 +549,7 @@ public final class WarlordsPlayer {
                 }
             }
         } else {
-            if (!attacker.getCooldownManager().getCooldown(Inferno.class).isEmpty() && (!ability.isEmpty() && !ability.equals("Time Warp"))) {
+            if (!attacker.getCooldownManager().getCooldown(Inferno.class).isEmpty() && (!ability.isEmpty() && min < 0) && critChance != -1) {
                 critChance += attacker.getSpec().getOrange().getCritChance();
                 critMultiplier += attacker.getSpec().getOrange().getCritMultiplier();
             }
@@ -907,6 +907,7 @@ public final class WarlordsPlayer {
                     this.health += Math.round(damageHealValue);
                 }
                 if (damageHealValue < 0) {
+                    //System.out.println(attacker.name + " hit " + name + " for " + damageHealValue);
                     attacker.addDamage(-damageHealValue);
                     this.entity.playEffect(EntityEffect.HURT);
                     for (Player player1 : attacker.getWorld().getPlayers()) {
