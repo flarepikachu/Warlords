@@ -72,6 +72,8 @@ public final class WarlordsPlayer {
     private float timeAfterDismount = 0;
     private float timeAfterMount = 0;
     private int flagCooldown;
+    private float timeAfterFlagPick = 0;
+    private float invisible = -1;
     private int hitCooldown;
     private int spawnProtection;
     private int spawnDamage = 0;
@@ -583,6 +585,8 @@ public final class WarlordsPlayer {
                     totalReduction *= 1.1;
                 }
 
+                totalReduction *= (1 + attacker.getFlagTree().getRightUpgrades().get(1).getCounter() * .1);
+
                 //reduce damage
                 for (Cooldown cooldown : cooldownManager.getCooldown(IceBarrier.class)) {
                     totalReduction *= .5;
@@ -604,9 +608,15 @@ public final class WarlordsPlayer {
                 for (Cooldown cooldown : cooldownManager.getCooldown(LastStand.class)) {
                     WarlordsPlayer lastStandedBy = cooldown.getFrom();
                     if (lastStandedBy == this) {
-                        damageHealValue *= .5;
+                        totalReduction *= .5;
                     } else {
-                        damageHealValue *= .4;
+                        totalReduction *= .4;
+                    }
+                }
+
+                if (getFlagTree().getLeftUpgrades().get(1).getCounter() > 0) {
+                    if (timeAfterFlagPick <= 3) {
+                        totalReduction *= .9;
                     }
                 }
 
@@ -616,10 +626,12 @@ public final class WarlordsPlayer {
                 }
             } else if (min > 0) {
                 if (!cooldownManager.getCooldown(WoundingStrikeBerserker.class).isEmpty()) {
-                    damageHealValue *= .65;
+                    totalReduction *= .65;
                 } else if (!cooldownManager.getCooldown(WoundingStrikeDefender.class).isEmpty()) {
-                    damageHealValue *= .75;
+                    totalReduction *= .75;
                 }
+
+                totalReduction *= (1 + getFlagTree().getFirstUpgrade().getCounter() * .05);
             }
 
             if (!cooldownManager.getCooldown(Intervene.class).isEmpty() && cooldownManager.getCooldown(Intervene.class).get(0).getFrom() != this && !HammerOfLight.standingInHammer(attacker, entity) && this.isEnemyAlive(attacker)) {
@@ -1142,6 +1154,10 @@ public final class WarlordsPlayer {
             respawn += 12;
         }
         respawn += baseAdditionalRespawn;
+        respawn -= getFlagTree().getRightUpgrades().getFirst().getCounter();
+        if (respawn < 0) {
+            respawn = 0;
+        }
         setRespawnTimer(respawn);
     }
 
@@ -1708,5 +1724,21 @@ public final class WarlordsPlayer {
 
     public float getWalkspeed() {
         return walkspeed;
+    }
+
+    public void setTimeAfterFlagPick(float timeAfterFlagPick) {
+        this.timeAfterFlagPick = timeAfterFlagPick;
+    }
+
+    public void addTimeAfterFlagPick() {
+        this.timeAfterFlagPick += .05;
+    }
+
+    public float getInvisible() {
+        return invisible;
+    }
+
+    public void setInvisible(float invisible) {
+        this.invisible = invisible;
     }
 }

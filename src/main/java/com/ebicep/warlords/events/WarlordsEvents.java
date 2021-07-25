@@ -34,6 +34,7 @@ import org.bukkit.event.player.*;
 import org.bukkit.event.vehicle.VehicleExitEvent;
 import org.bukkit.event.weather.WeatherChangeEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashSet;
@@ -444,10 +445,6 @@ public class WarlordsEvents implements Listener {
     @EventHandler
     public void onFlagChange(WarlordsFlagUpdatedEvent event) {
         //Bukkit.broadcastMessage(event.getTeam() + " " + event.getOld().getClass().getSimpleName() + " => " + event.getNew().getClass().getSimpleName());
-        if (event.getOld() instanceof PlayerFlagLocation) {
-            ((PlayerFlagLocation) event.getOld()).getPlayer().setFlagDamageMultipler(0);
-        }
-
         if (event.getNew() instanceof PlayerFlagLocation) {
             PlayerFlagLocation pfl = (PlayerFlagLocation) event.getNew();
             WarlordsPlayer player = pfl.getPlayer();
@@ -455,6 +452,14 @@ public class WarlordsEvents implements Listener {
             if (!(event.getOld() instanceof PlayerFlagLocation)) {
                 // eg GROUND -> PLAYER
                 // or SPAWN -> PLAYER
+                if (event.getOld() instanceof SpawnFlagLocation) {
+                    player.setTimeAfterFlagPick(0);
+                    if (player.getFlagTree().getLeftUpgrades().getLast().getCounter() != 0) {
+                        player.setInvisible(0);
+                        ((Player) player.getEntity()).getInventory().setArmorContents(new ItemStack[4]);
+                        player.getEntity().addPotionEffect(PotionEffectType.INVISIBILITY.createEffect(60, 1));
+                    }
+                }
                 ChatColor enemyColor = event.getTeam().enemy().teamColor();
                 event.getGame().forEachOnlinePlayer((p, t) -> {
                     p.sendMessage(enemyColor + player.getName() + " §ehas picked up the " + event.getTeam().coloredPrefix() + " §eflag!");
@@ -503,7 +508,6 @@ public class WarlordsEvents implements Listener {
             if (event.getOld() instanceof PlayerFlagLocation) {
                 PlayerFlagLocation pfl = (PlayerFlagLocation) event.getOld();
                 Team loser = event.getTeam();
-                event.getGameState().addCapture(pfl.getPlayer());
                 event.getGame().forEachOnlinePlayer((p, t) -> {
                     String message = pfl.getPlayer().getColoredName() + " §ehas captured the " + loser.coloredPrefix() + " §eflag!";
                     p.sendMessage(message);
@@ -515,7 +519,15 @@ public class WarlordsEvents implements Listener {
                         p.playSound(pfl.getLocation(), "ctf.enemyflagcaptured", 500, 1);
                     }
                 });
+                event.getGameState().addCapture(pfl.getPlayer());
+                if (pfl.getPlayer().getFlagTree().getRightUpgrades().getLast().getCounter() != 0) {
+                    event.getGameState().addPoints(pfl.getPlayer().getTeam(), pfl.getComputedHumanMultiplier());
+                }
             }
+        }
+
+        if (event.getOld() instanceof PlayerFlagLocation) {
+            ((PlayerFlagLocation) event.getOld()).getPlayer().setFlagDamageMultipler(0);
         }
     }
 }

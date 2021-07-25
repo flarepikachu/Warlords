@@ -98,9 +98,10 @@ class FlagRenderer {
         } else if (this.lastLocation instanceof PlayerFlagLocation) {
             PlayerFlagLocation flag = (PlayerFlagLocation) this.lastLocation;
             runningTasksCancel.add(flag.getPlayer().getSpeed().addSpeedModifier("FLAG", -20, 0));
-            LivingEntity entity = ((PlayerFlagLocation) this.lastLocation).getPlayer().getEntity();
+            WarlordsPlayer wp = ((PlayerFlagLocation) this.lastLocation).getPlayer();
+            LivingEntity entity = wp.getEntity();
             if (entity instanceof Player) {
-                Player player = (Player)entity;
+                Player player = (Player) entity;
                 this.affectedPlayers.add(player);
                 ItemStack item = new ItemStack(Material.BANNER);
                 BannerMeta banner = (BannerMeta) item.getItemMeta();
@@ -108,7 +109,9 @@ class FlagRenderer {
                 banner.addPattern(new Pattern(DyeColor.BLACK, PatternType.SKULL));
                 banner.addPattern(new Pattern(DyeColor.BLACK, PatternType.TRIANGLES_TOP));
                 item.setItemMeta(banner);
-                player.getInventory().setHelmet(item);
+                if (wp.getInvisible() > 3) {
+                    player.getInventory().setHelmet(item);
+                }
                 player.getInventory().setItem(6, new ItemBuilder(Material.BANNER, 1).name("§aDrop Flag").get());
             }
         }
@@ -127,7 +130,9 @@ class FlagRenderer {
         for (Player p : affectedPlayers) {
             WarlordsPlayer wp = Warlords.getPlayer(p);
             if (wp != null) {
-                ArmorManager.resetArmor(p, wp.getSpecClass(), wp.getTeam());
+                if (wp.getInvisible() > 3) {
+                    ArmorManager.resetArmor(p, wp.getSpecClass(), wp.getTeam());
+                }
             }
             p.getInventory().setItem(6, null);
         }

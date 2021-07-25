@@ -44,8 +44,9 @@ public class PowerupManager extends BukkitRunnable {
                         entitiesNear.get(0).sendMessage("§6You activated the §a§lHEALING §6powerup! §a+10% §6Health per second for §a10 §6seconds!");
                     } else if (powerUp instanceof SpeedPowerUp) {
                         warlordsPlayer.getCooldownManager().addCooldown(SpeedPowerUp.class, this, "SPEED", powerUp.getDuration(), warlordsPlayer, CooldownTypes.BUFF);
-                        entitiesNear.get(0).sendMessage("§6You activated the §e§lSPEED §6powerup! §a+40% §6Speed for §a10 §6seconds!");
-                        warlordsPlayer.getSpeed().addSpeedModifier("Speed Powerup", 40, 10 * 20, "BASE");
+                        int bonusSpeed = 40 + warlordsPlayer.getFlagTree().getLeftUpgrades().getFirst().getCounter() * 5;
+                        entitiesNear.get(0).sendMessage("§6You activated the §e§lSPEED §6powerup! §a+" + bonusSpeed + "% §6Speed for §a10 §6seconds!");
+                        warlordsPlayer.getSpeed().addSpeedModifier("Speed Powerup", bonusSpeed, 10 * 20, "BASE");
 
                         for (Player player1 : powerUp.getLocation().getWorld().getPlayers()) {
                             player1.playSound(powerUp.getLocation(), "ctf.powerup.speed", 2, 1);

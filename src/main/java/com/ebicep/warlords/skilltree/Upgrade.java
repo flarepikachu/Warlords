@@ -159,6 +159,8 @@ public class Upgrade {
         }
         if (!currentEffect.isEmpty()) {
             lore.add(ChatColor.GRAY.toString() + "Current Effect: " + ChatColor.AQUA + currentEffect);
+        } else if (counter != 0) {
+            lore.add(ChatColor.GRAY.toString() + "Current Effect: " + ChatColor.AQUA + description);
         }
         if (locked) {
             return new ItemBuilder(Material.STAINED_CLAY, counter, (byte) 14)

@@ -344,6 +344,8 @@ public class Warlords extends JavaPlugin {
 
                         warlordsPlayer.setTimeAfterDismount(warlordsPlayer.getTimeAfterDismount() + .05f);
                         warlordsPlayer.setTimeAfterMount(warlordsPlayer.getTimeAfterMount() + .05f);
+                        warlordsPlayer.addTimeAfterFlagPick();
+                        warlordsPlayer.setInvisible(warlordsPlayer.getInvisible() + .05f);
 
                         warlordsPlayer.getCooldownManager().reduceCooldowns();
 
