@@ -46,7 +46,7 @@ public class SkillTree {
             AbstractTree tree = skillTrees[i];
             menu.setItem((i * 2) + 1,
                     1,
-                    tree.itemStack,
+                    tree.getTreeItemStack(),
                     (n, e) -> {
                         tree.openTreeMenu((Player) warlordsPlayer.getEntity());
                     }

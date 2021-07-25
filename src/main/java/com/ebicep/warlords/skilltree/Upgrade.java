@@ -158,6 +158,18 @@ public class Upgrade {
         }
     }
 
+    public String getUpgradeInfo() {
+        StringBuilder output = new StringBuilder(ChatColor.AQUA + name + ChatColor.GRAY + " " + ChatColor.GREEN.toString());
+        for (int i = 0; i < counter; i++) {
+            output.append("■");
+        }
+        output.append(ChatColor.GRAY);
+        for (int i = 0; i < maxCounter - counter; i++) {
+            output.append("■");
+        }
+        return output.toString();
+    }
+
     public AbstractTree getTree() {
         return tree;
     }
