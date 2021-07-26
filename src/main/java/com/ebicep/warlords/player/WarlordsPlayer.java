@@ -84,8 +84,8 @@ public final class WarlordsPlayer {
     private int blocksTravelledCM = 0;
     private boolean infiniteEnergy;
     private boolean disableCooldowns;
-    private double energyModifier = 1;
-    private double cooldownModifier = 1;
+    private double energyModifier;
+    private double cooldownModifier;
     private boolean takeDamage = true;
 
     private final int[] kills = new int[Warlords.game.getMap().getGameTimerInTicks() / 20 / 60];
@@ -112,7 +112,7 @@ public final class WarlordsPlayer {
     private ArmorStand deathStand = null;
     private LivingEntity entity = null;
 
-    private double flagDamageMultipler = 0;
+    private double flagDamageMultiplier = 0;
 
     private CooldownManager cooldownManager = new CooldownManager(this);
     private SkillTree skillTree;
@@ -563,9 +563,9 @@ public final class WarlordsPlayer {
             }
 
             // Flag carriers take more damage
-            damageHealValue *= damageHealValue > 0 || flagDamageMultipler == 0 ? 1 : flagDamageMultipler;
+            damageHealValue *= damageHealValue > 0 || flagDamageMultiplier == 0 ? 1 : flagDamageMultiplier;
 
-            //reduction begining with base resistance
+            //reduction beginning with base resistance
             float totalReduction = 1;
             if (min < 0 && !HammerOfLight.standingInHammer(attacker, entity)) {
                 //base
@@ -967,8 +967,15 @@ public final class WarlordsPlayer {
                                 gameState.getGame().forEachOnlinePlayer((player1, t) -> {
                                     player1.playSound(getLocation(), "shaman.windfuryweapon.impact", 2, 1);
                                 });
-                                addHealth(attacker, "Windfury Weapon", min, max, 25, 235);
+
+                                if (Warlords.getPlayerSettings(attacker.uuid).classesSkillBoosts() == ClassesSkillBoosts.WINDFURY_WEAPON) {
+                                    addHealth(attacker, "Windfury Weapon", (min * 1.35f) * 1.2f, (max * 1.35f) * 1.2f, 25, 235);
+                                } else {
+                                    addHealth(attacker, "Windfury Weapon", (min * 1.35f), (max * 1.35f), 25, 235);
+                                }
+
                                 counter[0]++;
+
                                 if (counter[0] == 2) {
                                     this.cancel();
                                 }
@@ -1055,7 +1062,7 @@ public final class WarlordsPlayer {
 
         Location deathLocation = player.getLocation();
         Block bestGraveCandidate = null;
-        boolean isFlagCarrier = this.getFlagDamageMultipler() > 0;
+        boolean isFlagCarrier = this.getFlagDamageMultiplier() > 0;
         for (int x = -1; x <= 1; x++) {
             //Bukkit.broadcastMessage("For 1:" + x);
             for (int z = -1; z <= 1; z++) {
@@ -1562,12 +1569,12 @@ public final class WarlordsPlayer {
         return this.gameState;
     }
 
-    public double getFlagDamageMultipler() {
-        return flagDamageMultipler;
+    public double getFlagDamageMultiplier() {
+        return flagDamageMultiplier;
     }
 
-    public void setFlagDamageMultipler(double flagDamageMultipler) {
-        this.flagDamageMultipler = flagDamageMultipler;
+    public void setFlagDamageMultiplier(double flagDamageMultiplier) {
+        this.flagDamageMultiplier = flagDamageMultiplier;
     }
 
     public String getColoredName() {

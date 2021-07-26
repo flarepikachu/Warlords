@@ -230,7 +230,7 @@ public class WarlordsEvents implements Listener {
                         double distance = player.getLocation().getY() - player.getWorld().getHighestBlockYAt(player.getLocation());
                         if (distance > 2) {
                             player.sendMessage(ChatColor.RED + "You can't mount in the air");
-                        } else if (wp.getFlagDamageMultipler() > 0) {
+                        } else if (wp.getFlagDamageMultiplier() > 0) {
                             player.sendMessage(ChatColor.RED + "You can't mount while holding the flag!");
                         } else {
                             player.playSound(player.getLocation(), "mountup", 1, 1);
@@ -403,12 +403,14 @@ public class WarlordsEvents implements Listener {
                     return null;
                 }
                 e.setFormat(
-                        ChatColor.DARK_GRAY + "[" +
-                                wp.getTeam().coloredPrefix() +
-                                ChatColor.DARK_GRAY + "][" +
+                        wp.getTeam().teamColor() + "[" +
+                                wp.getTeam().prefix() + "]" +
+                                ChatColor.DARK_GRAY + "[" +
                                 ChatColor.GOLD + wp.getSpec().getClassNameShort() +
                                 ChatColor.DARK_GRAY + "][" +
                                 ChatColor.GOLD + "90" +
+                                ChatColor.DARK_GRAY + "][" +
+                                Warlords.getPlayerSettings(wp.getUuid()).selectedClass().specType.getColoredSymbol() +
                                 ChatColor.DARK_GRAY + "] " +
                                 ChatColor.AQUA + "%1$s" +
                                 ChatColor.WHITE + ": %2$s"
@@ -448,13 +450,13 @@ public class WarlordsEvents implements Listener {
     public void onFlagChange(WarlordsFlagUpdatedEvent event) {
         //Bukkit.broadcastMessage(event.getTeam() + " " + event.getOld().getClass().getSimpleName() + " => " + event.getNew().getClass().getSimpleName());
         if (event.getOld() instanceof PlayerFlagLocation) {
-            ((PlayerFlagLocation) event.getOld()).getPlayer().setFlagDamageMultipler(0);
+            ((PlayerFlagLocation) event.getOld()).getPlayer().setFlagDamageMultiplier(0);
         }
 
         if (event.getNew() instanceof PlayerFlagLocation) {
             PlayerFlagLocation pfl = (PlayerFlagLocation) event.getNew();
             WarlordsPlayer player = pfl.getPlayer();
-            player.setFlagDamageMultipler(pfl.getComputedMultiplier());
+            player.setFlagDamageMultiplier(pfl.getComputedMultiplier());
             if (!(event.getOld() instanceof PlayerFlagLocation)) {
                 // eg GROUND -> PLAYER
                 // or SPAWN -> PLAYER
