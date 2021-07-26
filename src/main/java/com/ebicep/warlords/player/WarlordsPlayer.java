@@ -1013,7 +1013,7 @@ public final class WarlordsPlayer {
     }
 
     public boolean damageHorse(float amount) {
-        if (!(horse.isHasDivineMount() && timeAfterMount < 5)) {
+        if (!(horse.isHasDivineMount() && timeAfterMount < 5) && entity.getVehicle() != null) {
             horse.addHealth(amount);
             return horse.getHorseHealth() <= 0;
         }
@@ -1045,6 +1045,9 @@ public final class WarlordsPlayer {
 
         cooldownManager.clearCooldowns();
 
+        if (entity.getVehicle() != null) {
+            entity.getVehicle().remove();
+        }
     }
 
     public void addGrave() {
@@ -1475,7 +1478,7 @@ public final class WarlordsPlayer {
             // TODO Update the inventory based on the status of isUndyingArmyDead here
 
             //SKILL TREE JUICERS
-            player.getInventory().setItem(6, new ItemBuilder(Material.FIREWORK_CHARGE)
+            player.getInventory().setItem(5, new ItemBuilder(Material.FIREWORK_CHARGE)
                     .name(ChatColor.GREEN + "Skill Tree" + ChatColor.GRAY + " - " + ChatColor.YELLOW + "Right-Click!")
                     .lore(ChatColor.GRAY + "Opens your Skill Tree to upgrade your class!")
                     .get());

@@ -53,7 +53,7 @@ public class MountTree extends DoubleUltTree {
     @Override
     public void doSecondRightUpgrade() {
         skillTree.getWarlordsPlayer().getHorse().setMaxHealth(500);
-        rightUpgrades.get(1).setCurrentEffect("Your horse now has " + skillTree.getWarlordsPlayer().getHorse().getMaxHealth() + " health");
+        rightUpgrades.get(1).setCurrentEffect("Your horse now has " + (int) skillTree.getWarlordsPlayer().getHorse().getMaxHealth2() + " health");
     }
 
     @Override

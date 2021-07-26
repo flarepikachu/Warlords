@@ -142,6 +142,10 @@ public class CustomHorse extends EntityHorse {
         }
     }
 
+    public float getMaxHealth2() {
+        return maxHealth;
+    }
+
     public void setMaxHealth(float maxHealth) {
         this.maxHealth = maxHealth;
     }

@@ -41,6 +41,7 @@ public class MiscellaneousTree extends DoubleUltTree {
             @Override
             public void run() {
                 if (timeLeft <= 0) {
+                    leftUpgrades.getFirst().setLocked(false);
                     skillTree.getWarlordsPlayer().addPoints(pointsInvested * 1.5f);
                     skillTree.getWarlordsPlayer().sendMessage(ChatColor.GREEN + "You received " + (int) (pointsInvested * 1.5) + " from your investment");
                     leftUpgrades.getFirst().setCurrentEffect("");

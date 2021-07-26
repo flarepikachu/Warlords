@@ -222,7 +222,9 @@ public class WarlordsEvents implements Listener {
             ItemStack itemHeld = player.getItemInHand();
             if (wp != null) {
                 if (player.getInventory().getHeldItemSlot() == 7 && itemHeld.getType() == Material.GOLD_BARDING && player.getVehicle() == null) {
-                    if (!Utils.isMountableZone(location)) {
+                    if (wp.getGameState().flags().hasFlag(wp)) {
+                        player.sendMessage(ChatColor.RED + "You can't mount while holding the flag!");
+                    } else if (!Utils.isMountableZone(location)) {
                         player.sendMessage(ChatColor.RED + "You can't mount here!");
                     } else {
                         double distance = player.getLocation().getY() - player.getWorld().getHighestBlockYAt(player.getLocation());
