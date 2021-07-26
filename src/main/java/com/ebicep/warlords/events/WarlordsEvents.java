@@ -447,6 +447,10 @@ public class WarlordsEvents implements Listener {
     @EventHandler
     public void onFlagChange(WarlordsFlagUpdatedEvent event) {
         //Bukkit.broadcastMessage(event.getTeam() + " " + event.getOld().getClass().getSimpleName() + " => " + event.getNew().getClass().getSimpleName());
+        if (event.getOld() instanceof PlayerFlagLocation) {
+            ((PlayerFlagLocation) event.getOld()).getPlayer().setFlagDamageMultipler(0);
+        }
+
         if (event.getNew() instanceof PlayerFlagLocation) {
             PlayerFlagLocation pfl = (PlayerFlagLocation) event.getNew();
             WarlordsPlayer player = pfl.getPlayer();
@@ -525,17 +529,7 @@ public class WarlordsEvents implements Listener {
                 event.getGame().forEachOnlinePlayer((player, team) -> {
                     player.sendMessage(pfl.getPlayer().getTeam().teamColor() + "+250 Score");
                 });
-                if (pfl.getPlayer().getFlagTree().getRightUpgrades().getLast().getCounter() != 0) {
-                    event.getGameState().addPoints(pfl.getPlayer().getTeam(), pfl.getComputedHumanMultiplier());
-                    event.getGame().forEachOnlinePlayer((player, team) -> {
-                        player.sendMessage(pfl.getPlayer().getTeam().teamColor() + "+" + pfl.getComputedHumanMultiplier() + " Score");
-                    });
-                }
             }
-        }
-
-        if (event.getOld() instanceof PlayerFlagLocation) {
-            ((PlayerFlagLocation) event.getOld()).getPlayer().setFlagDamageMultipler(0);
         }
     }
 }
