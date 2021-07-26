@@ -119,6 +119,10 @@ public abstract class AbstractAbility {
         return energyCost;
     }
 
+    public void setEnergyCost(int energyCost) {
+        this.energyCost = energyCost;
+    }
+
     public int getCritChance() {
         return critChance;
     }

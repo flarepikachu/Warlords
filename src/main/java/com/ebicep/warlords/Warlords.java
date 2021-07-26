@@ -281,7 +281,6 @@ public class Warlords extends JavaPlugin {
             @Override
             public void run() {
                 //RemoveEntities.removeHorsesInGame();
-                // EVERY TICK
                 {
                     // MOVEMENT
                     for (WarlordsPlayer warlordsPlayer : players.values()) {
@@ -341,11 +340,6 @@ public class Warlords extends JavaPlugin {
                                 warlordsPlayer.updateHorseItem(player);
                             }
                         }
-
-                        warlordsPlayer.setTimeAfterDismount(warlordsPlayer.getTimeAfterDismount() + .05f);
-                        warlordsPlayer.setTimeAfterMount(warlordsPlayer.getTimeAfterMount() + .05f);
-                        warlordsPlayer.addTimeAfterFlagPick();
-                        warlordsPlayer.setInvisible(warlordsPlayer.getInvisible() + .05f);
 
                         warlordsPlayer.getCooldownManager().reduceCooldowns();
 
@@ -642,6 +636,26 @@ public class Warlords extends JavaPlugin {
                             }
                         }
 
+                    }
+                }
+                //SKILL TREE SHENANIGANS
+                {
+                    for (WarlordsPlayer warlordsPlayer : players.values()) {
+                        CooldownManager cooldownManager = warlordsPlayer.getCooldownManager();
+                        Player player = warlordsPlayer.getEntity() instanceof Player ? (Player) warlordsPlayer.getEntity() : null;
+
+                        warlordsPlayer.setTimeAfterDismount(warlordsPlayer.getTimeAfterDismount() + .05f);
+                        warlordsPlayer.setTimeAfterMount(warlordsPlayer.getTimeAfterMount() + .05f);
+                        warlordsPlayer.addTimeAfterFlagPick();
+                        warlordsPlayer.setInvisible(warlordsPlayer.getInvisible() + .05f);
+
+                        if (counter % 20 == 0) {
+                            if (warlordsPlayer.isAlive()) {
+                                if (warlordsPlayer.getCooldownManager().hasCooldown("BURN")) {
+                                    warlordsPlayer.addHealth(warlordsPlayer.getCooldownManager().getCooldown("BURN").get(0).getFrom(), "Burn", -15, -15, -1, 100);
+                                }
+                            }
+                        }
                     }
                 }
                 counter++;

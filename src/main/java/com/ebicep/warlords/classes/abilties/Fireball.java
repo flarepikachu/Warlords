@@ -1,8 +1,8 @@
 package com.ebicep.warlords.classes.abilties;
 
-import com.ebicep.warlords.Warlords;
 import com.ebicep.warlords.classes.AbstractAbility;
 import com.ebicep.warlords.classes.internal.AbstractProjectileBase;
+import com.ebicep.warlords.player.CooldownTypes;
 import com.ebicep.warlords.player.WarlordsPlayer;
 import com.ebicep.warlords.skilltree.SkillTree;
 import com.ebicep.warlords.skilltree.Upgrade;
@@ -12,7 +12,6 @@ import com.ebicep.warlords.util.PlayerFilter;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
 
 public class Fireball extends AbstractProjectileBase {
 
@@ -66,25 +65,8 @@ public class Fireball extends AbstractProjectileBase {
             );
             if (burn) {
                 if (toReduceBy == 1) {
-                    new BukkitRunnable() {
-                        int counter = 0;
-
-                        @Override
-                        public void run() {
-                            victim.addHealth(
-                                    shooter,
-                                    "Burn",
-                                    -15,
-                                    -15,
-                                    -1,
-                                    100
-                            );
-                            counter++;
-                            if (counter >= 3) {
-                                this.cancel();
-                            }
-                        }
-                    }.runTaskTimer(Warlords.getInstance(), 20, 30);
+                    victim.getCooldownManager().removeCooldown("BURN");
+                    victim.getCooldownManager().addCooldown(Fireball.class, new Fireball(), "BURN", 3, shooter, CooldownTypes.DEBUFF);
                 }
             }
             hitEnemy = true;
@@ -105,25 +87,8 @@ public class Fireball extends AbstractProjectileBase {
             );
             if (burn) {
                 if (toReduceBy == 1) {
-                    new BukkitRunnable() {
-                        int counter = 0;
-
-                        @Override
-                        public void run() {
-                            nearEntity.addHealth(
-                                    shooter,
-                                    "Burn",
-                                    -15,
-                                    -15,
-                                    -1,
-                                    100
-                            );
-                            counter++;
-                            if (counter >= 3) {
-                                this.cancel();
-                            }
-                        }
-                    }.runTaskTimer(Warlords.getInstance(), 20, 30);
+                    nearEntity.getCooldownManager().removeCooldown("BURN");
+                    nearEntity.getCooldownManager().addCooldown(Fireball.class, new Fireball(), "BURN", 3, shooter, CooldownTypes.DEBUFF);
                 }
             }
             hitEnemy = true;
@@ -196,7 +161,7 @@ class FireBallTree extends SingleUltTree {
 
     @Override
     public void doSecondLeftUpgrade() {
-        ability.addDamageHeal(25);
+        ability.addDamageHeal(-25);
     }
 
     @Override

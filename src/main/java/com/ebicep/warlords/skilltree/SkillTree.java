@@ -26,31 +26,22 @@ public class SkillTree {
         wpClass.getBlue().createSkillTreeAbility(warlordsPlayer, this);
         wpClass.getOrange().createSkillTreeAbility(warlordsPlayer, this);
         skillTrees[3] = wpClass.getWeapon().getSkillTree();
-//        skillTrees[4] = wpClass.getRed() instanceof ISingleUlt ?
-//                new SingleUltTree(this,wpClass.getRed(), wpClass.getRed().getName(), new ItemStack(Material.INK_SACK, 1, (byte)1)) :
-//                new DoubleUltTree(this,wpClass.getRed(), wpClass.getRed().getName(), new ItemStack(Material.INK_SACK, 1, (byte)1));
-//        skillTrees[5] = wpClass.getPurple() instanceof ISingleUlt ?
-//                new SingleUltTree(this,wpClass.getPurple(), wpClass.getPurple().getName(), new ItemStack(Material.GLOWSTONE_DUST)) :
-//                new DoubleUltTree(this,wpClass.getPurple(), wpClass.getPurple().getName(), new ItemStack(Material.GLOWSTONE_DUST));
-//        skillTrees[6] = wpClass.getBlue() instanceof ISingleUlt ?
-//                new SingleUltTree(this,wpClass.getBlue(), wpClass.getBlue().getName(), new ItemStack(Material.INK_SACK, 1, (byte)10)) :
-//                new DoubleUltTree(this,wpClass.getBlue(), wpClass.getBlue().getName(), new ItemStack(Material.INK_SACK, 1, (byte)10));
-//        skillTrees[7] = wpClass.getOrange() instanceof ISingleUlt ?
-//                new SingleUltTree(this,wpClass.getOrange(), wpClass.getOrange().getName(), new ItemStack(Material.INK_SACK, 1, (byte)14)) :
-//                new DoubleUltTree(this,wpClass.getOrange(), wpClass.getOrange().getName(), new ItemStack(Material.INK_SACK, 1, (byte)14));
+
     }
 
     public void openSkillTreeMenu() {
         Menu menu = new Menu("Skill Tree", 9 * 6);
         for (int i = 0; i < skillTrees.length / 2; i++) {
             AbstractTree tree = skillTrees[i];
-            menu.setItem((i * 2) + 1,
-                    1,
-                    tree.getTreeItemStack(),
-                    (n, e) -> {
-                        tree.openTreeMenu((Player) warlordsPlayer.getEntity());
-                    }
-            );
+            if (tree != null) {
+                menu.setItem((i * 2) + 1,
+                        1,
+                        tree.getTreeItemStack(),
+                        (n, e) -> {
+                            tree.openTreeMenu((Player) warlordsPlayer.getEntity());
+                        }
+                );
+            }
         }
 //        for (int i = skillTrees.length / 2; i < skillTrees.length; i++) {
 //            AbstractTree tree = skillTrees[i];

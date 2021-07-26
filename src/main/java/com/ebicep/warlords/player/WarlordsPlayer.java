@@ -427,8 +427,16 @@ public final class WarlordsPlayer {
             updateOrangeItem((Player) entity);
         }
     }
+
     public void updateOrangeItem(Player player) {
-        updateItem(player, 4, spec.getOrange(), new ItemStack(Material.INK_SACK, 1, (byte)14));
+        updateItem(player, 4, spec.getOrange(), new ItemStack(Material.INK_SACK, 1, (byte) 14));
+    }
+
+    public void updateAllAbilityItems() {
+        updateRedItem();
+        updatePurpleItem();
+        updateBlueItem();
+        updateOrangeItem();
     }
 
     public void updateHorseItem(Player player) {
