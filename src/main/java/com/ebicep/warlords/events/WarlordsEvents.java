@@ -10,6 +10,7 @@ import com.ebicep.warlords.maps.flags.GroundFlagLocation;
 import com.ebicep.warlords.maps.flags.PlayerFlagLocation;
 import com.ebicep.warlords.maps.flags.SpawnFlagLocation;
 import com.ebicep.warlords.maps.flags.WaitingFlagLocation;
+import com.ebicep.warlords.maps.state.EndState;
 import com.ebicep.warlords.player.Cooldown;
 import com.ebicep.warlords.player.CustomScoreboard;
 import com.ebicep.warlords.player.WarlordsPlayer;
@@ -39,7 +40,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 
@@ -48,27 +48,19 @@ import static com.ebicep.warlords.menu.GameMenu.openTeamMenu;
 
 public class WarlordsEvents implements Listener {
 
-    public static Set<UUID> entityList = new HashSet<>();
+    public static Set<Entity> entityList = new HashSet<>();
 
     @EventHandler
     public void onEntityChangeBlock(EntityChangeBlockEvent event) {
         if (event.getEntity() instanceof FallingBlock) {
-            if (entityList.remove(event.getEntity().getUniqueId())) {
+            if (entityList.remove(event.getEntity())) {
                 event.setCancelled(true);
             }
         }
     }
 
-    public static void addEntityUUID(UUID id) {
-        entityList.add(id);
-    }
-
-    public void removeEntityBlock(UUID id) {
-        entityList.remove(id);
-    }
-
-    public boolean containsBlock(UUID id) {
-        return entityList.contains(id);
+    public static void addEntityUUID(Entity entity) {
+        entityList.add(entity);
     }
 
     @EventHandler
@@ -224,12 +216,12 @@ public class WarlordsEvents implements Listener {
                 if (player.getInventory().getHeldItemSlot() == 7 && itemHeld.getType() == Material.GOLD_BARDING && player.getVehicle() == null) {
                     if (wp.getGameState().flags().hasFlag(wp)) {
                         player.sendMessage(ChatColor.RED + "You can't mount while holding the flag!");
-                    } else if (!Utils.isMountableZone(location)) {
+                    } else if (!Utils.isMountableZone(location) || Utils.blocksInFrontOfLocation(location)) {
                         player.sendMessage(ChatColor.RED + "You can't mount here!");
                     } else {
                         double distance = player.getLocation().getY() - player.getWorld().getHighestBlockYAt(player.getLocation());
                         if (distance > 2) {
-                            player.sendMessage(ChatColor.RED + "You can't mount in the air");
+                            player.sendMessage(ChatColor.RED + "You can't mount in the air!");
                         } else if (wp.getFlagDamageMultiplier() > 0) {
                             player.sendMessage(ChatColor.RED + "You can't mount while holding the flag!");
                         } else {
@@ -254,6 +246,7 @@ public class WarlordsEvents implements Listener {
                 } else if (itemHeld.getType() == Material.SUGAR) {
                     wp.getHorse().boostSpeed();
                 } else if (itemHeld.getType() == Material.COMPASS) {
+                    //TODO sound
                     wp.toggleTeamFlagCompass();
                 } else if (player.getInventory().getHeldItemSlot() == 0 || !wp.isHotKeyMode()) {
                     wp.getSpec().onRightClick(wp, player);
@@ -273,6 +266,16 @@ public class WarlordsEvents implements Listener {
             }
         }
 
+    }
+
+    @EventHandler
+    public void onPlayerTeleport(PlayerTeleportEvent e) {
+        if (e.getCause() == PlayerTeleportEvent.TeleportCause.UNKNOWN) {
+            if (e.getPlayer().getGameMode() == GameMode.SPECTATOR) {
+                e.setCancelled(true);
+                e.getPlayer().setSpectatorTarget(null);
+            }
+        }
     }
 
     @EventHandler
@@ -415,7 +418,9 @@ public class WarlordsEvents implements Listener {
                                 ChatColor.AQUA + "%1$s" +
                                 ChatColor.WHITE + ": %2$s"
                 );
-                e.getRecipients().removeIf(p -> wp.getGame().getPlayerTeamOrNull(p.getUniqueId()) != wp.getTeam());
+                if (!(wp.getGame().getState() instanceof EndState)) {
+                    e.getRecipients().removeIf(p -> wp.getGame().getPlayerTeamOrNull(p.getUniqueId()) != wp.getTeam());
+                }
                 return null;
             }).get();
         } catch (InterruptedException | ExecutionException ex) {

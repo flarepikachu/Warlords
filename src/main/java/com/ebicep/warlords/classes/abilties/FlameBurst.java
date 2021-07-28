@@ -44,6 +44,7 @@ public class FlameBurst extends AbstractProjectileBase {
     protected void onHit(WarlordsPlayer shooter, Location currentLocation, Location startingLocation, WarlordsPlayer victim) {
         ParticleEffect.EXPLOSION_LARGE.display(0, 0, 0, 0.5F, 2, currentLocation, 500);
         ParticleEffect.LAVA.display(0.5F, 0, 0.5F, 2F, 10, currentLocation, 500);
+        ParticleEffect.CLOUD.display(0.3F, 0.3F, 0.3F, 1, 3, currentLocation, 500);
 
         for (Player player1 : currentLocation.getWorld().getPlayers()) {
             player1.playSound(currentLocation, "mage.flameburst.impact", 2, 1);
@@ -58,7 +59,7 @@ public class FlameBurst extends AbstractProjectileBase {
                     name,
                     minDamageHeal,
                     maxDamageHeal,
-                    critChance + (int) Math.pow(currentLocation.distanceSquared(startingLocation), 2),
+                    critChance + (int) Math.pow(startingLocation.distanceSquared(currentLocation), 2),
                     critMultiplier
             );
         }
@@ -67,7 +68,7 @@ public class FlameBurst extends AbstractProjectileBase {
     @Override
     public void updateDescription(Player player) {
         description = "§7Launch a flame burst that will explode\n" +
-            "§7for §c" + -minDamageHeal + " §7- §c" + Math.round(-maxDamageHeal) + " §7damage. The critical\n" +
+            "§7for §c" + -minDamageHeal + " §7- §c" + -maxDamageHeal + " §7damage. The critical\n" +
             "§7chance increases by §c1% §7for each\n" +
             "§7travelled block. Up to 100%.";
     }

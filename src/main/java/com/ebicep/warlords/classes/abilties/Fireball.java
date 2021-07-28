@@ -24,7 +24,7 @@ public class Fireball extends AbstractProjectileBase {
     private boolean reduceCooldown = false;
 
     public Fireball() {
-        super("Fireball", -334.4f, -433.4f, 0, 70, 20, 175, 2, 250, false);
+        super("Fireball", -334.4f, -433.4f, 0, 70, 20, 175, 2, 300, false);
     }
 
     @Override
@@ -52,7 +52,7 @@ public class Fireball extends AbstractProjectileBase {
         boolean hitEnemy = false;
         double distanceSquared = currentLocation.distanceSquared(startingLocation);
         double toReduceBy = maxFullDamageDistance * maxFullDamageDistance > distanceSquared ? 1 :
-                1 - (Math.sqrt(distanceSquared) - maxFullDamageDistance) / 100.;
+                1 - (Math.sqrt(distanceSquared) - maxFullDamageDistance) / 50.;
         if (toReduceBy < 0) toReduceBy = 0;
         if (victim != null) {
             victim.addHealth(

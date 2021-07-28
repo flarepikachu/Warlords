@@ -9,7 +9,10 @@ import com.ebicep.warlords.classes.shaman.specs.spiritguard.Spiritguard;
 import com.ebicep.warlords.events.WarlordsDeathEvent;
 import com.ebicep.warlords.maps.Game;
 import com.ebicep.warlords.maps.Team;
-import com.ebicep.warlords.maps.flags.*;
+import com.ebicep.warlords.maps.flags.FlagLocation;
+import com.ebicep.warlords.maps.flags.FlagManager;
+import com.ebicep.warlords.maps.flags.GroundFlagLocation;
+import com.ebicep.warlords.maps.flags.PlayerFlagLocation;
 import com.ebicep.warlords.maps.state.PlayingState;
 import com.ebicep.warlords.powerups.DamagePowerUp;
 import com.ebicep.warlords.skilltree.SkillTree;
@@ -229,27 +232,25 @@ public final class WarlordsPlayer {
     public void displayFlagActionBar(@Nonnull Player player) {
         FlagManager flags = this.gameState.flags();
 
-        FlagInfo blueFlag = flags.getBlue();
-        double blueFlagDistance = Math.round(blueFlag.getFlag().getLocation().distance(player.getLocation()) * 10) / 10.0;
-        FlagInfo redFlag = flags.getRed();
-        double redFlagDistance = Math.round(redFlag.getFlag().getLocation().distance(player.getLocation()) * 10) / 10.0;
-
         if (teamFlagCompass) {
             FlagLocation flag = flags.get(team).getFlag();
+            double flagDistance = Math.round(flag.getLocation().distance(player.getLocation()) * 10) / 10.0;
+            String start = team.teamColor().toString() + ChatColor.BOLD + "YOUR ";
             if (flag instanceof PlayerFlagLocation) {
-                PacketUtils.sendActionBar(player, "" + team.teamColor() + ChatColor.BOLD + "YOUR Flag " + ChatColor.WHITE + "is stolen " + ChatColor.RED + blueFlagDistance + "m " + ChatColor.WHITE + "away!");
+                PacketUtils.sendActionBar(player, start + "Flag " + ChatColor.WHITE + "is stolen " + ChatColor.RED + flagDistance + "m " + ChatColor.WHITE + "away!");
             } else if (flag instanceof GroundFlagLocation) {
-                PacketUtils.sendActionBar(player, "" + team.teamColor() + ChatColor.BOLD + "YOUR Flag " + ChatColor.GOLD + "is dropped " + ChatColor.RED + blueFlagDistance + "m " + ChatColor.WHITE + "away!");
+                PacketUtils.sendActionBar(player, start + "Flag " + ChatColor.GOLD + "is dropped " + ChatColor.RED + flagDistance + "m " + ChatColor.WHITE + "away!");
             } else {
-                PacketUtils.sendActionBar(player, "" + team.teamColor() + ChatColor.BOLD + "YOUR " + ChatColor.GREEN + "Flag is safe");
+                PacketUtils.sendActionBar(player, start + ChatColor.GREEN + "Flag is safe");
             }
         } else {
             FlagLocation flag = flags.get(team.enemy()).getFlag();
-            String start = "" + team.enemy().teamColor() + ChatColor.BOLD + "ENEMY ";
+            double flagDistance = Math.round(flag.getLocation().distance(player.getLocation()) * 10) / 10.0;
+            String start = team.enemy().teamColor().toString() + ChatColor.BOLD + "ENEMY ";
             if (flag instanceof PlayerFlagLocation) {
-                PacketUtils.sendActionBar(player, start + "Flag " + ChatColor.WHITE + "is stolen " + ChatColor.RED + redFlagDistance + "m " + ChatColor.WHITE + "away!");
+                PacketUtils.sendActionBar(player, start + "Flag " + ChatColor.WHITE + "is stolen " + ChatColor.RED + flagDistance + "m " + ChatColor.WHITE + "away!");
             } else if (flag instanceof GroundFlagLocation) {
-                PacketUtils.sendActionBar(player, start + "ENEMY Flag " + ChatColor.GOLD + "is dropped " + ChatColor.RED + redFlagDistance + "m " + ChatColor.WHITE + "away!");
+                PacketUtils.sendActionBar(player, start + "ENEMY Flag " + ChatColor.GOLD + "is dropped " + ChatColor.RED + flagDistance + "m " + ChatColor.WHITE + "away!");
             } else {
                 PacketUtils.sendActionBar(player, start + ChatColor.GREEN + "Flag is safe");
             }
@@ -579,12 +580,12 @@ public final class WarlordsPlayer {
                 //base
                 totalReduction = 1 - spec.getDamageResistance() / 100f;
                 //add damage
+
                 if (!attacker.getCooldownManager().getCooldown(DamagePowerUp.class).isEmpty()) {
                     totalReduction *= 1.2;
                 } else if (attacker.getSpawnDamage() > 0) {
                     totalReduction *= 1.2;
                 }
-
                 for (Cooldown cooldown : attacker.getCooldownManager().getCooldown(Berserk.class)) {
                     totalReduction *= 1.25;
                 }
@@ -787,10 +788,10 @@ public final class WarlordsPlayer {
                         // this metadata is only active on the sg class
                         // the cooldown of the ability prevents multiple from being active at the same time
                         Optional<MetadataValue> totem = entity.getMetadata("TOTEM").stream()
-                                .filter(e -> e.value() instanceof Totem.TotemSpiritguard)
+                                .filter(e -> e.value() instanceof DeathsDebt)
                                 .findAny();
                         if (totem.isPresent()) {
-                            Totem.TotemSpiritguard t = (Totem.TotemSpiritguard) totem.get().value();
+                            DeathsDebt t = (DeathsDebt) totem.get().value();
                             t.addDelayedDamage(damageHealValue);
                             debt = true;
                         }
@@ -902,6 +903,7 @@ public final class WarlordsPlayer {
                                     attacker.sendMessage(ChatColor.GREEN + "\u00BB" + ChatColor.GRAY + " " + "Your " + ability + " healed " + name + " for " + ChatColor.GREEN + "" + Math.round(damageHealValue) + " " + ChatColor.GRAY + "health.");
                                 }
                             }
+                            attacker.addHealing(damageHealValue);
                         }
                     }
                     if (!attacker.getCooldownManager().getCooldown(BloodLust.class).isEmpty() && damageHealValue < 0) {
@@ -948,7 +950,7 @@ public final class WarlordsPlayer {
                     }
                 } else {
                     if (!ability.isEmpty() &&
-                            this != attacker &&
+                            (this != attacker || ability.equals("Water Bolt")) &&
                             damageHealValue != 0 &&
                             !ability.equals("Intervene")
                     ) {
@@ -957,7 +959,6 @@ public final class WarlordsPlayer {
                         }
                     }
                 }
-
             }
 
             if (ability.isEmpty()) {
@@ -977,9 +978,9 @@ public final class WarlordsPlayer {
                                 });
 
                                 if (Warlords.getPlayerSettings(attacker.uuid).classesSkillBoosts() == ClassesSkillBoosts.WINDFURY_WEAPON) {
-                                    addHealth(attacker, "Windfury Weapon", (min * 1.35f) * 1.2f, (max * 1.35f) * 1.2f, 25, 235);
+                                    addHealth(attacker, "Windfury Weapon", (min * 1.35f) * 1.2f, (max * 1.35f) * 1.2f, 25, 200);
                                 } else {
-                                    addHealth(attacker, "Windfury Weapon", (min * 1.35f), (max * 1.35f), 25, 235);
+                                    addHealth(attacker, "Windfury Weapon", (min * 1.35f), (max * 1.35f), 25, 200);
                                 }
 
                                 counter[0]++;
@@ -1210,7 +1211,7 @@ public final class WarlordsPlayer {
         } else if (energy + amount > 0) {
             this.energy += amount;
         } else {
-            this.energy = 0;
+            this.energy = 1;
         }
         if ((int) amount != 0) {
             if (this == giver) {
@@ -1428,8 +1429,8 @@ public final class WarlordsPlayer {
         this.flagsReturned++;
     }
 
-    public int getTotalCapsAndReturns() {
-        return this.flagsCaptured + this.flagsReturned;
+    public int getTotalCapsAndReturnsWeighted() {
+        return (this.flagsCaptured * 5) + this.flagsReturned;
     }
 
     public int getSpawnProtection() {

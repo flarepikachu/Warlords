@@ -44,7 +44,8 @@ public class SpiritLink extends AbstractChainBase {
                 nearPlayer.addHealth(wp, name, minDamageHeal, maxDamageHeal, critChance, critMultiplier);
                 hitCounter++;
 
-                if (wp.getCooldownManager().hasBoundPlayerLink(nearPlayer)) {
+                int numberOfHeals = wp.getCooldownManager().getNumberOfBoundPlayersLink(nearPlayer);
+                for (int i = 0; i < numberOfHeals; i++) {
                     healNearPlayers(wp);
                 }
 
@@ -58,7 +59,8 @@ public class SpiritLink extends AbstractChainBase {
                     nearNearPlayer.addHealth(wp, name, minDamageHeal * .8f, maxDamageHeal * .8f, critChance, critMultiplier);
                     hitCounter++;
 
-                    if (wp.getCooldownManager().hasBoundPlayerLink(nearNearPlayer)) {
+                    numberOfHeals = wp.getCooldownManager().getNumberOfBoundPlayersLink(nearNearPlayer);
+                    for (int i = 0; i < numberOfHeals; i++) {
                         healNearPlayers(wp);
                     }
 
@@ -72,7 +74,8 @@ public class SpiritLink extends AbstractChainBase {
                         nearNearPlayer.addHealth(wp, name, minDamageHeal * .6f, maxDamageHeal * .6f, critChance, critMultiplier);
                         hitCounter++;
 
-                        if (wp.getCooldownManager().hasBoundPlayerLink(nearNearNearPlayer)) {
+                        numberOfHeals = wp.getCooldownManager().getNumberOfBoundPlayersLink(nearNearNearPlayer);
+                        for (int i = 0; i < numberOfHeals; i++) {
                             healNearPlayers(wp);
                         }
 

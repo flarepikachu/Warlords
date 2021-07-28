@@ -56,6 +56,10 @@ public class RecklessCharge extends AbstractAbility {
             player.setVelocity(eyeLocation.getDirection().multiply(1.6));
             charge = (int) Math.pow(9 - Utils.getDistance(player, .1) * 2, 2);
         }
+
+        if (wp.getGameState().flags().hasFlag(wp)) {
+            charge /= 5;
+        }
         // warlordsplayer charged variable
         // check distance from start to "end" every tick
         // check collision of every player
@@ -76,7 +80,7 @@ public class RecklessCharge extends AbstractAbility {
                     this.cancel();
                 }
 
-                List<Entity> playersInside = player.getNearbyEntities(2.5, 2, 2.5);
+                List<Entity> playersInside = player.getNearbyEntities(2.25, 4, 2.25);
                 playersInside.removeAll(((RecklessCharge) wp.getSpec().getRed()).getPlayersHit());
                 playersInside = Utils.filterOutTeammates(playersInside, player);
                 for (Entity entity : playersInside) {
@@ -101,15 +105,15 @@ public class RecklessCharge extends AbstractAbility {
                                 stunLocation.setPitch(entity.getLocation().getPitch());
                                 stunLocation.setYaw(entity.getLocation().getYaw());
                                 entity.teleport(stunLocation);
-                                //.75 seconds
-                                if (timer >= 15) {
+                                //.5 seconds
+                                if (timer >= 10) {
                                     this.cancel();
                                 }
                                 timer++;
                             }
                         }.runTaskTimer(Warlords.getInstance(), 0, 0);
 
-                        PacketUtils.sendTitle((Player) entity, "", "§dIMMOBILIZED", 0, 30, 0);
+                        PacketUtils.sendTitle((Player) entity, "", "§dIMMOBILIZED", 0, 10, 0);
                     }
                 }
                 //cancel charge if hit a block, making the player stand still
