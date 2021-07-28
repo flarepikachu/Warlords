@@ -6,6 +6,7 @@ import com.ebicep.warlords.classes.AbstractAbility;
 import com.ebicep.warlords.classes.AbstractPlayerClass;
 import com.ebicep.warlords.classes.abilties.*;
 import com.ebicep.warlords.classes.shaman.specs.spiritguard.Spiritguard;
+import com.ebicep.warlords.classes.warrior.specs.berserker.Berserker;
 import com.ebicep.warlords.events.WarlordsDeathEvent;
 import com.ebicep.warlords.maps.Game;
 import com.ebicep.warlords.maps.Team;
@@ -19,6 +20,7 @@ import com.ebicep.warlords.skilltree.SkillTree;
 import com.ebicep.warlords.skilltree.trees.FlagTree;
 import com.ebicep.warlords.skilltree.trees.MiscellaneousTree;
 import com.ebicep.warlords.skilltree.trees.MountTree;
+import com.ebicep.warlords.skilltree.trees.SingleUltTree;
 import com.ebicep.warlords.util.ItemBuilder;
 import com.ebicep.warlords.util.PacketUtils;
 import com.ebicep.warlords.util.PlayerFilter;
@@ -596,6 +598,10 @@ public final class WarlordsPlayer {
 
                 totalReduction *= (1 + attacker.getFlagTree().getRightUpgrades().get(1).getCounter() * .1);
 
+                if (attacker.getSpec() instanceof Berserker && cooldownManager.hasCooldown(WoundingStrikeBerserker.class)) {
+                    totalReduction *= (1 + attacker.getWeaponTree().getLeftUpgrades().getLast().getCounter() * .1);
+                }
+
                 //reduce damage
                 for (Cooldown cooldown : cooldownManager.getCooldown(IceBarrier.class)) {
                     totalReduction *= .5;
@@ -635,17 +641,23 @@ public final class WarlordsPlayer {
                 }
             } else if (min > 0) {
                 if (!cooldownManager.getCooldown(WoundingStrikeBerserker.class).isEmpty()) {
-                    totalReduction *= .65;
+                    totalReduction *= .65 - (cooldownManager.getCooldown(WoundingStrikeBerserker.class).get(0).getFrom().getWeaponTree().getLeftUpgrades().get(1).getCounter() * .15);
                 } else if (!cooldownManager.getCooldown(WoundingStrikeDefender.class).isEmpty()) {
                     totalReduction *= .75;
                 }
 
                 totalReduction *= (1 + getFlagTree().getFirstUpgrade().getCounter() * .05);
+
+                if (cooldownManager.hasCooldown("TOXIC")) {
+                    totalReduction *= 0;
+                    cooldownManager.removeCooldown("TOXIC");
+                }
             }
+
+            damageHealValue *= totalReduction;
 
             if (!cooldownManager.getCooldown(Intervene.class).isEmpty() && cooldownManager.getCooldown(Intervene.class).get(0).getFrom() != this && !HammerOfLight.standingInHammer(attacker, entity) && this.isEnemyAlive(attacker)) {
                 if (this.isEnemyAlive(attacker)) {
-                    damageHealValue *= totalReduction;
                     damageHealValue *= .5;
                     WarlordsPlayer intervenedBy = cooldownManager.getCooldown(Intervene.class).get(0).getFrom();
 
@@ -678,7 +690,6 @@ public final class WarlordsPlayer {
                     attacker.addAbsorbed(-damageHealValue);
                 }
             } else if (!cooldownManager.getCooldown(ArcaneShield.class).isEmpty() && this.isEnemyAlive(attacker) && !HammerOfLight.standingInHammer(attacker, entity)) {
-                damageHealValue *= totalReduction;
                 if (((ArcaneShield) spec.getBlue()).getShieldHealth() + damageHealValue < 0) {
                     if (entity instanceof Player) {
                         ((EntityLiving) ((CraftPlayer) entity).getHandle()).setAbsorptionHearts(0);
@@ -739,7 +750,6 @@ public final class WarlordsPlayer {
                     }
                     addHealing(damageHealValue);
                 } else {
-                    damageHealValue *= totalReduction;
                     //DAMAGE
                     if (damageHealValue < 0 && isEnemyAlive(attacker)) {
                         if (!hitBy.contains(attacker)) {
@@ -1720,6 +1730,10 @@ public final class WarlordsPlayer {
 
     public MountTree getMountTree() {
         return (MountTree) this.skillTree.getWarlordsPlayer().getSkillTree().getSkillTrees()[2];
+    }
+
+    public SingleUltTree getWeaponTree() {
+        return (SingleUltTree) this.skillTree.getWarlordsPlayer().getSkillTree().getSkillTrees()[3];
     }
 
     public CustomHorse getHorse() {

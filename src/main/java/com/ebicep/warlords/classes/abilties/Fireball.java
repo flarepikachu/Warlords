@@ -19,7 +19,7 @@ public class Fireball extends AbstractProjectileBase {
     private double directHitMultiplier = 1.15;
     private float hitbox = 4;
 
-    private FireBallTree fireBallTree;
+    private FireballTree fireBallTree;
     private boolean burn = false;
     private boolean reduceCooldown = false;
 
@@ -113,7 +113,7 @@ public class Fireball extends AbstractProjectileBase {
 
     @Override
     public void createSkillTreeAbility(WarlordsPlayer warlordsPlayer, SkillTree skillTree) {
-        fireBallTree = new FireBallTree(skillTree, this, name, new ItemStack(warlordsPlayer.getWeapon().item));
+        fireBallTree = new FireballTree(skillTree, this, name, new ItemStack(warlordsPlayer.getWeapon().item));
         setSkillTree(fireBallTree);
     }
 
@@ -138,9 +138,9 @@ public class Fireball extends AbstractProjectileBase {
     }
 }
 
-class FireBallTree extends SingleUltTree {
+class FireballTree extends SingleUltTree {
 
-    public FireBallTree(SkillTree skillTree, AbstractAbility ability, String name, ItemStack itemStack) {
+    public FireballTree(SkillTree skillTree, AbstractAbility ability, String name, ItemStack itemStack) {
         super(skillTree, ability, name, itemStack);
         leftUpgrades.add(new Upgrade(this, 3, 4, 0, 1, "Increased Range", "The maximum damage range is increased"));
         leftUpgrades.add(new Upgrade(this, 3, 3, 0, 1, "Increased Damage", "Basic increase in damage"));

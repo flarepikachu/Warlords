@@ -18,10 +18,7 @@ import com.ebicep.warlords.util.ItemBuilder;
 import com.ebicep.warlords.util.PacketUtils;
 import com.ebicep.warlords.util.Utils;
 import org.bukkit.*;
-import org.bukkit.entity.FallingBlock;
-import org.bukkit.entity.Horse;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Zombie;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -225,9 +222,15 @@ public class WarlordsEvents implements Listener {
                         } else if (wp.getFlagDamageMultiplier() > 0) {
                             player.sendMessage(ChatColor.RED + "You can't mount while holding the flag!");
                         } else {
-                            player.playSound(player.getLocation(), "mountup", 1, 1);
-                            wp.getHorse().spawn();
-                            wp.setHorseCooldown(wp.getHorse().getCooldown());
+                            if (wp.getCooldownManager().hasCooldown("BLEED")) {
+                                if (wp.getCooldownManager().getCooldown("BLEED").get(0).getFrom().getWeaponTree().getRightUpgrades().getLast().getCounter() != 0) {
+                                    player.sendMessage("You can't mount while bleeding!");
+                                }
+                            } else {
+                                player.playSound(player.getLocation(), "mountup", 1, 1);
+                                wp.getHorse().spawn();
+                                wp.setHorseCooldown(wp.getHorse().getCooldown());
+                            }
                         }
                     }
 

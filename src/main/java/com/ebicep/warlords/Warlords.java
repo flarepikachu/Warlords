@@ -652,9 +652,14 @@ public class Warlords extends JavaPlugin {
 
                         if (counter % 20 == 0) {
                             if (warlordsPlayer.isAlive()) {
+                                //TODO make these not dismount
                                 if (warlordsPlayer.getCooldownManager().hasCooldown("BURN")) {
                                     warlordsPlayer.addHealth(warlordsPlayer.getCooldownManager().getCooldown("BURN").get(0).getFrom(), "Burn", -15, -15, -1, 100);
                                 }
+                                if (warlordsPlayer.getCooldownManager().hasCooldown("BLEED")) {
+                                    warlordsPlayer.addHealth(warlordsPlayer.getCooldownManager().getCooldown("BLEED").get(0).getFrom(), "Bleeding Attack", -15, -15, -1, 100);
+                                }
+
                             }
                         }
                     }
