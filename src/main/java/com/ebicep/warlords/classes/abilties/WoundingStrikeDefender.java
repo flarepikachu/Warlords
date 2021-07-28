@@ -77,10 +77,10 @@ class WoundingStrikeDefenderTree extends SingleUltTree {
         leftUpgrades.add(new Upgrade(this, 3, 2, 0, 1, "Combo Attack", "Striking a Wounded target does bonus damage"));
 
         rightUpgrades.add(new Upgrade(this, 5, 4, 0, 1, "Crit Chance Increase", "Increases crit chance"));
-        rightUpgrades.add(new Upgrade(this, 5, 3, 0, 1, "Bleeding Attack", "Wounded targets lose a certain amount of health per second"));
+        rightUpgrades.add(new Upgrade(this, 5, 3, 0, 1, "Bleeding Attack", "Wounded targets lose a certain \namount of health per second"));
         rightUpgrades.add(new Upgrade(this, 5, 2, 0, 1, "Heavy Bleeding", "Bleeding now lasts longer and prevents mounts"));
 
-        lastUpgrade = new Upgrade(this, 4, 1, 0, 1, "Toxic Blade", "The next single healing received will be reduced by 100%");
+        lastUpgrade = new Upgrade(this, 4, 1, 0, 1, "Toxic Blade", "The next single healing received \nwill be reduced by 100%");
     }
 
     @Override

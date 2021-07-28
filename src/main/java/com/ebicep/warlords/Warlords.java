@@ -491,7 +491,9 @@ public class Warlords extends JavaPlugin {
                             if (!cooldownManager.getCooldown(EnergyPowerUp.class).isEmpty()) {
                                 newEnergy += .35;
                             }
-
+                            if (!cooldownManager.getCooldown(CripplingStrike.class).isEmpty()) {
+                                newEnergy -= cooldownManager.getCooldown(CripplingStrike.class).get(0).getFrom().getWeaponTree().getLeftUpgrades().getFirst().getCounter() / 2f;
+                            }
                             warlordsPlayer.setEnergy(newEnergy);
                         }
 

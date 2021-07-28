@@ -17,9 +17,9 @@ public class MiscellaneousTree extends DoubleUltTree {
 
         leftUpgrades.add(new Upgrade(this, 3, 3, 150, 3, "Point Investment", "Receive points after a certain period of time"));
         leftUpgrades.add(new Upgrade(this, 3, 2, 75, 3, "Passive Energy Gain", "Increase passive energy gain"));
-        leftUpgrades.add(new Upgrade(this, 3, 1, 250, 3, "Passive Regeneration", "Reduces cooldown on passive regen / increase effect of passive regen"));
+        leftUpgrades.add(new Upgrade(this, 3, 1, 250, 3, "Passive Regeneration", "Reduces cooldown on passive regen / \nincrease effect of passive regen"));
 
-        rightUpgrades.add(new Upgrade(this, 5, 3, 100, 3, "Point Loan", "Receive an amount of points immediately but reduced passive point gain over a period of time"));
+        rightUpgrades.add(new Upgrade(this, 5, 3, 100, 3, "Point Loan", "Receive an amount of points immediately \nbut reduced passive point gain over a period of time"));
         rightUpgrades.add(new Upgrade(this, 5, 2, 75, 3, "Active Energy Gain", "Increase energy received from each melee hit"));
         rightUpgrades.add(new Upgrade(this, 5, 1, 250, 3, "Reduced Respawn Time", "Reduces the time the player takes respawning"));
     }

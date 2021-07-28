@@ -13,11 +13,11 @@ public class FlagTree extends DoubleUltTree {
         firstUpgrade = new Upgrade(this, 4, 4, 50, 1, "Healing Increase", "Receive more healing while holding the flag");
 
         leftUpgrades.add(new Upgrade(this, 3, 3, 50, 1, "Bonus Speed", "Increases effect of Speed Powerup"));
-        leftUpgrades.add(new Upgrade(this, 3, 2, 75, 1, "Flag Resistance", "Receive a short duration of reduced damage after picking up the flag"));
-        leftUpgrades.add(new Upgrade(this, 3, 1, 150, 1, "Flag Invisibility", "Receive a short period of invisibility after picking up the flag"));
+        leftUpgrades.add(new Upgrade(this, 3, 2, 75, 1, "Flag Resistance", "Receive a short duration of reduced \ndamage after picking up the flag"));
+        leftUpgrades.add(new Upgrade(this, 3, 1, 150, 1, "Flag Invisibility", "Receive a short period of invisibility \nafter picking up the flag"));
 
-        rightUpgrades.add(new Upgrade(this, 5, 3, 75, 1, "Reduced Respawn", "If killed while holding the flag, respawn timer is reduced by a certain amount"));
-        rightUpgrades.add(new Upgrade(this, 5, 2, 100, 1, "Flag Damage", "Increases damage while holding flag depending on flag percentage damage bonus"));
+        rightUpgrades.add(new Upgrade(this, 5, 3, 75, 1, "Reduced Respawn", "If killed while holding the flag, \nrespawn timer is reduced by a certain amount"));
+        rightUpgrades.add(new Upgrade(this, 5, 2, 100, 1, "Flag Damage", "Increases damage while holding flag \ndepending on flag percentage damage bonus"));
         rightUpgrades.add(new Upgrade(this, 5, 1, 200, 1, "Flag Percentage Cap", "The flag extra percentage damage is capped"));
     }
 

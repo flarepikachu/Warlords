@@ -222,10 +222,12 @@ public class WarlordsEvents implements Listener {
                         } else if (wp.getFlagDamageMultiplier() > 0) {
                             player.sendMessage(ChatColor.RED + "You can't mount while holding the flag!");
                         } else {
-                            if (wp.getCooldownManager().hasCooldown("BLEED")) {
-                                if (wp.getCooldownManager().getCooldown("BLEED").get(0).getFrom().getWeaponTree().getRightUpgrades().getLast().getCounter() != 0) {
-                                    player.sendMessage("You can't mount while bleeding!");
-                                }
+                            if (wp.getCooldownManager().hasCooldown("BLEED") &&
+                                    wp.getCooldownManager().getCooldown("BLEED").get(0).getFrom().getWeaponTree().getRightUpgrades().getLast().getCounter() != 0) {
+                                player.sendMessage(ChatColor.RED + "You can't mount while bleeding!");
+                            } else if (wp.getCooldownManager().hasCooldown("CRIP") &&
+                                    wp.getCooldownManager().getCooldown("CRIP").get(0).getFrom().getWeaponTree().getLastUpgrade().getCounter() != 0) {
+                                player.sendMessage(ChatColor.RED + "You can't mount while crippled!");
                             } else {
                                 player.playSound(player.getLocation(), "mountup", 1, 1);
                                 wp.getHorse().spawn();

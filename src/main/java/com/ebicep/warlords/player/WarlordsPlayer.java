@@ -8,6 +8,7 @@ import com.ebicep.warlords.classes.abilties.*;
 import com.ebicep.warlords.classes.shaman.specs.spiritguard.Spiritguard;
 import com.ebicep.warlords.classes.warrior.specs.berserker.Berserker;
 import com.ebicep.warlords.classes.warrior.specs.defender.Defender;
+import com.ebicep.warlords.classes.warrior.specs.revenant.Revenant;
 import com.ebicep.warlords.events.WarlordsDeathEvent;
 import com.ebicep.warlords.maps.Game;
 import com.ebicep.warlords.maps.Team;
@@ -640,7 +641,7 @@ public final class WarlordsPlayer {
 
                 //TODO maybe change to hypixel warlords where crippling effects hammer
                 if (!attacker.getCooldownManager().getCooldown(CripplingStrike.class).isEmpty()) {
-                    totalReduction *= .875;
+                    totalReduction *= .875 - (attacker.getCooldownManager().getCooldown(CripplingStrike.class).get(0).getFrom().getWeaponTree().getRightUpgrades().getFirst().getCounter() * .15);
                 }
             } else if (min > 0) {
                 if (!cooldownManager.getCooldown(WoundingStrikeBerserker.class).isEmpty()) {
@@ -890,8 +891,8 @@ public final class WarlordsPlayer {
                             //reloops near players to give health to
                             for(WarlordsPlayer nearTeamPlayer : PlayerFilter
                                 .entitiesAround(attacker, 6, 6, 6)
-                                .aliveTeammatesOfExcludingSelf(attacker)
-                                .limit(2)
+                                    .aliveTeammatesOfExcludingSelf(attacker)
+                                    .limit(2)
                             ) {
                                 if (Warlords.getPlayerSettings(attacker.uuid).classesSkillBoosts() == ClassesSkillBoosts.PROTECTOR_STRIKE) {
                                     nearTeamPlayer.addHealth(attacker, ability, -damageHealValue * 1.2f, -damageHealValue * 1.2f, tempNewCritChance, 100);
@@ -899,6 +900,14 @@ public final class WarlordsPlayer {
                                     nearTeamPlayer.addHealth(attacker, ability, -damageHealValue, -damageHealValue, tempNewCritChance, 100);
                                 }
                             }
+                        }
+                        //LUST
+                        if (!attacker.getCooldownManager().getCooldown(BloodLust.class).isEmpty()) {
+                            attacker.addHealth(attacker, "Blood Lust", Math.round(damageHealValue * -.65f), Math.round(damageHealValue * -.65f), -1, 100);
+                        }
+                        //crippling
+                        if (ability.equals("Crippling Strike") && attacker.getSpec() instanceof Revenant && ((CripplingStrike) attacker.getSpec().getWeapon()).isLifeLeach()) {
+                            attacker.addHealth(attacker, "Life Leech", Math.round(damageHealValue * -.15f), Math.round(damageHealValue * -.15f), -1, 100);
                         }
                     }
                     //HEALING
@@ -918,9 +927,6 @@ public final class WarlordsPlayer {
                             }
                             attacker.addHealing(damageHealValue);
                         }
-                    }
-                    if (!attacker.getCooldownManager().getCooldown(BloodLust.class).isEmpty() && damageHealValue < 0) {
-                        attacker.addHealth(attacker, "Blood Lust", Math.round(damageHealValue * -.65f), Math.round(damageHealValue * -.65f), -1, 100);
                     }
                 }
 

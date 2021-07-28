@@ -174,7 +174,7 @@ class WaterBoltTree extends SingleUltTree {
 
         rightUpgrades.add(new Upgrade(this, 5, 4, 0, 1, "Increased Splash", "Water Bolt now has increased splash effect"));
         rightUpgrades.add(new Upgrade(this, 5, 3, 0, 1, "Increased Healing", "Water Bolt heals more"));
-        rightUpgrades.add(new Upgrade(this, 5, 2, 0, 1, "Cooldown Reduction", "Each teammate healed by Water Bolt reduces the cooldown of Healing Rain"));
+        rightUpgrades.add(new Upgrade(this, 5, 2, 0, 1, "Cooldown Reduction", "Each teammate healed by Water Bolt reduces \nthe cooldown of Healing Rain"));
 
         lastUpgrade = new Upgrade(this, 4, 1, 0, 1, "Rejuvenating Water", "Teammates receive cooldown reduction from Water Bolts");
     }

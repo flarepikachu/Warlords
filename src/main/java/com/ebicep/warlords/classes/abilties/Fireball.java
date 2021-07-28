@@ -148,9 +148,9 @@ class FireballTree extends SingleUltTree {
 
         rightUpgrades.add(new Upgrade(this, 5, 4, 0, 1, "Increased Splash", "Fireball now has increased splash effect"));
         rightUpgrades.add(new Upgrade(this, 5, 3, 0, 1, "Increased Velocity", "Fireballs travel faster"));
-        rightUpgrades.add(new Upgrade(this, 5, 2, 0, 1, "Burn", "Fireballs burn the target, making them take damage over a short period of time"));
+        rightUpgrades.add(new Upgrade(this, 5, 2, 0, 1, "Burn", "Fireballs burn the target, making them \ntake damage over a short period of time"));
 
-        lastUpgrade = new Upgrade(this, 4, 1, 0, 1, "Cooldown Reduction", "Each Fireball hit reduces the cooldown of Flame Burst / Inferno");
+        lastUpgrade = new Upgrade(this, 4, 1, 0, 1, "Cooldown Reduction", "Each Fireball hit reduces the \ncooldown of Flame Burst / Inferno");
     }
 
     @Override

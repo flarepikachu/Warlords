@@ -10,14 +10,14 @@ public class MountTree extends DoubleUltTree {
 
     public MountTree(SkillTree skillTree) {
         super(skillTree, null, "Mount", new ItemStack(Material.GOLD_BARDING));
-        firstUpgrade = new Upgrade(this, 4, 4, 100, 1, "Mount protection", "Any ability that dismounts the player does not damage the player");
+        firstUpgrade = new Upgrade(this, 4, 4, 100, 1, "Mount protection", "Any ability that dismounts the player \ndoes not damage the player");
 
         leftUpgrades.add(new Upgrade(this, 3, 3, 150, 1, "Mount speed", "Increase mount speed by a certain percentage"));
-        leftUpgrades.add(new Upgrade(this, 3, 2, 100, 1, "Turbo speed", "Activated ability, gain a significant increase to mount speed for a short duration"));
+        leftUpgrades.add(new Upgrade(this, 3, 2, 100, 1, "Turbo speed", "Activated ability, gain a significant \nincrease to mount speed for a short duration"));
         leftUpgrades.add(new Upgrade(this, 3, 1, 200, 1, "Cooldown reduction", "TODO"));
 
-        rightUpgrades.add(new Upgrade(this, 5, 3, 100, 1, "Dismount resistance", "Upon dismounting, gain a damage reduction for a short period of time"));
-        rightUpgrades.add(new Upgrade(this, 5, 2, 150, 1, "Horse armour", "Mount can take a certain amount of damage before being dismounted"));
+        rightUpgrades.add(new Upgrade(this, 5, 3, 100, 1, "Dismount resistance", "Upon dismounting, gain a damage \nreduction for a short period of time"));
+        rightUpgrades.add(new Upgrade(this, 5, 2, 150, 1, "Horse armour", "Mount can take a certain amount \nof damage before being dismounted"));
         rightUpgrades.add(new Upgrade(this, 5, 1, 250, 1, "Divine mount?", "TODO"));
     }
 
