@@ -7,6 +7,7 @@ import com.ebicep.warlords.classes.AbstractPlayerClass;
 import com.ebicep.warlords.classes.abilties.*;
 import com.ebicep.warlords.classes.shaman.specs.spiritguard.Spiritguard;
 import com.ebicep.warlords.classes.warrior.specs.berserker.Berserker;
+import com.ebicep.warlords.classes.warrior.specs.defender.Defender;
 import com.ebicep.warlords.events.WarlordsDeathEvent;
 import com.ebicep.warlords.maps.Game;
 import com.ebicep.warlords.maps.Team;
@@ -598,7 +599,9 @@ public final class WarlordsPlayer {
 
                 totalReduction *= (1 + attacker.getFlagTree().getRightUpgrades().get(1).getCounter() * .1);
 
-                if (attacker.getSpec() instanceof Berserker && cooldownManager.hasCooldown(WoundingStrikeBerserker.class)) {
+                if ((attacker.getSpec() instanceof Berserker && cooldownManager.hasCooldown(WoundingStrikeBerserker.class)) ||
+                        (attacker.getSpec() instanceof Defender && cooldownManager.hasCooldown(WoundingStrikeDefender.class))
+                ) {
                     totalReduction *= (1 + attacker.getWeaponTree().getLeftUpgrades().getLast().getCounter() * .1);
                 }
 
@@ -643,7 +646,7 @@ public final class WarlordsPlayer {
                 if (!cooldownManager.getCooldown(WoundingStrikeBerserker.class).isEmpty()) {
                     totalReduction *= .65 - (cooldownManager.getCooldown(WoundingStrikeBerserker.class).get(0).getFrom().getWeaponTree().getLeftUpgrades().get(1).getCounter() * .15);
                 } else if (!cooldownManager.getCooldown(WoundingStrikeDefender.class).isEmpty()) {
-                    totalReduction *= .75;
+                    totalReduction *= .75 - (cooldownManager.getCooldown(WoundingStrikeDefender.class).get(0).getFrom().getWeaponTree().getLeftUpgrades().get(1).getCounter() * .15);
                 }
 
                 totalReduction *= (1 + getFlagTree().getFirstUpgrade().getCounter() * .05);
