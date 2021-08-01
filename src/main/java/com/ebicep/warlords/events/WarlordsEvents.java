@@ -68,6 +68,9 @@ public class WarlordsEvents implements Listener {
                 player.updatePlayerReference(null);
             }
         }
+        Bukkit.getOnlinePlayers().forEach(p -> {
+            PacketUtils.sendTabHF(p, ChatColor.AQUA + "     Welcome to " + ChatColor.YELLOW + ChatColor.BOLD + "Warlords 2.0     ", ChatColor.GREEN + "Players Online: " + ChatColor.GRAY + (Bukkit.getOnlinePlayers().size() - 1));
+        });
     }
 
     public static void joinInteraction(Player player) {
@@ -123,11 +126,6 @@ public class WarlordsEvents implements Listener {
     }
 
     @EventHandler
-    public void onDismount(VehicleExitEvent evt) {
-        evt.getVehicle().remove();
-    }
-
-    @EventHandler
     public static void onPlayerJoin(PlayerJoinEvent e) {
         new BukkitRunnable() {
             @Override
@@ -138,6 +136,9 @@ public class WarlordsEvents implements Listener {
         //e.setJoinMessage(null);
         Player player = e.getPlayer();
         joinInteraction(player);
+        Bukkit.getOnlinePlayers().forEach(p -> {
+            PacketUtils.sendTabHF(p, ChatColor.AQUA + "     Welcome to " + ChatColor.YELLOW + ChatColor.BOLD + "Warlords 2.0     ", ChatColor.GREEN + "Players Online: " + ChatColor.GRAY + Bukkit.getOnlinePlayers().size());
+        });
     }
 
     @EventHandler
@@ -271,6 +272,11 @@ public class WarlordsEvents implements Listener {
             }
         }
 
+    }
+
+    @EventHandler
+    public void onDismount(VehicleExitEvent evt) {
+        evt.getVehicle().remove();
     }
 
     @EventHandler

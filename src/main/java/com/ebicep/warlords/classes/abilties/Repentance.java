@@ -14,6 +14,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 public class Repentance extends AbstractAbility {
     private float pool = 0;
 
+    private final int duration = 12;
+
     public Repentance() {
         super("Repentance", 0, 0, 31.32f, 20, 0, 0);
 
@@ -36,7 +38,7 @@ public class Repentance extends AbstractAbility {
         description = "§7Taking damage empowers your damaging\n" +
                 "§7abilities and melee hits, restoring health\n" +
                 "§7and energy based on §c10 §7+ §c10% §7of the\n" +
-                "§7damage you've recently took. Lasts §612 §7seconds.";
+                "§7damage you've recently took. Lasts §6" + duration + " §7seconds.";
     }
 
     @Override
@@ -45,7 +47,7 @@ public class Repentance extends AbstractAbility {
         WarlordsPlayer warlordsPlayer = Warlords.getPlayer(player);
         pool += 2000;
         assert warlordsPlayer != null;
-        warlordsPlayer.getCooldownManager().addCooldown(Repentance.this.getClass(), new Repentance(), "REPE", 12, warlordsPlayer, CooldownTypes.ABILITY);
+        warlordsPlayer.getCooldownManager().addCooldown(Repentance.this.getClass(), new Repentance(), "REPE", duration, warlordsPlayer, CooldownTypes.ABILITY);
 
         for (Player player1 : player.getWorld().getPlayers()) {
             player1.playSound(player.getLocation(), "paladin.barrieroflight.impact", 2, 1.35f);

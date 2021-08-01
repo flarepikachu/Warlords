@@ -2,6 +2,8 @@ package com.ebicep.warlords.classes.abilties;
 
 import com.ebicep.warlords.Warlords;
 import com.ebicep.warlords.classes.AbstractAbility;
+import com.ebicep.warlords.player.Classes;
+import com.ebicep.warlords.player.ClassesSkillBoosts;
 import com.ebicep.warlords.player.CooldownTypes;
 import com.ebicep.warlords.player.WarlordsPlayer;
 import com.ebicep.warlords.skilltree.SkillTree;
@@ -14,25 +16,28 @@ public class Windfury extends AbstractAbility {
 
     private boolean firstProc = false;
 
+    private final int duration = 8;
+
     public Windfury() {
         super("Windfury Weapon", 0, 0, 15.66f, 30, 25, 135);
     }
 
     @Override
     public void updateDescription(Player player) {
+        int weaponDamage = Classes.getSelectedBoost(player) == ClassesSkillBoosts.WINDFURY_WEAPON ? 162 : 135;
         description = "§7Imbue your weapon with the power\n" +
                 "§7of the wind, causing each of your\n" +
                 "§7melee attacks to have a §e35% §7chance\n" +
-                "§7to hit §e2 §7additional times for §c135%\n" +
+                "§7to hit §e2 §7additional times for §c" + weaponDamage + "%\n" +
                 "§7weapon damage. The first melee hit is\n" +
-                "§7guaranteed to activate Windfury. Lasts §68\n" +
+                "§7guaranteed to activate Windfury. Lasts §6" + duration + "\n" +
                 "§7seconds.";
     }
 
     @Override
     public void onActivate(WarlordsPlayer wp, Player player) {
         wp.subtractEnergy(energyCost);
-        wp.getCooldownManager().addCooldown(Windfury.this.getClass(), new Windfury(), "FURY", 8, wp, CooldownTypes.ABILITY);
+        wp.getCooldownManager().addCooldown(Windfury.this.getClass(), new Windfury(), "FURY", duration, wp, CooldownTypes.ABILITY);
 
         firstProc = true;
 

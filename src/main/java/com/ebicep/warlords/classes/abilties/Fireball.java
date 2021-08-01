@@ -52,7 +52,7 @@ public class Fireball extends AbstractProjectileBase {
         boolean hitEnemy = false;
         double distanceSquared = currentLocation.distanceSquared(startingLocation);
         double toReduceBy = maxFullDamageDistance * maxFullDamageDistance > distanceSquared ? 1 :
-                1 - (Math.sqrt(distanceSquared) - maxFullDamageDistance) / 50.;
+                1 - (Math.sqrt(distanceSquared) - maxFullDamageDistance) / 85.;
         if (toReduceBy < 0) toReduceBy = 0;
         if (victim != null) {
             victim.addHealth(

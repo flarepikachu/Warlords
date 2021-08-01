@@ -50,7 +50,7 @@ public class FrostBolt extends AbstractProjectileBase {
         boolean hitEnemy = false;
         double distanceSquared = currentLocation.distanceSquared(startingLocation);
         double toReduceBy = maxFullDamageDistance * maxFullDamageDistance > distanceSquared ? 1 :
-                1 - (Math.sqrt(distanceSquared) - maxFullDamageDistance) / 100.;
+                1 - (Math.sqrt(distanceSquared) - maxFullDamageDistance) / 85.;
         if (toReduceBy < 0) toReduceBy = 0;
         if (victim != null && victim.isEnemyAlive(shooter)) {
             victim.getSpeed().addSpeedModifier("Frostbolt", directHitSlowness, 2 * 20);
