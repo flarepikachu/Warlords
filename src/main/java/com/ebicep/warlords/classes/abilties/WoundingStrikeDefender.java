@@ -45,10 +45,10 @@ public class WoundingStrikeDefender extends AbstractStrikeBase {
         if (bleed) {
             int time = 3;
             time += woundingStrikeDefenderTree.getRightUpgrades().getLast().getCounter() * 2;
-            nearPlayer.getCooldownManager().addCooldown(this.getClass(), new WoundingStrikeBerserker(), "BLEED", time, wp, CooldownTypes.DEBUFF);
+            nearPlayer.getCooldownManager().addCooldown("Bleed", this.getClass(), new WoundingStrikeBerserker(), "BLEED", time, wp, CooldownTypes.DEBUFF);
         }
         if (toxicBlade) {
-            nearPlayer.getCooldownManager().addCooldown(this.getClass(), new WoundingStrikeBerserker(), "TOXIC", 60, wp, CooldownTypes.DEBUFF);
+            nearPlayer.getCooldownManager().addCooldown("Toxic", this.getClass(), new WoundingStrikeBerserker(), "TOXIC", 60, wp, CooldownTypes.DEBUFF);
         }
     }
 

@@ -66,7 +66,7 @@ public class Fireball extends AbstractProjectileBase {
             if (burn) {
                 if (toReduceBy == 1) {
                     victim.getCooldownManager().removeCooldown("BURN");
-                    victim.getCooldownManager().addCooldown(Fireball.class, new Fireball(), "BURN", 3, shooter, CooldownTypes.DEBUFF);
+                    victim.getCooldownManager().addCooldown("Burn", Fireball.class, new Fireball(), "BURN", 3, shooter, CooldownTypes.DEBUFF);
                 }
             }
             hitEnemy = true;
@@ -88,7 +88,7 @@ public class Fireball extends AbstractProjectileBase {
             if (burn) {
                 if (toReduceBy == 1) {
                     nearEntity.getCooldownManager().removeCooldown("BURN");
-                    nearEntity.getCooldownManager().addCooldown(Fireball.class, new Fireball(), "BURN", 3, shooter, CooldownTypes.DEBUFF);
+                    nearEntity.getCooldownManager().addCooldown("Burn", Fireball.class, new Fireball(), "BURN", 3, shooter, CooldownTypes.DEBUFF);
                 }
             }
             hitEnemy = true;
