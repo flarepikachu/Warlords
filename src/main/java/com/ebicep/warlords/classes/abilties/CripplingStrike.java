@@ -40,7 +40,7 @@ public class CripplingStrike extends AbstractStrikeBase {
             nearPlayer.sendMessage(ChatColor.GRAY + "You are " + ChatColor.RED + "crippled" + ChatColor.GRAY + ".");
         }
         nearPlayer.getCooldownManager().removeCooldown(CripplingStrike.class);
-        nearPlayer.getCooldownManager().addCooldown(this.getClass(), new CripplingStrike(), "CRIP", 3, wp, CooldownTypes.DEBUFF);
+        nearPlayer.getCooldownManager().addCooldown(name, this.getClass(), new CripplingStrike(), "CRIP", 3, wp, CooldownTypes.DEBUFF);
         if (speedBoost) {
             wp.getSpeed().addSpeedModifier("Crippling", 5, 2 * 20);
         }

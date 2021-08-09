@@ -41,13 +41,13 @@ public class PowerupManager extends BukkitRunnable {
                 if (entitiesNear.size() != 0) {
                     WarlordsPlayer warlordsPlayer = entitiesNear.get(0);
                     if (powerUp instanceof DamagePowerUp) {
-                        warlordsPlayer.getCooldownManager().addCooldown(DamagePowerUp.class, this, "DMG", powerUp.getDuration(), warlordsPlayer, CooldownTypes.BUFF);
+                        warlordsPlayer.getCooldownManager().addCooldown("Damage", DamagePowerUp.class, this, "DMG", powerUp.getDuration(), warlordsPlayer, CooldownTypes.BUFF);
                         entitiesNear.get(0).sendMessage("§6You activated the §c§lDAMAGE §6powerup! §a+20% §6Damage for §a30 §6seconds!");
                     } else if (powerUp instanceof HealingPowerUp) {
                         warlordsPlayer.setPowerUpHeal(true);
                         entitiesNear.get(0).sendMessage("§6You activated the §a§lHEALING §6powerup! §a+10% §6Health per second for §a10 §6seconds!");
                     } else if (powerUp instanceof SpeedPowerUp) {
-                        warlordsPlayer.getCooldownManager().addCooldown(SpeedPowerUp.class, this, "SPEED", powerUp.getDuration(), warlordsPlayer, CooldownTypes.BUFF);
+                        warlordsPlayer.getCooldownManager().addCooldown("Speed", SpeedPowerUp.class, this, "SPEED", powerUp.getDuration(), warlordsPlayer, CooldownTypes.BUFF);
                         int bonusSpeed = 40 + warlordsPlayer.getFlagTree().getLeftUpgrades().getFirst().getCounter() * 5;
                         entitiesNear.get(0).sendMessage("§6You activated the §e§lSPEED §6powerup! §a+" + bonusSpeed + "% §6Speed for §a10 §6seconds!");
                         warlordsPlayer.getSpeed().addSpeedModifier("Speed Powerup", bonusSpeed, 10 * 20, "BASE");

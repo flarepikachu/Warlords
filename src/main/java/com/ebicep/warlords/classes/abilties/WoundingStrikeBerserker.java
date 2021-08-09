@@ -40,7 +40,7 @@ public class WoundingStrikeBerserker extends AbstractStrikeBase {
         }
         nearPlayer.getCooldownManager().removeCooldown(WoundingStrikeBerserker.class);
         nearPlayer.getCooldownManager().removeCooldown(WoundingStrikeDefender.class);
-        nearPlayer.getCooldownManager().addCooldown(this.getClass(), new WoundingStrikeBerserker(), "WND", 3, wp, CooldownTypes.DEBUFF);
+        nearPlayer.getCooldownManager().addCooldown(name, this.getClass(), new WoundingStrikeBerserker(), "WND", 3, wp, CooldownTypes.DEBUFF);
         if (bleed) {
             int time = 3;
             time += woundingStrikeBerserkerTree.getRightUpgrades().getLast().getCounter() * 2;

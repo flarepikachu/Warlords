@@ -23,9 +23,6 @@ import static com.ebicep.warlords.player.Classes.*;
 import static com.ebicep.warlords.player.Settings.*;
 
 public class GameMenu {
-    private static final ItemStack MENU_CLOSE = new ItemBuilder(Material.BARRIER)
-            .name(ChatColor.RED + "Close")
-            .get();
     private static final ItemStack MENU_BACK_PREGAME = new ItemBuilder(Material.ARROW)
             .name(ChatColor.GREEN + "Back")
             .lore(ChatColor.GRAY + "To Pre-game Menu")
@@ -85,7 +82,7 @@ public class GameMenu {
         menu.setItem(3, 3, MENU_ARMOR_SETS, (n, e) -> openArmorMenu(player, 1));
         menu.setItem(5, 3, MENU_BOOSTS, (n, e) -> openSkillBoostMenu(player, selectedClass));
         menu.setItem(7, 3, MENU_SETTINGS, (n, e) -> openSettingsMenu(player));
-        menu.setItem(4, 5, MENU_CLOSE, ACTION_CLOSE_MENU);
+        menu.setItem(4, 5, Menu.MENU_CLOSE, ACTION_CLOSE_MENU);
         menu.openForPlayer(player);
     }
 
@@ -340,20 +337,20 @@ public class GameMenu {
         HotkeyMode selectedHotkeyMode = HotkeyMode.getSelected(player);
 
         Menu menu = new Menu("Settings", 9 * 6);
-        menu.setItem(
-                1,
-                1,
-                new ItemBuilder(selectedPowerup.item)
-                        .name(Settings.powerupsName)
-                        .lore(Settings.powerupsDescription, "", selectedPowerup == Powerup.ENERGY ? ChatColor.GREEN + ">>> ACTIVE <<<" : ChatColor.YELLOW + "> Click to activate! <")
-                        .flags(ItemFlag.HIDE_ENCHANTS)
-                        .get(),
-                (n, e) -> {
-                    player.sendMessage(selectedPowerup == Powerup.DAMAGE ? ChatColor.GREEN + "You have enabled energy powerups!" : ChatColor.RED + "You have disabled energy powerups!");
-                    Powerup.setSelected(player, selectedPowerup == Powerup.DAMAGE ? Powerup.ENERGY : Powerup.DAMAGE);
-                    openSettingsMenu(player);
-                }
-        );
+//        menu.setItem(
+//                1,
+//                1,
+//                new ItemBuilder(selectedPowerup.item)
+//                        .name(Settings.powerupsName)
+//                        .lore(Settings.powerupsDescription, "", selectedPowerup == Powerup.ENERGY ? ChatColor.GREEN + ">>> ACTIVE <<<" : ChatColor.YELLOW + "> Click to activate! <")
+//                        .flags(ItemFlag.HIDE_ENCHANTS)
+//                        .get(),
+//                (n, e) -> {
+//                    player.sendMessage(selectedPowerup == Powerup.DAMAGE ? ChatColor.GREEN + "You have enabled energy powerups!" : ChatColor.RED + "You have disabled energy powerups!");
+//                    Powerup.setSelected(player, selectedPowerup == Powerup.DAMAGE ? Powerup.ENERGY : Powerup.DAMAGE);
+//                    openSettingsMenu(player);
+//                }
+//        );
         menu.setItem(
                 3,
                 1,
@@ -430,7 +427,7 @@ public class GameMenu {
             );
         }
 
-        menu.setItem(4, 3, MENU_CLOSE, ACTION_CLOSE_MENU);
+        menu.setItem(4, 3, Menu.MENU_CLOSE, ACTION_CLOSE_MENU);
         menu.openForPlayer(player);
     }
 
@@ -498,7 +495,7 @@ public class GameMenu {
                 (n, e) -> {
                 }
         );
-        menu.setItem(4, 5, MENU_CLOSE, ACTION_CLOSE_MENU);
+        menu.setItem(4, 5, Menu.MENU_CLOSE, ACTION_CLOSE_MENU);
         menu.openForPlayer(player);
     }
 }
