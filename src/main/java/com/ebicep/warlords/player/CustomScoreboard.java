@@ -9,6 +9,7 @@ import com.ebicep.warlords.util.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.*;
 
 import java.text.SimpleDateFormat;
@@ -89,6 +90,16 @@ public class CustomScoreboard {
                         scoreboard.getTeam(warlordsPlayer.getName()).setSuffix(ChatColor.DARK_GRAY + " [" + ChatColor.GOLD + "Lv90" + ChatColor.DARK_GRAY + "]");
                     }
                 }
+            }
+        });
+    }
+
+    public void updatePlayerName() {
+        this.gameState.getGame().forEachOfflinePlayer((player, team) -> {
+            WarlordsPlayer wp = Warlords.getPlayer(player);
+            if (wp != null) {
+                wp.getScoreboard().getScoreboard().getTeam(warlordsPlayer.getName()).setPrefix(ChatColor.DARK_GRAY + "[" + ChatColor.GOLD + warlordsPlayer.getSpec().getClassNameShort() + ChatColor.DARK_GRAY + "] " + warlordsPlayer.getTeam().teamColor());
+                wp.getScoreboard().getScoreboard().getTeam(warlordsPlayer.getName()).setSuffix(ChatColor.DARK_GRAY + " [" + ChatColor.GOLD + "Lv90" + ChatColor.DARK_GRAY + "]");
             }
         });
     }
@@ -183,30 +194,48 @@ public class CustomScoreboard {
         scoreboard.getTeam("team_3").setSuffix(ChatColor.GREEN.toString() + warlordsPlayer.getTotalAssists() + ChatColor.RESET + " Assists");
     }
 
+    public void updateClass() {
+        scoreboard.getTeam("team_5").setPrefix(ChatColor.WHITE + "Class: ");
+        scoreboard.getTeam("team_5").setSuffix(ChatColor.GREEN + warlordsPlayer.getSpec().getClass().getSimpleName());
+    }
+
     public Scoreboard getScoreboard() {
         return scoreboard;
     }
 
     public static void giveMainLobbyScoreboard(Player player) {
-        Scoreboard mainLobbyScoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
-        Objective sideBar = mainLobbyScoreboard.registerNewObjective("WARLORDS", "");
-        sideBar.setDisplaySlot(DisplaySlot.SIDEBAR);
-        sideBar.setDisplayName("§e§lWARLORDS");
-        sideBar.getScore("").setScore(15);
-        sideBar.getScore("Kills: " + ChatColor.GREEN + Utils.addCommaAndRound(((Integer) Warlords.databaseManager.getPlayerInformation(player, "kills")))).setScore(14);
-        sideBar.getScore("Assists: " + ChatColor.GREEN + Utils.addCommaAndRound(((Integer) Warlords.databaseManager.getPlayerInformation(player, "assists")))).setScore(13);
-        sideBar.getScore("Deaths: " + ChatColor.GREEN + Utils.addCommaAndRound(((Integer) Warlords.databaseManager.getPlayerInformation(player, "deaths")))).setScore(12);
-        sideBar.getScore(" ").setScore(11);
-        sideBar.getScore("Wins: " + ChatColor.GREEN + Utils.addCommaAndRound(((Integer) Warlords.databaseManager.getPlayerInformation(player, "wins")))).setScore(10);
-        sideBar.getScore("Losses: " + ChatColor.GREEN + Utils.addCommaAndRound(((Integer) Warlords.databaseManager.getPlayerInformation(player, "losses")))).setScore(9);
-        sideBar.getScore("  ").setScore(8);
-        sideBar.getScore("Damage: " + ChatColor.RED + Utils.addCommaAndRound(((Number) Warlords.databaseManager.getPlayerInformation(player, "damage")).doubleValue())).setScore(7);
-        sideBar.getScore("Healing: " + ChatColor.DARK_GREEN + Utils.addCommaAndRound(((Number) Warlords.databaseManager.getPlayerInformation(player, "healing")).doubleValue())).setScore(6);
-        sideBar.getScore("Absorbed: " + ChatColor.GOLD + Utils.addCommaAndRound(((Number) Warlords.databaseManager.getPlayerInformation(player, "absorbed")).doubleValue())).setScore(5);
-        sideBar.getScore("   ").setScore(4);
-        sideBar.getScore("   ").setScore(3);
-        sideBar.getScore("    ").setScore(2);
-        sideBar.getScore(ChatColor.YELLOW + Warlords.VERSION).setScore(1);
-        player.setScoreboard(mainLobbyScoreboard);
+        new BukkitRunnable() {
+            int counter = 0;
+
+            @Override
+            public void run() {
+                counter++;
+                if ((Warlords.databaseManager != null && !Warlords.databaseManager.isConnected()) || counter >= 200) {
+                    this.cancel();
+                } else if (Warlords.databaseManager != null && Warlords.databaseManager.hasPlayer(player.getUniqueId())) {
+                    Scoreboard mainLobbyScoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
+                    Objective sideBar = mainLobbyScoreboard.registerNewObjective("WARLORDS", "");
+                    sideBar.setDisplaySlot(DisplaySlot.SIDEBAR);
+                    sideBar.setDisplayName("     §e§lWARLORDS   ");
+                    sideBar.getScore("").setScore(15);
+                    sideBar.getScore("Kills: " + ChatColor.GREEN + Utils.addCommaAndRound(((Integer) Warlords.databaseManager.getPlayerInfoWithDotNotation(player, "kills")))).setScore(14);
+                    sideBar.getScore("Assists: " + ChatColor.GREEN + Utils.addCommaAndRound(((Integer) Warlords.databaseManager.getPlayerInfoWithDotNotation(player, "assists")))).setScore(13);
+                    sideBar.getScore("Deaths: " + ChatColor.GREEN + Utils.addCommaAndRound(((Integer) Warlords.databaseManager.getPlayerInfoWithDotNotation(player, "deaths")))).setScore(12);
+                    sideBar.getScore(" ").setScore(11);
+                    sideBar.getScore("Wins: " + ChatColor.GREEN + Utils.addCommaAndRound(((Integer) Warlords.databaseManager.getPlayerInfoWithDotNotation(player, "wins")))).setScore(10);
+                    sideBar.getScore("Losses: " + ChatColor.GREEN + Utils.addCommaAndRound(((Integer) Warlords.databaseManager.getPlayerInfoWithDotNotation(player, "losses")))).setScore(9);
+                    sideBar.getScore("  ").setScore(8);
+                    sideBar.getScore("Damage: " + ChatColor.RED + Utils.addCommaAndRound(((Number) Warlords.databaseManager.getPlayerInfoWithDotNotation(player, "damage")).doubleValue())).setScore(7);
+                    sideBar.getScore("Healing: " + ChatColor.DARK_GREEN + Utils.addCommaAndRound(((Number) Warlords.databaseManager.getPlayerInfoWithDotNotation(player, "healing")).doubleValue())).setScore(6);
+                    sideBar.getScore("Absorbed: " + ChatColor.GOLD + Utils.addCommaAndRound(((Number) Warlords.databaseManager.getPlayerInfoWithDotNotation(player, "absorbed")).doubleValue())).setScore(5);
+                    sideBar.getScore("   ").setScore(4);
+                    sideBar.getScore("   ").setScore(3);
+                    sideBar.getScore("    ").setScore(2);
+                    sideBar.getScore(ChatColor.YELLOW + Warlords.VERSION).setScore(1);
+                    player.setScoreboard(mainLobbyScoreboard);
+                    this.cancel();
+                }
+            }
+        }.runTaskTimer(Warlords.getInstance(), 0, 20);
     }
 }

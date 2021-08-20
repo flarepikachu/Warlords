@@ -32,7 +32,7 @@ public class EarthenSpike extends AbstractAbility {
     };
 
     public EarthenSpike() {
-        super("Earthen Spike", -428, -596, 0, 110, 15, 175
+        super("Earthen Spike", -476, -662, 0, 120, 15, 175
         );
     }
 
@@ -54,6 +54,7 @@ public class EarthenSpike extends AbstractAbility {
         for (WarlordsPlayer p : PlayerFilter
                 .entitiesAround(player, 10, 10, 10)
                 .aliveEnemiesOf(wp)
+                .lookingAtFirst(wp)
         ) {
             if (Utils.isLookingAt(player, p.getEntity()) && Utils.hasLineOfSight(player, p.getEntity())) {
                 PacketPlayOutAnimation playOutAnimation = new PacketPlayOutAnimation(((CraftPlayer) player).getHandle(), 0);

@@ -55,9 +55,9 @@ public final class WarlordsPlayer {
     private final String name;
     private final UUID uuid;
     private final PlayingState gameState;
-    private final Team team;
+    private Team team;
     private AbstractPlayerClass spec;
-    private final Classes specClass;
+    private Classes specClass;
     private final Weapons weapon;
     private boolean hotKeyMode;
     private int health;
@@ -478,12 +478,33 @@ public final class WarlordsPlayer {
         return uuid;
     }
 
+    public void setTeam(Team team) {
+        this.team = team;
+    }
+
     public AbstractPlayerClass getSpec() {
         return spec;
     }
 
-    public void setSpec(AbstractPlayerClass spec) {
+    public void setSpec(AbstractPlayerClass spec, ClassesSkillBoosts skillBoosts) {
+        Warlords.getPlayerSettings(uuid).selectedClass(Classes.getClass(spec.getName()));
+        Warlords.getPlayerSettings(uuid).classesSkillBoosts(skillBoosts);
+        Player player = Bukkit.getPlayer(uuid);
         this.spec = spec;
+        this.specClass = Warlords.getPlayerSettings(uuid).selectedClass();
+        ArmorManager.resetArmor(player, specClass, team);
+        applySkillBoost(player);
+        this.spec.getWeapon().updateDescription(player);
+        this.spec.getRed().updateDescription(player);
+        this.spec.getPurple().updateDescription(player);
+        this.spec.getBlue().updateDescription(player);
+        this.spec.getOrange().updateDescription(player);
+        this.maxHealth = (int) (this.spec.getMaxHealth() * (gameState.getGame().getCooldownMode() ? 1.5 : 1));
+        this.health = this.maxHealth;
+        this.maxEnergy = this.spec.getMaxEnergy();
+        this.energy = this.maxEnergy;
+        this.scoreboard.updateClass();
+        assignItemLore(Bukkit.getPlayer(uuid));
     }
 
     public boolean isHotKeyMode() {
@@ -531,7 +552,7 @@ public final class WarlordsPlayer {
             if (ability.isEmpty()) {
                 sendMessage("" + ChatColor.RED + "\u00AB" + ChatColor.GRAY + " You took " + ChatColor.RED + Math.round(min * -1) + ChatColor.GRAY + " melee damage.");
                 regenTimer = baseRegenTimer;
-                if (health + min <= 0) {
+                if (health + min <= 0 && cooldownManager.getCooldown(UndyingArmy.class).size() == 0) {
                     die(attacker);
                     gameState.addKill(team, false);
                     if (entity instanceof Player)
@@ -551,7 +572,7 @@ public final class WarlordsPlayer {
                 //TODO FIX FIX IT JUST GETS MORE MESSY LETS GOOOOOOOOOOOOOOO
                 sendMessage("" + ChatColor.RED + "\u00AB" + ChatColor.GRAY + " You took " + ChatColor.RED + Math.round(min * -1) + ChatColor.GRAY + " fall damage.");
                 regenTimer = baseRegenTimer;
-                if (health + min < 0) {
+                if (health + min < 0 && cooldownManager.getCooldown(UndyingArmy.class).size() == 0 && min < -10000) {
                     die(attacker);
                     gameState.addKill(team, false); // TODO, fall damage is only a suicide if it happens more than 5 seconds after the last damage
                     //title YOU DIED

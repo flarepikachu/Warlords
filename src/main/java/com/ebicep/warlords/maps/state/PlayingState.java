@@ -10,6 +10,7 @@ import com.ebicep.warlords.maps.flags.FlagManager;
 import com.ebicep.warlords.player.*;
 import com.ebicep.warlords.powerups.PowerupManager;
 import com.ebicep.warlords.util.PacketUtils;
+import com.ebicep.warlords.util.PlayerFilter;
 import com.ebicep.warlords.util.RemoveEntities;
 import com.ebicep.warlords.util.Utils;
 import org.bukkit.Bukkit;
@@ -52,6 +53,7 @@ public class PlayingState implements State, TimerDebugAble {
     private boolean forceEnd;
 
     private final EnumMap<Team, Stats> stats = new EnumMap(Team.class);
+
     {
         resetStats();
     }
@@ -141,10 +143,10 @@ public class PlayingState implements State, TimerDebugAble {
         this.game.forEachOfflinePlayer((player, team) -> {
             PlayerSettings playerSettings = Warlords.getPlayerSettings(player.getUniqueId());
             Warlords.addPlayer(new WarlordsPlayer(
-                player,
-                this,
-                team,
-                playerSettings
+                    player,
+                    this,
+                    team,
+                    playerSettings
             ));
         });
         this.game.forEachOfflineWarlordsPlayer(wp -> {
@@ -153,30 +155,14 @@ public class PlayingState implements State, TimerDebugAble {
             scoreboard.updateKillsAssists();
             scoreboard.updateNames();
             if (wp.getEntity() instanceof Player) {
-                wp.applySkillBoost((Player)wp.getEntity());
-                PacketUtils.sendTitle((Player)wp.getEntity(), ChatColor.GREEN + "GO!", ChatColor.YELLOW + "Steal and capture the enemy flag!", 0, 40, 20);
+                wp.applySkillBoost((Player) wp.getEntity());
+                PacketUtils.sendTitle((Player) wp.getEntity(), ChatColor.GREEN + "GO!", ChatColor.YELLOW + "Steal and capture the enemy flag!", 0, 40, 20);
             }
         });
         new BukkitRunnable() {
             @Override
             public void run() {
                 //DATABASE SHIT
-                game.forEachOnlinePlayer((player, team) -> {
-                    HashMap<String, Object> newInfo = new HashMap<>();
-                    newInfo.put("last_spec", Classes.getSelected(player).name);
-                    newInfo.put("last_weapon", Weapons.getSelected(player).name);
-                    newInfo.put("mage_helm", ArmorManager.Helmets.getSelected(player).get(0).name);
-                    newInfo.put("mage_armor", ArmorManager.ArmorSets.getSelected(player).get(0).name);
-                    newInfo.put("warrior_helm", ArmorManager.Helmets.getSelected(player).get(1).name);
-                    newInfo.put("warrior_armor", ArmorManager.ArmorSets.getSelected(player).get(1).name);
-                    newInfo.put("paladin_helm", ArmorManager.Helmets.getSelected(player).get(2).name);
-                    newInfo.put("paladin_armor", ArmorManager.ArmorSets.getSelected(player).get(2).name);
-                    newInfo.put("shaman_helm", ArmorManager.Helmets.getSelected(player).get(3).name);
-                    newInfo.put("shaman_armor", ArmorManager.ArmorSets.getSelected(player).get(3).name);
-                    newInfo.put("powerup", Settings.Powerup.getSelected(player).name());
-                    newInfo.put("hotkeymode", Settings.HotkeyMode.getSelected(player).name());
-                    Warlords.databaseManager.updatePlayerInformation(player, newInfo, FieldUpdateOperators.SET);
-                });
                 game.forEachOfflinePlayer((player, team) -> {
                     HashMap<String, Object> newInfo = new HashMap<>();
                     newInfo.put("last_spec", Classes.getSelected(player).name);
@@ -248,7 +234,7 @@ public class PlayingState implements State, TimerDebugAble {
                     number += remaining;
                     PacketUtils.sendTitle(player, number, "", 0, 40, 0);
                 });
-                switch(remaining) {
+                switch (remaining) {
                     case 0:
                         Gates.changeGates(game.getMap(), true);
                         game.forEachOnlinePlayer((player, team) -> {
@@ -287,7 +273,7 @@ public class PlayingState implements State, TimerDebugAble {
     @Override
     @SuppressWarnings("null")
     public void end() {
-        if(this.flags != null) {
+        if (this.flags != null) {
             this.flags.stop();
         }
         if (this.powerUps != null) {
@@ -295,14 +281,32 @@ public class PlayingState implements State, TimerDebugAble {
             this.powerUps = null;
         }
         Team winner = forceEnd ? null : calculateWinnerByPoints();
-        if (winner != null) {
-            Warlords.databaseManager.addGame(this);
+        if (winner != null || game.playersCount() > 16) {
+            Warlords.newChain()
+                    .asyncFirst(this::addGameAndLoadPlayers)
+                    .syncLast((t) -> {
+                        Warlords.addHologramLeaderboards();
+                        game.forEachOnlinePlayer(((player, team) -> CustomScoreboard.giveMainLobbyScoreboard(player)));
+                    })
+                    .execute();
+        } else {
+            System.out.println("This game was not added to the database");
         }
+    }
+
+    private boolean addGameAndLoadPlayers() {
+        Warlords.databaseManager.addGame(PlayingState.this);
+        for (WarlordsPlayer player : PlayerFilter.playingGame(game)) {
+            if (player.getEntity() instanceof Player) {
+                Warlords.databaseManager.loadPlayer((Player) player.getEntity());
+            }
+        }
+        return true;
     }
 
     @Override
     public void skipTimer() {
-        if(this.gateTimer > 0) {
+        if (this.gateTimer > 0) {
             this.timer -= this.gateTimer - 1;
             this.gateTimer = 1;
         } else {
@@ -325,10 +329,10 @@ public class PlayingState implements State, TimerDebugAble {
     public Team calculateWinnerByPoints() {
         int redPoints = getStats(Team.RED).points();
         int bluePoints = getStats(Team.BLUE).points();
-        if(redPoints > bluePoints) {
+        if (redPoints > bluePoints) {
             return Team.RED;
         }
-        if(bluePoints > redPoints) {
+        if (bluePoints > redPoints) {
             return Team.BLUE;
         }
         return null;
@@ -344,7 +348,7 @@ public class PlayingState implements State, TimerDebugAble {
     }
 
     public void resetStats() {
-        for(Team team : Team.values()) {
+        for (Team team : Team.values()) {
             stats.put(team, new Stats(team));
         }
     }
@@ -362,9 +366,9 @@ public class PlayingState implements State, TimerDebugAble {
         return forceEnd;
     }
 
-    private static <K, V, M extends Map<K,V>> BinaryOperator<M> mapMerger(BinaryOperator<V> mergeFunction) {
+    private static <K, V, M extends Map<K, V>> BinaryOperator<M> mapMerger(BinaryOperator<V> mergeFunction) {
         return (m1, m2) -> {
-            for (Map.Entry<K,V> e : m2.entrySet())
+            for (Map.Entry<K, V> e : m2.entrySet())
                 m1.merge(e.getKey(), e.getValue(), mergeFunction);
             return m1;
         };
