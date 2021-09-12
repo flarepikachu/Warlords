@@ -135,12 +135,4 @@ public class RecklessCharge extends AbstractAbility {
 
     }
 
-
-    public List<Player> getPlayersHit() {
-        return playersHit;
-    }
-
-    public void setPlayersHit(List<Player> playersHit) {
-        this.playersHit = playersHit;
-    }
 }

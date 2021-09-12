@@ -32,6 +32,11 @@ public class LightningBolt extends AbstractPiercingProjectileBase {
     }
 
     @Override
+    public void createSkillTreeAbility(WarlordsPlayer warlordsPlayer, SkillTree skillTree) {
+
+    }
+
+    @Override
     protected String getActivationSound() {
         return "shaman.lightningbolt.activation";
     }
