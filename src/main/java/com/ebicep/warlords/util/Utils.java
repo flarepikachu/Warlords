@@ -19,10 +19,7 @@ import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
 import java.text.DecimalFormat;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -293,13 +290,14 @@ public class Utils {
     }
 
     public static double getDistance(Location original, double accuracy) {
-        Location loc = original.clone(); // Using .clone so you aren't messing with the direct location object from the entity
-        double distance = 0; // Shouldn't start at -2 unless you're wanting the eye height from the ground (I don't know why you'd want that)
-        for (double i = loc.getY(); i >= original.getY() - 2; i -= accuracy) {
+        Location loc = original.clone();
+        double distance = 0;
+        for (double i = loc.getY(); i >= -100; i -= accuracy) {
             loc.setY(i);
             distance += accuracy;
-            if (loc.getBlock().getType().isSolid()) // Makes a little more sense than checking if it's air
+            if (loc.getBlock().getType().isSolid()) {
                 break;
+            }
         }
         return distance;
     }
@@ -331,14 +329,67 @@ public class Utils {
     }
 
     public static boolean insideTunnel(Location location) {
-        Location newLocation = location.clone();
-        for (int i = 0; i < 15; i++) {
-            if (newLocation.getWorld().getBlockAt(newLocation).getType() != Material.AIR) {
+        Location aboveLocation = location.clone().add(0, 2, 0);
+        for (int i = 0; i < 10; i++) {
+            if (aboveLocation.getBlock().getType() != Material.AIR) {
                 return true;
             }
-            newLocation.add(0, 1, 0);
+            aboveLocation.add(0, 1, 0);
         }
         return false;
+
+//        location.setPitch(0);
+//        LocationBuilder aboveLocation = new LocationBuilder(location.clone());
+//        LocationBuilder leftLocation = new LocationBuilder(location.clone());
+//        LocationBuilder leftFrontLocation = new LocationBuilder(location.clone());
+//        LocationBuilder leftBackLocation = new LocationBuilder(location.clone());
+//        LocationBuilder rightLocation = new LocationBuilder(location.clone());
+//        LocationBuilder rightFrontLocation = new LocationBuilder(location.clone());
+//        LocationBuilder rightBackLocation = new LocationBuilder(location.clone());
+//        boolean blocksAbove = false;
+//        boolean blocksToLeft = false;
+//        boolean blocksToLeftFront = false;
+//        boolean blocksToLeftBack = false;
+//        boolean blocksToRight = false;
+//        boolean blocksToRightFront = false;
+//        boolean blocksToRightBack = false;
+//        for (int i = 0; i < 10; i++) {
+//            if (!blocksAbove && aboveLocation.addY(1).get().getBlock().getType() != Material.AIR) {
+//                blocksAbove = true;
+//            }
+//        }
+//        for (int i = 0; i < 5; i++) {
+//            if (!blocksToLeft && leftLocation.left(1).get().getBlock().getType() != Material.AIR) {
+//                blocksToLeft = true;
+//            }
+//            if (!blocksToLeftFront && leftFrontLocation.left(1).forward(1).get().getBlock().getType() != Material.AIR) {
+//                blocksToLeftFront = true;
+//            }
+//            if (!blocksToLeftBack && leftBackLocation.left(1).backward(1).get().getBlock().getType() != Material.AIR) {
+//                blocksToLeftBack = true;
+//            }
+//            if (!blocksToRight && rightLocation.right(1).get().getBlock().getType() != Material.AIR) {
+//                blocksToRight = true;
+//            }
+//            if (!blocksToRightFront && rightFrontLocation.right(1).forward(1).get().getBlock().getType() != Material.AIR) {
+//                blocksToRightFront = true;
+//            }
+//            if (!blocksToRightBack && rightBackLocation.right(1).backward(1).get().getBlock().getType() != Material.AIR) {
+//                blocksToRightBack = true;
+//            }
+//        }
+        //0000x
+        //xxxxx
+        //0000x
+//        boolean right = blocksToRight && blocksToRightFront && blocksToRightBack;
+        //x0000
+        //xxxxx
+        //x0000
+//        boolean left = blocksToLeft && blocksToLeftFront && blocksToLeftBack;
+//        System.out.println(right);
+//        System.out.println(left);
+//        System.out.println("------");
+//        return blocksAbove && ((right && !left) || (!right && left));
     }
 
     private final static int CENTER_PX = 154;
@@ -444,5 +495,15 @@ public class Utils {
         net.minecraft.server.v1_8_R3.NBTTagCompound compound = new NBTTagCompound();
         nmsItemStack.save(compound);
         return compound.toString();
+    }
+
+    public static <T, E> Set<T> getKeysByValue(Map<T, E> map, E value) {
+        Set<T> keys = new HashSet<T>();
+        for (Map.Entry<T, E> entry : map.entrySet()) {
+            if (Objects.equals(value, entry.getValue())) {
+                keys.add(entry.getKey());
+            }
+        }
+        return keys;
     }
 }

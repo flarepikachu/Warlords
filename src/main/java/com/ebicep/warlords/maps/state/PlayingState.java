@@ -1,7 +1,9 @@
 package com.ebicep.warlords.maps.state;
 
 import com.ebicep.warlords.Warlords;
+import com.ebicep.warlords.database.DatabaseManager;
 import com.ebicep.warlords.database.FieldUpdateOperators;
+import com.ebicep.warlords.database.LeaderboardRanking;
 import com.ebicep.warlords.events.WarlordsPointsChangedEvent;
 import com.ebicep.warlords.maps.Game;
 import com.ebicep.warlords.maps.Gates;
@@ -22,14 +24,13 @@ import org.bukkit.scheduler.BukkitTask;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import static com.ebicep.warlords.util.Utils.sendMessage;
 
@@ -177,7 +178,7 @@ public class PlayingState implements State, TimerDebugAble {
                     newInfo.put("shaman_armor", ArmorManager.ArmorSets.getSelected(player.getPlayer()).get(3).name);
                     newInfo.put("powerup", Settings.Powerup.getSelected(player.getPlayer()).name());
                     newInfo.put("hotkeymode", Settings.HotkeyMode.getSelected(player.getPlayer()).name());
-                    Warlords.databaseManager.updatePlayerInformation(player, newInfo, FieldUpdateOperators.SET);
+                    DatabaseManager.updatePlayerInformation(player, newInfo, FieldUpdateOperators.SET);
                 });
             }
         }.runTaskAsynchronously(Warlords.getInstance());
@@ -200,7 +201,7 @@ public class PlayingState implements State, TimerDebugAble {
                     assert getStats(Team.BLUE).points == getStats(Team.RED).points;
                     this.pointLimit = getStats(Team.BLUE).points + 25;
                     this.game.forEachOnlinePlayer((player, team) -> {
-                        PacketUtils.sendTitle(player, ChatColor.LIGHT_PURPLE + "OVERTIME!", "", 0, 60, 0);
+                        PacketUtils.sendTitle(player, ChatColor.LIGHT_PURPLE + "OVERTIME!", ChatColor.YELLOW + "First team to reach 20 points wins!", 0, 60, 0);
                         player.sendMessage("§7Overtime is now active!");
                         player.playSound(player.getLocation(), Sound.PORTAL_TRAVEL, 500, 1);
                     });
@@ -214,7 +215,7 @@ public class PlayingState implements State, TimerDebugAble {
         }
         int redPoints = getStats(Team.RED).points;
         int bluePoints = getStats(Team.BLUE).points;
-        if (redPoints >= this.pointLimit || bluePoints >= this.pointLimit || Math.abs(redPoints - bluePoints) > MERCY_LIMIT) {
+        if (redPoints >= this.pointLimit || bluePoints >= this.pointLimit || (Math.abs(redPoints - bluePoints) > MERCY_LIMIT && this.timer < game.getMap().getGameTimerInTicks() - 20 * 60 * 5)) {
             return nextStateByPoints();
         }
         if (gateTimer >= 0) {
@@ -280,26 +281,33 @@ public class PlayingState implements State, TimerDebugAble {
             this.powerUps.cancel();
             this.powerUps = null;
         }
+        Warlords.getPlayers().forEach(((uuid, warlordsPlayer) -> warlordsPlayer.removeGrave()));
         Team winner = forceEnd ? null : calculateWinnerByPoints();
-        if (winner != null || game.playersCount() > 16) {
+        if (!forceEnd && game.playersCount() > 16) {
             Warlords.newChain()
                     .asyncFirst(this::addGameAndLoadPlayers)
                     .syncLast((t) -> {
-                        Warlords.addHologramLeaderboards();
+                        LeaderboardRanking.addHologramLeaderboards();
                         game.forEachOnlinePlayer(((player, team) -> CustomScoreboard.giveMainLobbyScoreboard(player)));
                     })
                     .execute();
         } else {
-            System.out.println("This game was not added to the database");
+            System.out.println(ChatColor.GREEN + "[Warlords] This game was not added to the database");
         }
     }
 
     private boolean addGameAndLoadPlayers() {
-        Warlords.databaseManager.addGame(PlayingState.this);
-        for (WarlordsPlayer player : PlayerFilter.playingGame(game)) {
-            if (player.getEntity() instanceof Player) {
-                Warlords.databaseManager.loadPlayer((Player) player.getEntity());
+        List<WarlordsPlayer> players = new ArrayList<>(Warlords.getPlayers().values());
+        players = players.stream().sorted(Comparator.comparing(WarlordsPlayer::getTotalDamage).reversed()).collect(Collectors.toList());
+        if (players.get(0).getTotalDamage() <= 500000) {
+            DatabaseManager.addGame(PlayingState.this);
+            for (WarlordsPlayer player : PlayerFilter.playingGame(game)) {
+                if (player.getEntity() instanceof Player) {
+                    DatabaseManager.loadPlayer((Player) player.getEntity());
+                }
             }
+        } else {
+            System.out.println(ChatColor.GREEN + "[Warlords] This game was not added to the database (INVALID DAMAGE)");
         }
         return true;
     }

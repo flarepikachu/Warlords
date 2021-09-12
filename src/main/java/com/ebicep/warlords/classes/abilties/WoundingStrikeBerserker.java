@@ -20,7 +20,7 @@ public class WoundingStrikeBerserker extends AbstractStrikeBase {
     private boolean toxicBlade = false;
 
     public WoundingStrikeBerserker() {
-        super("Wounding Strike", -496.65f, -632.1f, 0, 100, 20, 200);
+        super("Wounding Strike", -496.65f, -632.1f, 0, 100, 20, 175);
     }
 
     @Override

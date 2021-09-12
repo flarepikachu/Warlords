@@ -16,7 +16,7 @@ public class ChainHeal extends AbstractChainBase {
     private final int bounceRange = 10;
 
     public ChainHeal() {
-        super("Chain Heal", 508, 686, 7.99f, 40, 20, 175);
+        super("Chain Heal", 474, 633, 7.99f, 40, 20, 175);
     }
 
     @Override
@@ -45,7 +45,7 @@ public class ChainHeal extends AbstractChainBase {
                 .aliveTeammatesOfExcludingSelf(wp)
                 .lookingAtFirst(wp)
         ) {
-            if (Utils.isLookingAtChain(player, nearPlayer.getEntity()) && Utils.hasLineOfSight(player, nearPlayer.getEntity())) {
+            if (Utils.isLookingAtChain(player, nearPlayer.getEntity())) {
                 //self heal
                 player.playSound(player.getLocation(), Sound.ORB_PICKUP, 1, 1);
                 wp.addHealth(wp, name, minDamageHeal, maxDamageHeal, critChance, critMultiplier);

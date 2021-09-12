@@ -12,6 +12,8 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import javax.annotation.Nonnull;
+
 public class FrostBolt extends AbstractProjectileBase {
 
     private int maxFullDamageDistance = 30;
@@ -36,6 +38,12 @@ public class FrostBolt extends AbstractProjectileBase {
     @Override
     protected void playEffect(Location currentLocation, int animationTimer) {
         ParticleEffect.CLOUD.display(0, 0, 0, 0F, 1, currentLocation, 500);
+    }
+
+    @Override
+    protected void onSpawn(@Nonnull InternalProjectile projectile) {
+        super.onSpawn(projectile);
+        this.playEffect(projectile);
     }
 
     @Override

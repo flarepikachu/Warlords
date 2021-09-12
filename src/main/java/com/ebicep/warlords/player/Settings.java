@@ -2,6 +2,7 @@ package com.ebicep.warlords.player;
 
 import com.ebicep.warlords.Warlords;
 import com.ebicep.warlords.util.ItemBuilder;
+import com.sun.org.apache.bcel.internal.generic.NEW;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -92,23 +93,35 @@ public class Settings {
         public static void setSelected(Player player, HotkeyMode selectedHotkeyMode) {
             player.removeMetadata("selected-hotkeymode", Warlords.getInstance());
             player.setMetadata("selected-hotkeymode", new FixedMetadataValue(Warlords.getInstance(), selectedHotkeyMode));
+            Warlords.getPlayerSettings(player.getUniqueId()).setHotKeyMode(selectedHotkeyMode == NEW_MODE);
         }
     }
 
     public enum ParticleQuality {
 
-        LOW(new ItemBuilder(Material.STAINED_GLASS_PANE, 1, (short) 1).name(ChatColor.GOLD + "Low Quality").get(), ChatColor.GRAY + "Heavily reduces the amount of\n" + ChatColor.GRAY + "particles you will see."),
-        MEDIUM(new ItemBuilder(Material.STAINED_GLASS_PANE, 1, (short) 4).name(ChatColor.YELLOW + "Medium Quality").get(), ChatColor.GRAY + "Reduces the amount of particles\n" + ChatColor.GRAY + "seem."),
-        HIGH(new ItemBuilder(Material.STAINED_GLASS_PANE, 1, (short) 5).name(ChatColor.GREEN + "High Quality").get(), ChatColor.GRAY + "Shows all particles for the best\n" + ChatColor.GRAY + "experience."),
+        LOW(new ItemBuilder(Material.STAINED_GLASS_PANE, 1, (short) 1).name(ChatColor.GOLD + "Low Quality").get(), ChatColor.GRAY + "Heavily reduces the amount of\n" + ChatColor.GRAY + "particles you will see.", 2),
+        MEDIUM(new ItemBuilder(Material.STAINED_GLASS_PANE, 1, (short) 4).name(ChatColor.YELLOW + "Medium Quality").get(), ChatColor.GRAY + "Reduces the amount of particles\n" + ChatColor.GRAY + "seem.", 4),
+        HIGH(new ItemBuilder(Material.STAINED_GLASS_PANE, 1, (short) 5).name(ChatColor.GREEN + "High Quality").get(), ChatColor.GRAY + "Shows all particles for the best\n" + ChatColor.GRAY + "experience.", 100000),
 
         ;
 
         public ItemStack item;
         public String description;
+        public int particleReduction;
 
-        ParticleQuality(ItemStack item, String description) {
+        ParticleQuality(ItemStack item, String description, int particleReduction) {
             this.item = item;
             this.description = description;
+            this.particleReduction = particleReduction;
+        }
+
+        public static ParticleQuality getParticleQuality(String name) {
+            for (ParticleQuality value : ParticleQuality.values()) {
+                if (value.name().equals(name)) {
+                    return value;
+                }
+            }
+            return HIGH;
         }
 
         public static ParticleQuality getSelected(Player player) {
@@ -122,6 +135,7 @@ public class Settings {
         public static void setSelected(Player player, ParticleQuality selectedParticleQuality) {
             player.removeMetadata("selected-particle-quality", Warlords.getInstance());
             player.setMetadata("selected-particle-quality", new FixedMetadataValue(Warlords.getInstance(), selectedParticleQuality));
+            Warlords.getPlayerSettings(player.getUniqueId()).setParticleQuality(selectedParticleQuality);
         }
     }
 }

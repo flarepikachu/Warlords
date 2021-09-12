@@ -78,6 +78,9 @@ public class DebugMenu {
                 new ItemBuilder(Material.DIODE)
                         .name(ChatColor.GREEN + "Timer")
                         .get(),
+                new ItemBuilder(Material.ICE)
+                        .name(ChatColor.GREEN + "Freeze Game")
+                        .get(),
         };
         for (int i = 0; i < itemStack.length; i++) {
             int index = i + 1;
@@ -89,6 +92,9 @@ public class DebugMenu {
                                 break;
                             case 2:
                                 openTimerMenu(player);
+                                break;
+                            case 3:
+                                Bukkit.getServer().dispatchCommand(player, "wl freeze");
                                 break;
                         }
                     }
@@ -120,8 +126,8 @@ public class DebugMenu {
                         .name(ChatColor.GREEN + "Kill")
                         .flags(ItemFlag.HIDE_POTION_EFFECTS)
                         .get(),
-                new ItemBuilder(Material.WOOL, 1, (short) (Warlords.getPlayerSettings(player.getUniqueId()).wantedTeam() == Team.BLUE ? 14 : 11))
-                        .name(ChatColor.GREEN + "Swap to the " + (Warlords.getPlayerSettings(player.getUniqueId()).wantedTeam() == Team.BLUE ? Team.RED.coloredPrefix() : Team.BLUE.coloredPrefix()) + ChatColor.GREEN + " team")
+                new ItemBuilder(Material.WOOL, 1, (short) (Warlords.getPlayerSettings(player.getUniqueId()).getWantedTeam() == Team.BLUE ? 14 : 11))
+                        .name(ChatColor.GREEN + "Swap to the " + (Warlords.getPlayerSettings(player.getUniqueId()).getWantedTeam() == Team.BLUE ? Team.RED.coloredPrefix() : Team.BLUE.coloredPrefix()) + ChatColor.GREEN + " team")
                         .get(),
         };
         ItemStack[] secondRow = {
@@ -175,9 +181,9 @@ public class DebugMenu {
                                     //todo something with rejoin point?
                                     target.setTeam(otherTeam);
                                     target.getScoreboard().updatePlayerName();
-                                    Warlords.getPlayerSettings(target.getUuid()).wantedTeam(otherTeam);
+                                    Warlords.getPlayerSettings(target.getUuid()).setWantedTeam(otherTeam);
                                     target.teleport(otherTeam == Team.RED ? target.getGame().getMap().getRedLobbySpawnPoint() : target.getGame().getMap().getBlueLobbySpawnPoint());
-                                    ArmorManager.resetArmor(Bukkit.getPlayer(target.getUuid()), Warlords.getPlayerSettings(target.getUuid()).selectedClass(), otherTeam);
+                                    ArmorManager.resetArmor(Bukkit.getPlayer(target.getUuid()), Warlords.getPlayerSettings(target.getUuid()).getSelectedClass(), otherTeam);
                                     player.sendMessage(ChatColor.RED + "DEV: " + currentTeam.teamColor() + target.getName() + "§a was swapped to the " + otherTeam.coloredPrefix() + " §ateam");
                                     openPlayerMenu(player, target);
                                     break;
@@ -765,7 +771,7 @@ public class DebugMenu {
             menu.setItem(
                     6 - values.size() + i * 2 - 1,
                     1,
-                    new ItemBuilder(getSelected(player).specType.itemStack)
+                    new ItemBuilder(selectedClass.specType.itemStack)
                             .name(ChatColor.RED + skillBoost.name + " (" + selectedClass.name + ")")
                             .lore(skillBoost.description,
                                     "",
@@ -820,6 +826,5 @@ public class DebugMenu {
         menu.setItem(4, 3, MENU_CLOSE, ACTION_CLOSE_MENU);
         menu.openForPlayer(player);
     }
-
 
 }

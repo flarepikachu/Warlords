@@ -3,13 +3,9 @@ package com.ebicep.warlords.player;
 import com.ebicep.warlords.Warlords;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.metadata.FixedMetadataValue;
-
-import java.util.Objects;
 
 public enum Weapons {
 
@@ -60,7 +56,7 @@ public enum Weapons {
     ABBADON("Abbadon", new ItemStack(Material.WOOD_PICKAXE)),
     FROSTBITE("Frostbite", new ItemStack(Material.RAW_FISH)),
     BROCCOMACE("Broccomace", new ItemStack(Material.BAKED_POTATO)),
-    VOID_TWIG("Void_twig", new ItemStack(Material.DIAMOND_PICKAXE)),
+    VOID_TWIG("Void Twig", new ItemStack(Material.DIAMOND_PICKAXE)),
     RUBY_THORN("Ruby Thorn", new ItemStack(Material.POISONOUS_POTATO)),
     ENDERFIST("Enderfist", new ItemStack(Material.APPLE)),
 
@@ -79,12 +75,12 @@ public enum Weapons {
 
     @Deprecated
     public static Weapons getSelected(OfflinePlayer player) {
-        return Warlords.getPlayerSettings(player.getUniqueId()).weapon();
+        return Warlords.getPlayerSettings(player.getUniqueId()).getWeapon();
     }
 
     @Deprecated
     public static void setSelected(OfflinePlayer player, Weapons selectedWeapon) {
-        Warlords.getPlayerSettings(player.getUniqueId()).weapon(selectedWeapon);
+        Warlords.getPlayerSettings(player.getUniqueId()).setWeapon(selectedWeapon);
     }
 
     public static Weapons getWeapon(String name) {

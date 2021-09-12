@@ -1,6 +1,7 @@
 package com.ebicep.warlords.commands;
 
 import com.ebicep.warlords.Warlords;
+import com.ebicep.warlords.database.DatabaseManager;
 import com.ebicep.warlords.maps.Game;
 import com.ebicep.warlords.maps.GameMap;
 import com.ebicep.warlords.maps.Team;
@@ -68,7 +69,7 @@ public class StartCommand implements TabExecutor {
         //Collections.shuffle(people);
         boolean teamBlueAssessment = true;
         for (Player player : people) {
-            Warlords.databaseManager.addPlayer(player);
+            DatabaseManager.addPlayer(player);
             player.getInventory().clear();
 
             player.getInventory().setItem(5, new ItemBuilder(Material.NOTE_BLOCK)
@@ -81,8 +82,8 @@ public class StartCommand implements TabExecutor {
                     .get());
             Warlords.game.addPlayer(player, teamBlueAssessment);
             game.giveLobbyScoreboard(player);
-            ArmorManager.resetArmor(player, Warlords.getPlayerSettings(player.getUniqueId()).selectedClass(), teamBlueAssessment ? Team.BLUE : Team.RED);
-            Warlords.getPlayerSettings(player.getUniqueId()).wantedTeam(teamBlueAssessment ? Team.BLUE : Team.RED);
+            ArmorManager.resetArmor(player, Warlords.getPlayerSettings(player.getUniqueId()).getSelectedClass(), teamBlueAssessment ? Team.BLUE : Team.RED);
+            Warlords.getPlayerSettings(player.getUniqueId()).setWantedTeam(teamBlueAssessment ? Team.BLUE : Team.RED);
             teamBlueAssessment = !teamBlueAssessment;
         }
 

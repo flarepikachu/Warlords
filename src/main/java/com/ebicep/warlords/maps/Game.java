@@ -31,14 +31,15 @@ public class Game implements Runnable {
     private final Map<UUID, Team> players = new HashMap<>();
     private GameMap map = GameMap.RIFT;
     private boolean cooldownMode;
+    private boolean gameFreeze = false;
 
     public boolean isState(Class<? extends State> clazz) {
         return clazz.isAssignableFrom(this.state.getClass());
     }
 
     public <T extends State> Optional<T> getState(Class<T> clazz) {
-        if(clazz.isAssignableFrom(this.state.getClass())) {
-            return Optional.of((T)this.state);
+        if (clazz.isAssignableFrom(this.state.getClass())) {
+            return Optional.of((T) this.state);
         }
         return Optional.empty();
     }
@@ -106,6 +107,7 @@ public class Game implements Runnable {
         Player online = player.getPlayer();
         if (online != null) {
             online.setGameMode(GameMode.ADVENTURE);
+            online.setAllowFlight(false);
         }
         this.players.put(player.getUniqueId(), team);
         Location loc = this.map.getLobbySpawnPoint(team);
@@ -127,8 +129,10 @@ public class Game implements Runnable {
             online.teleport(loc);
         }
     }
+
     /**
      * Adds a player to the game
+     *
      * @param player
      * @param teamBlue
      * @deprecated use {@link #addPlayer(Player, Team) addPlayer(Player, Team)} instead
@@ -152,6 +156,18 @@ public class Game implements Runnable {
     }
 
     public List<UUID> clearAllPlayers() {
+        try {
+            //making hidden players visible again
+            Warlords.getPlayers().forEach(((uuid, warlordsPlayer) -> {
+                if (warlordsPlayer.getEntity() instanceof Player) {
+                    Bukkit.getOnlinePlayers().forEach(onlinePlayer -> {
+                        ((Player) warlordsPlayer.getEntity()).showPlayer(onlinePlayer);
+                    });
+                }
+            }));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         List<UUID> toRemove = new ArrayList<>(this.players.keySet());
         for (UUID p : toRemove) {
             this.removePlayer(p);
@@ -170,21 +186,21 @@ public class Game implements Runnable {
 
     public Stream<Map.Entry<OfflinePlayer, Team>> offlinePlayers() {
         return this.players.entrySet()
-            .stream()
-            .map(e -> new AbstractMap.SimpleImmutableEntry<>(
-                Bukkit.getOfflinePlayer(e.getKey()),
-                e.getValue()
-            ));
+                .stream()
+                .map(e -> new AbstractMap.SimpleImmutableEntry<>(
+                        Bukkit.getOfflinePlayer(e.getKey()),
+                        e.getValue()
+                ));
     }
 
     public Stream<Map.Entry<Player, Team>> onlinePlayers() {
         return this.players.entrySet()
-            .stream()
-            .<Map.Entry<Player, Team>>map(e -> new AbstractMap.SimpleImmutableEntry<>(
-                Bukkit.getPlayer(e.getKey()),
-                e.getValue()
-            ))
-            .filter(e -> e.getKey() != null);
+                .stream()
+                .<Map.Entry<Player, Team>>map(e -> new AbstractMap.SimpleImmutableEntry<>(
+                        Bukkit.getPlayer(e.getKey()),
+                        e.getValue()
+                ))
+                .filter(e -> e.getKey() != null);
     }
 
     public void forEachOfflinePlayer(BiConsumer<OfflinePlayer, Team> consumer) {
@@ -213,6 +229,7 @@ public class Game implements Runnable {
 
     /**
      * See if players are on the same team
+     *
      * @param player1 First player
      * @param player2 Second player
      * @return true is they are on the same team (eg BLUE && BLUE, RED && RED or &lt;not player> && &lt;not playing>
@@ -223,6 +240,14 @@ public class Game implements Runnable {
         return onSameTeam(player1.getUuid(), player2.getUuid());
     }
 
+    public boolean isGameFreeze() {
+        return gameFreeze;
+    }
+
+    public void setGameFreeze(boolean gameFreeze) {
+        this.gameFreeze = gameFreeze;
+    }
+
     public void giveLobbyScoreboard(Player player) {
         ScoreboardManager manager = Bukkit.getScoreboardManager();
         Scoreboard board = manager.getNewScoreboard();
@@ -230,7 +255,7 @@ public class Game implements Runnable {
         String dateString = format.format(new Date());
         Objective sideBar = board.registerNewObjective(dateString, "");
         sideBar.setDisplaySlot(DisplaySlot.SIDEBAR);
-        sideBar.setDisplayName("§e§lWARLORDS");
+        sideBar.setDisplayName("§e§lWARLORDS 2.0");
         sideBar.getScore(ChatColor.GRAY + dateString).setScore(13);
         sideBar.getScore(" ").setScore(12);
         sideBar.getScore(ChatColor.WHITE + "Map: " + ChatColor.GREEN + getMap().getMapName()).setScore(11);
@@ -251,15 +276,17 @@ public class Game implements Runnable {
 
     @Override
     public void run() {
-        if(this.state == null) {
+        if (this.state == null) {
             this.state = new InitState(this);
             this.state.begin();
         }
-        State newState = state.run();
-        if (newState != null) {
-            this.state.end();
-            this.state = newState;
-            newState.begin();
+        if (!gameFreeze) {
+            State newState = state.run();
+            if (newState != null) {
+                this.state.end();
+                this.state = newState;
+                newState.begin();
+            }
         }
     }
 }
