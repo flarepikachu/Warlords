@@ -26,9 +26,9 @@ import org.bukkit.util.Vector;
 public abstract class AbstractPiercingProjectileBase extends AbstractAbility {
     private final List<PendingHit> PENDING_HITS = new ArrayList<>();
 
-    protected final double projectileSpeed;
+    protected double projectileSpeed;
     protected final int maxTicks;
-    protected final double maxDistance;
+    protected double maxDistance;
     protected final boolean hitTeammates;
     protected final float playerHitbox = 0.7f;
 
@@ -222,6 +222,14 @@ public abstract class AbstractPiercingProjectileBase extends AbstractAbility {
             PENDING_HITS.clear();
         }
         return hit;
+    }
+
+    public void addProjectileSpeed(float amount) {
+        this.projectileSpeed += amount;
+    }
+
+    public void addMaxDistance(int amount) {
+        this.maxDistance += amount;
     }
 
     /**

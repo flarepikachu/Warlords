@@ -551,7 +551,7 @@ public final class WarlordsPlayer {
         }
     }
 
-    public void addHealth(WarlordsPlayer attacker, String ability, float min, float max, int critChance, int critMultiplier) {
+    public void addHealth(WarlordsPlayer attacker, String ability, float min, float max, int critChance, int critMultiplier, boolean ignoreReduction) {
         if (spawnProtection != 0 || (dead && !cooldownManager.checkUndyingArmy(false))) return;
         if (attacker == this && (ability.equals("Fall") || ability.isEmpty())) {
             if (ability.isEmpty()) {
@@ -921,11 +921,11 @@ public final class WarlordsPlayer {
                         }
                         //LUST
                         if (!attacker.getCooldownManager().getCooldown(BloodLust.class).isEmpty()) {
-                            attacker.addHealth(attacker, "Blood Lust", Math.round(damageHealValue * -.65f), Math.round(damageHealValue * -.65f), -1, 100);
+                            attacker.addHealth(attacker, "Blood Lust", Math.round(damageHealValue * -.65f), Math.round(damageHealValue * -.65f), -1, 100, false);
                         }
                         //crippling
                         if (ability.equals("Crippling Strike") && attacker.getSpec() instanceof Revenant && ((CripplingStrike) attacker.getSpec().getWeapon()).isLifeLeach()) {
-                            attacker.addHealth(attacker, "Life Leech", Math.round(damageHealValue * -.15f), Math.round(damageHealValue * -.15f), -1, 100);
+                            attacker.addHealth(attacker, "Life Leech", Math.round(damageHealValue * -.15f), Math.round(damageHealValue * -.15f), -1, 100, false);
                         }
                     }
                     //HEALING
