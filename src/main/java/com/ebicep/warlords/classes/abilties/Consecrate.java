@@ -15,10 +15,12 @@ import org.bukkit.scheduler.BukkitTask;
 public class Consecrate extends AbstractAbility {
 
     protected int strikeDamageBoost;
+    protected float radius;
 
-    public Consecrate(float minDamageHeal, float maxDamageHeal, int energyCost, int critChance, int critMultiplier, int strikeDamageBoost) {
+    public Consecrate(float minDamageHeal, float maxDamageHeal, int energyCost, int critChance, int critMultiplier, int strikeDamageBoost, float radius) {
         super("Consecrate", minDamageHeal, maxDamageHeal, 7.83f, energyCost, critChance, critMultiplier);
         this.strikeDamageBoost = strikeDamageBoost;
+        this.radius = radius;
     }
 
     @Override
@@ -34,7 +36,7 @@ public class Consecrate extends AbstractAbility {
 
     @Override
     public void onActivate(WarlordsPlayer wp, Player player) {
-        DamageHealCircle damageHealCircle = new DamageHealCircle(wp, player.getLocation(), 4, 5, minDamageHeal, maxDamageHeal, critChance, critMultiplier, name);
+        DamageHealCircle damageHealCircle = new DamageHealCircle(wp, player.getLocation(), radius, 5, minDamageHeal, maxDamageHeal, critChance, critMultiplier, name);
         wp.subtractEnergy(energyCost);
 
         for (Player player1 : player.getWorld().getPlayers()) {
@@ -56,7 +58,7 @@ public class Consecrate extends AbstractAbility {
                 PlayerFilter.entitiesAround(damageHealCircle.getLocation(), 4, 3, 4)
                         .aliveEnemiesOf(wp)
                         .forEach(warlordsPlayer -> {
-                    warlordsPlayer.addHealth(damageHealCircle.getWarlordsPlayer(), damageHealCircle.getName(), damageHealCircle.getMinDamage(), damageHealCircle.getMaxDamage(), damageHealCircle.getCritChance(), damageHealCircle.getCritMultiplier());
+                    warlordsPlayer.addHealth(damageHealCircle.getWarlordsPlayer(), damageHealCircle.getName(), damageHealCircle.getMinDamage(), damageHealCircle.getMaxDamage(), damageHealCircle.getCritChance(), damageHealCircle.getCritMultiplier(), false);
                 });
                 if (damageHealCircle.getDuration() == 0) {
                     consecrate.remove();

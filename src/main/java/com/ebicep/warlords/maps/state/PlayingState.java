@@ -215,7 +215,7 @@ public class PlayingState implements State, TimerDebugAble {
         }
         int redPoints = getStats(Team.RED).points;
         int bluePoints = getStats(Team.BLUE).points;
-        if (redPoints >= this.pointLimit || bluePoints >= this.pointLimit || (Math.abs(redPoints - bluePoints) > MERCY_LIMIT && this.timer < game.getMap().getGameTimerInTicks() - 20 * 60 * 5)) {
+        if (redPoints >= this.pointLimit || bluePoints >= this.pointLimit || (Math.abs(redPoints - bluePoints) >= MERCY_LIMIT && this.timer < game.getMap().getGameTimerInTicks() - 20 * 60 * 5)) {
             return nextStateByPoints();
         }
         if (gateTimer >= 0) {
@@ -265,7 +265,7 @@ public class PlayingState implements State, TimerDebugAble {
                 if (this.powerUps != null) {
                     this.powerUps.cancel();
                 }
-                this.powerUps = new PowerupManager(game.getMap()).runTaskTimer(Warlords.getInstance(), 0, 0);
+                this.powerUps = new PowerupManager(game).runTaskTimer(Warlords.getInstance(), 0, 0);
             }
         }
         return null;

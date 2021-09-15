@@ -3,7 +3,6 @@ package com.ebicep.warlords.classes.abilties;
 import com.ebicep.warlords.Warlords;
 import com.ebicep.warlords.classes.AbstractAbility;
 import com.ebicep.warlords.classes.paladin.specs.protector.Protector;
-import com.ebicep.warlords.player.ClassesSkillBoosts;
 import com.ebicep.warlords.player.WarlordsPlayer;
 import com.ebicep.warlords.skilltree.SkillTree;
 import com.ebicep.warlords.util.PlayerFilter;
@@ -60,8 +59,8 @@ public class HammerOfLight extends AbstractAbility {
                                 damageHealCircle.getMinDamage(),
                                 damageHealCircle.getMaxDamage(),
                                 damageHealCircle.getCritChance(),
-                                damageHealCircle.getCritMultiplier()
-                        );
+                                damageHealCircle.getCritMultiplier(),
+                                false);
                     } else {
                         warlordsPlayer.addHealth(
                                 damageHealCircle.getWarlordsPlayer(),
@@ -69,8 +68,8 @@ public class HammerOfLight extends AbstractAbility {
                                 -hammerMinDamage,
                                 -hammerMaxDamage,
                                 damageHealCircle.getCritChance(),
-                                damageHealCircle.getCritMultiplier()
-                        );
+                                damageHealCircle.getCritMultiplier(),
+                                false);
                     }
                 }
 

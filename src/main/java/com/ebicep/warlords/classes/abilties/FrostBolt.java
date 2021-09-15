@@ -68,8 +68,8 @@ public class FrostBolt extends AbstractProjectileBase {
                     (float) (minDamageHeal * directHitMultiplier * toReduceBy),
                     (float) (maxDamageHeal * directHitMultiplier * toReduceBy),
                     critChance,
-                    critMultiplier
-            );
+                    critMultiplier,
+                    false);
             hitEnemy = true;
         }
 
@@ -85,8 +85,8 @@ public class FrostBolt extends AbstractProjectileBase {
                     (float) (minDamageHeal * toReduceBy),
                     (float) (maxDamageHeal * toReduceBy),
                     critChance,
-                    critMultiplier
-            );
+                    critMultiplier,
+                    false);
             hitEnemy = true;
         }
 

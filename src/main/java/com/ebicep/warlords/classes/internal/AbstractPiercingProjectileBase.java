@@ -8,6 +8,8 @@ import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
+import com.ebicep.warlords.util.LocationBuilder;
 import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -181,7 +183,7 @@ public abstract class AbstractPiercingProjectileBase extends AbstractAbility {
         BlockIterator itr = new BlockIterator(currentLocation.getWorld(), new Vector(before.a, before.b, before.c), speed, 0, (int) (projectileSpeed + 1));
         while (itr.hasNext()) {
             Block block = itr.next();
-            if (block.getType().isSolid() && block.getType() != Material.BARRIER) {
+            if (block.getType().isSolid() && block.getType() != Material.BARRIER && block.getType() != Material.STANDING_BANNER) {
                 BlockPosition pos = new BlockPosition(block.getX(), block.getY(), block.getZ());
                 WorldServer world = ((CraftWorld) block.getWorld()).getHandle();
                 IBlockData type = world.getType(pos);
@@ -272,7 +274,20 @@ public abstract class AbstractPiercingProjectileBase extends AbstractAbility {
             this.currentLocation = getProjectileStartingLocation(shooter, startingLocation);
             this.speed = getProjectileStartingSpeed(shooter, startingLocation);
             this.shooter = shooter;
-            this.startingLocation = currentLocation;
+            this.startingLocation = currentLocation.clone();
+        }
+
+        @Override
+        public String toString() {
+            return "InternalProjectile{" +
+                    "hit=" + hit +
+                    ", tasks=" + tasks +
+                    ", startingLocation=" + startingLocation +
+                    ", currentLocation=" + currentLocation +
+                    ", speed=" + speed +
+                    ", ticksLived=" + ticksLived +
+                    ", shooter=" + shooter +
+                    '}';
         }
 
         @Override

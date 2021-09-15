@@ -69,8 +69,8 @@ public class Fireball extends AbstractProjectileBase {
                     (float) (minDamageHeal * directHitMultiplier * toReduceBy),
                     (float) (maxDamageHeal * directHitMultiplier * toReduceBy),
                     critChance,
-                    critMultiplier
-            );
+                    critMultiplier,
+                    false);
             if (burn) {
                 if (toReduceBy == 1) {
                     victim.getCooldownManager().removeCooldown("BURN");
@@ -91,8 +91,8 @@ public class Fireball extends AbstractProjectileBase {
                     (float) (minDamageHeal * toReduceBy),
                     (float) (maxDamageHeal * toReduceBy),
                     critChance,
-                    critMultiplier
-            );
+                    critMultiplier,
+                    false);
             if (burn) {
                 if (toReduceBy == 1) {
                     nearEntity.getCooldownManager().removeCooldown("BURN");

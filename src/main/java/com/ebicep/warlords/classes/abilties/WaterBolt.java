@@ -69,8 +69,8 @@ public class WaterBolt extends AbstractProjectileBase {
                         (float) (minDamageHeal * directHitMultiplier * toReduceBy),
                         (float) (maxDamageHeal * directHitMultiplier * toReduceBy),
                         critChance,
-                        critMultiplier
-                );
+                        critMultiplier,
+                        false);
                 if (reduceCooldownRain) {
                     reduceHealingRainCooldown(shooter);
                 }
@@ -80,8 +80,8 @@ public class WaterBolt extends AbstractProjectileBase {
                         (float) (-231 * directHitMultiplier * toReduceBy),
                         (float) (-299 * directHitMultiplier * toReduceBy),
                         critChance,
-                        critMultiplier
-                );
+                        critMultiplier,
+                        false);
             }
         }
         for (WarlordsPlayer nearEntity : PlayerFilter
@@ -96,8 +96,8 @@ public class WaterBolt extends AbstractProjectileBase {
                         (float) (minDamageHeal * toReduceBy * (nearEntity == shooter ? selfHealMultiplier : 1)),
                         (float) (maxDamageHeal * toReduceBy * (nearEntity == shooter ? selfHealMultiplier : 1)),
                         critChance,
-                        critMultiplier
-                );
+                        critMultiplier,
+                        false);
                 if (reduceCooldownRain) {
                     reduceHealingRainCooldown(shooter);
                 }
@@ -111,8 +111,8 @@ public class WaterBolt extends AbstractProjectileBase {
                         (float) (-231 * toReduceBy),
                         (float) (-299 * toReduceBy),
                         critChance,
-                        critMultiplier
-                );
+                        critMultiplier,
+                        false);
             }
         }
     }

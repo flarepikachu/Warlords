@@ -3,6 +3,7 @@ package com.ebicep.warlords.classes.abilties;
 import com.ebicep.warlords.classes.internal.AbstractPiercingProjectileBase;
 import com.ebicep.warlords.player.WarlordsPlayer;
 import com.ebicep.warlords.skilltree.SkillTree;
+import com.ebicep.warlords.util.LocationBuilder;
 import com.ebicep.warlords.util.ParticleEffect;
 import com.ebicep.warlords.util.PlayerFilter;
 import org.bukkit.Location;
@@ -13,7 +14,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.EulerAngle;
-import org.bukkit.util.Vector;
 
 public class LightningBolt extends AbstractPiercingProjectileBase {
 
@@ -56,7 +56,7 @@ public class LightningBolt extends AbstractPiercingProjectileBase {
         WarlordsPlayer wp = projectile.getShooter();
         if (!projectile.getHit().contains(hit)) {
             projectile.getHit().add(hit);
-            hit.addHealth(wp, name, minDamageHeal, maxDamageHeal, critChance, critMultiplier);
+            hit.addHealth(wp, name, minDamageHeal, maxDamageHeal, critChance, critMultiplier, false);
 
             for (Player player1 : hit.getWorld().getPlayers()) {
                 player1.playSound(impactLocation, "shaman.lightningbolt.impact", 2, 1);
@@ -85,7 +85,7 @@ public class LightningBolt extends AbstractPiercingProjectileBase {
                 .excluding(projectile.getHit())
         ) {
             //hitting player
-            warlordsPlayer.addHealth(wp, name, minDamageHeal, maxDamageHeal, critChance, critMultiplier);
+            warlordsPlayer.addHealth(wp, name, minDamageHeal, maxDamageHeal, critChance, critMultiplier, false);
 
             for (Player player1 : warlordsPlayer.getWorld().getPlayers()) {
                 player1.playSound(warlordsPlayer.getLocation(), "shaman.lightningbolt.impact", 2, 1);
@@ -101,8 +101,7 @@ public class LightningBolt extends AbstractPiercingProjectileBase {
 
     @Override
     protected Location getProjectileStartingLocation(WarlordsPlayer shooter, Location startingLocation) {
-        Vector direction = startingLocation.getDirection();
-        return startingLocation.clone().subtract(direction.getX() * -.1, 0, direction.getZ() * -.1);
+        return new LocationBuilder(startingLocation.clone()).addY(-.1).forward(.75f).get();
     }
 
     @Override

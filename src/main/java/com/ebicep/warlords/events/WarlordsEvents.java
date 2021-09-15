@@ -6,6 +6,7 @@ import com.ebicep.warlords.classes.abilties.Soulbinding;
 import com.ebicep.warlords.classes.abilties.UndyingArmy;
 import com.ebicep.warlords.classes.shaman.specs.spiritguard.Spiritguard;
 import com.ebicep.warlords.database.DatabaseManager;
+import com.ebicep.warlords.database.LeaderboardRanking;
 import com.ebicep.warlords.maps.Team;
 import com.ebicep.warlords.maps.flags.GroundFlagLocation;
 import com.ebicep.warlords.maps.flags.PlayerFlagLocation;
@@ -137,7 +138,9 @@ public class WarlordsEvents implements Listener {
         }.runTaskAsynchronously(Warlords.getInstance());
         WarlordsPlayer wp = Warlords.getPlayer(e.getPlayer());
         if (wp != null) {
-            e.getPlayer().setAllowFlight(false);
+            if(wp.isAlive()) {
+                e.getPlayer().setAllowFlight(false);
+            }
             e.setJoinMessage(ChatColor.GREEN + "-----------------------------------\n" +
                     wp.getColoredNameBold() + ChatColor.GOLD + ChatColor.BOLD + " rejoined the game!\n" +
                     ChatColor.GREEN + "-----------------------------------");
@@ -150,7 +153,9 @@ public class WarlordsEvents implements Listener {
         Player player = e.getPlayer();
         joinInteraction(player);
         Bukkit.getOnlinePlayers().forEach(p -> {
-            PacketUtils.sendTabHF(p, ChatColor.AQUA + "     Welcome to " + ChatColor.YELLOW + ChatColor.BOLD + "Warlords 2.0     ", ChatColor.GREEN + "Players Online: " + ChatColor.GRAY + Bukkit.getOnlinePlayers().size());
+            PacketUtils.sendTabHF(p,
+                    ChatColor.AQUA + "     Welcome to " + ChatColor.YELLOW + ChatColor.BOLD + "Warlords 2.0     ",
+                    ChatColor.GREEN + "Players Online: " + ChatColor.GRAY + Bukkit.getOnlinePlayers().size());
         });
 
         //hiding players that arent in the game
@@ -161,6 +166,8 @@ public class WarlordsEvents implements Listener {
                 }
             }));
         }
+        //sending self leaderboard to player
+        LeaderboardRanking.addPlayerLeaderboards(player);
     }
 
     @EventHandler
@@ -197,7 +204,7 @@ public class WarlordsEvents implements Listener {
                                     }
                                 });
                     }
-                    warlordsPlayerVictim.addHealth(warlordsPlayerAttacker, "", -132, -179, 25, 200);
+                    warlordsPlayerVictim.addHealth(warlordsPlayerAttacker, "", -132, -179, 25, 200, false);
 
                     if (warlordsPlayerVictim.getEntity() instanceof Zombie) {
                         if (warlordsPlayerVictim.isDeath()) {
@@ -261,7 +268,7 @@ public class WarlordsEvents implements Listener {
 
                 } else if (itemHeld.getType() == Material.BONE) {
                     player.getInventory().remove(UndyingArmy.BONE);
-                    wp.addHealth(Warlords.getPlayer(player), "", -100000, -100000, -1, 100);
+                    wp.addHealth(Warlords.getPlayer(player), "", -100000, -100000, -1, 100, false);
                 } else if (itemHeld.getType() == Material.BANNER) {
                     if (wp.getFlagCooldown() > 0) {
                         player.sendMessage("§cYou cannot drop the flag yet, please wait 5 seconds!");
@@ -396,7 +403,11 @@ public class WarlordsEvents implements Listener {
                 e.getEntity().teleport(Warlords.getRejoinPoint(e.getEntity().getUniqueId()));
                 WarlordsPlayer wp = Warlords.getPlayer(e.getEntity());
                 if (wp != null) {
-                    wp.addHealth(wp, "Fall", -1000000, -1000000, -1, 100);
+                    if(wp.isDeath()) {
+                        wp.getEntity().teleport(wp.getLocation().clone().add(0, 100, 0));
+                    } else {
+                        wp.addHealth(wp, "Fall", -1000000, -1000000, -1, 100, false);
+                    }
                 }
             } else if (e.getCause() == EntityDamageEvent.DamageCause.FALL) {
                 //HEIGHT - DAMAGE
@@ -414,7 +425,7 @@ public class WarlordsEvents implements Listener {
                     if (wp != null) {
                         int damage = (int) e.getDamage();
                         if (damage > 5) {
-                            wp.addHealth(wp, "Fall", -((damage + 3) * 40 - 200), -((damage + 3) * 40 - 200), -1, 100);
+                            wp.addHealth(wp, "Fall", -((damage + 3) * 40 - 200), -((damage + 3) * 40 - 200), -1, 100, false);
                             wp.setRegenTimer(wp.getBaseRegenTimer());
                         }
                     }
