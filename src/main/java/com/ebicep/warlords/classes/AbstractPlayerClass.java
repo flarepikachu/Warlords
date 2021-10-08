@@ -18,6 +18,7 @@ public abstract class AbstractPlayerClass {
     protected int energyPerSec;
     protected int energyOnHit;
     protected int damageResistance;
+    protected int kbResistance;
     protected AbstractAbility weapon;
     protected AbstractAbility red;
     protected AbstractAbility purple;
@@ -27,12 +28,13 @@ public abstract class AbstractPlayerClass {
     protected String className;
     protected String classNameShort;
 
-    public AbstractPlayerClass(String name, int maxHealth, int maxEnergy, int energyPerSec, int energyOnHit, int damageResistance, AbstractAbility weapon, AbstractAbility red, AbstractAbility purple, AbstractAbility blue, AbstractAbility orange) {
+    public AbstractPlayerClass(String name, int maxHealth, int maxEnergy, int energyPerSec, int energyOnHit, int kbResistance, int damageResistance, AbstractAbility weapon, AbstractAbility red, AbstractAbility purple, AbstractAbility blue, AbstractAbility orange) {
         this.maxHealth = maxHealth;
         this.maxEnergy = maxEnergy;
         this.energyPerSec = energyPerSec;
         this.energyOnHit = energyOnHit;
         this.damageResistance = damageResistance;
+        this.kbResistance = kbResistance;
         this.weapon = weapon;
         this.red = red;
         this.purple = purple;
@@ -237,6 +239,14 @@ public abstract class AbstractPlayerClass {
 
     public void setDamageResistance(int damageResistance) {
         this.damageResistance = damageResistance;
+    }
+
+    public int getKbResistance() {
+        return kbResistance;
+    }
+
+    public float getKbResistanceCalculated() {
+        return (float) ((100 - kbResistance) * .01);
     }
 
     public AbstractAbility getWeapon() {

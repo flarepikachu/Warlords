@@ -1581,14 +1581,18 @@ public final class WarlordsPlayer {
     }
 
     public void setVelocity(org.bukkit.util.Vector v) {
-        if(!cooldownManager.hasCooldownFromName("Anti KB")) {
-            setVelocity(v, true);
-        }
+        //if(!cooldownManager.hasCooldownFromName("Anti KB")) {
+            setVelocity(v.multiply(spec.getKbResistanceCalculated()), true);
+        //}
     }
 
     public void setVelocity(org.bukkit.util.Vector v, boolean kbAfterHorse) {
-        if((kbAfterHorse || this.entity.getVehicle() == null) && !cooldownManager.hasCooldownFromName("Anti KB")) {
-            this.entity.setVelocity(v);
+        System.out.println(spec.getName());
+        System.out.println(spec.getKbResistance());
+        System.out.println(spec.getKbResistanceCalculated());
+
+        if((kbAfterHorse || this.entity.getVehicle() == null)){// && !cooldownManager.hasCooldownFromName("Anti KB")) {
+            this.entity.setVelocity(v.multiply(spec.getKbResistanceCalculated()));
         }
     }
 
@@ -1598,7 +1602,7 @@ public final class WarlordsPlayer {
 
     public void setVelocity(Location from, Location to, double multipliedBy, double y, boolean kbAfterHorse) {
         if(((kbAfterHorse && this.entity.getVehicle() != null) || (!kbAfterHorse && this.entity.getVehicle() == null)) && !cooldownManager.hasCooldownFromName("Anti KB")) {
-            this.entity.setVelocity(to.toVector().subtract(from.toVector()).normalize().multiply(multipliedBy).setY(y));
+            this.entity.setVelocity(to.toVector().subtract(from.toVector()).normalize().multiply(multipliedBy * spec.getKbResistanceCalculated()).setY(y));
         }
     }
 
