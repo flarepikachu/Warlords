@@ -14,7 +14,7 @@ public class RemedicChainsBranch extends AbstractUpgradeBranch<RemedicChains> {
     public RemedicChainsBranch(AbilityTree abilityTree, RemedicChains ability) {
         super(abilityTree, ability);
         treeA.add(new Upgrade(
-                "Alleviating - Tier I",
+                "Alleviate - Tier I",
                 "+7.5% Healing",
                 5000,
                 () -> {
@@ -23,7 +23,7 @@ public class RemedicChainsBranch extends AbstractUpgradeBranch<RemedicChains> {
                 }
         ));
         treeA.add(new Upgrade(
-                "Alleviating - Tier II",
+                "Alleviate - Tier II",
                 "+15% Healing",
                 10000,
                 () -> {
@@ -32,7 +32,7 @@ public class RemedicChainsBranch extends AbstractUpgradeBranch<RemedicChains> {
                 }
         ));
         treeA.add(new Upgrade(
-                "Alleviating - Tier III",
+                "Alleviate - Tier III",
                 "+22.5% Healing",
                 15000,
                 () -> {
@@ -41,7 +41,7 @@ public class RemedicChainsBranch extends AbstractUpgradeBranch<RemedicChains> {
                 }
         ));
         treeA.add(new Upgrade(
-                "Alleviating - Tier IV",
+                "Alleviate - Tier IV",
                 "+30% Healing",
                 20000,
                 () -> {
@@ -51,7 +51,7 @@ public class RemedicChainsBranch extends AbstractUpgradeBranch<RemedicChains> {
         ));
 
         treeB.add(new Upgrade(
-                "Spark - Tier I",
+                "Zeal - Tier I",
                 "-5% Cooldown reduction",
                 5000,
                 () -> {
@@ -59,7 +59,7 @@ public class RemedicChainsBranch extends AbstractUpgradeBranch<RemedicChains> {
                 }
         ));
         treeB.add(new Upgrade(
-                "Spark - Tier II",
+                "Zeal - Tier II",
                 "-10% Cooldown reduction",
                 10000,
                 () -> {
@@ -67,7 +67,7 @@ public class RemedicChainsBranch extends AbstractUpgradeBranch<RemedicChains> {
                 }
         ));
         treeB.add(new Upgrade(
-                "Spark - Tier III",
+                "Zeal - Tier III",
                 "-15% Cooldown reduction",
                 15000,
                 () -> {
@@ -75,7 +75,7 @@ public class RemedicChainsBranch extends AbstractUpgradeBranch<RemedicChains> {
                 }
         ));
         treeB.add(new Upgrade(
-                "Spark - Tier IV",
+                "Zeal - Tier IV",
                 "-20% Cooldown reduction",
                 20000,
                 () -> {
